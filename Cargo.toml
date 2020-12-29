@@ -1,0 +1,22 @@
+[package]
+name = "actixweb"
+version = "0.1.0"
+authors = ["ganda wenang sani <wenang.sani@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# actix
+actix-web = "3.3.2"
+
+# database
+sqlx = { version = "0.4.2", default-features = false, features = ["runtime-actix-native-tls", "mysql", "macros", "chrono", "decimal", "json"] }
+chrono = { version = "0.4.19", features = ["serde"] }
+
+# json0.4.19
+rust_decimal = { version = "1.8.1", features = ["serde-float"] }
+serde = "1.0.118"
+serde_json = "1.0.60"
+serde_derive = "1.0.118"
+# json5 = "0.3.0"
