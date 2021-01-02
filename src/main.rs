@@ -22,6 +22,7 @@ async fn main() -> std::io::Result<()> {
         .route("/auth/register", post().to(handler::auth::register))
         .route("/welcome/{name}", get().to(handler::home::welcome))
         .route("/", get().to(handler::home::home))
+        .default_service(actix_web::web::route().to(|| actix_web::HttpResponse::NotFound().body("Page not found.")))
     })
     .bind("127.0.0.1:8080")?
     .run()
