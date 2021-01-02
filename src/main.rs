@@ -20,8 +20,10 @@ async fn main() -> std::io::Result<()> {
         .data(pool.clone())
         .route("/auth/login", post().to(handler::auth::login))
         .route("/auth/register", post().to(handler::auth::register))
+        .route("/welcome/{name}", get().to(handler::home::welcome))
+        .route("/", get().to(handler::home::home))
     })
-    .bind("127.0.0.1:8000")?
+    .bind("127.0.0.1:8080")?
     .run()
     .await
 }

@@ -1,14 +1,23 @@
-use sqlx::MySqlPool;
-use actix_web::web::Data;
-
+pub use actix_web::web::Data as Data;
 pub use actix_web::HttpRequest as Request;
 pub use actix_web::HttpResponse as Response;
-pub use actix_web::web::Json as Json;
+pub type Pool = Data<sqlx::MySqlPool>;
 
-pub type Pool = Data<MySqlPool>;
+#[derive(Serialize)]
+pub struct Warn<'a> {
+    pub code: i32,
+    pub message: &'a str,
+}
 
-#[derive(Serialize, Debug)]
-pub struct Warn {
-    pub error: i32,
-    pub content: String,
+pub mod datas {
+    pub use actix_web::web::Json as Json;
+    pub use actix_web::web::Form as Form;
+    pub use actix_web::web::Path as Path;
+}
+
+pub mod types {
+    use chrono::{DateTime, Utc};
+    pub use String;
+    pub type Int = i32;
+    pub type Date = DateTime<Utc>;
 }

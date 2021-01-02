@@ -1,5 +1,6 @@
-use crate::web::{Json, Pool, Response, Warn};
-use chrono::{DateTime, Utc};
+use crate::web::{Pool, Response, Warn};
+use crate::web::types::{Int, String, Date};
+use crate::web::datas::{Json};
 
 #[derive(Deserialize)]
 pub struct Logindata {
@@ -9,10 +10,10 @@ pub struct Logindata {
 
 #[derive(Serialize, FromRow)]
 pub struct User {
-    pub id: i32,
+    pub id: Int,
     pub email: String,
     pub password: String,
-    pub created_at: DateTime<Utc>,
+    pub created_at: Date,
 }
 
 pub async fn login(pool: Pool, data: Json<Logindata>) -> Response {
@@ -23,8 +24,8 @@ pub async fn login(pool: Pool, data: Json<Logindata>) -> Response {
     // check if input empty
     if email.is_empty() || password.is_empty() {
         return Response::Ok().json(Warn {
-            error: 404,
-            content: "blank_input".to_string(),
+            code: 404,
+            message: "blank_input",
         });
     }
 
@@ -35,8 +36,8 @@ pub async fn login(pool: Pool, data: Json<Logindata>) -> Response {
     // check if result empty
     if recs.len() == 0 {
         return Response::Ok().json(Warn {
-            error: 404,
-            content: "user_not_found".to_string(),
+            code: 404,
+            message: "user_not_found",
         });
     }
 
@@ -45,8 +46,8 @@ pub async fn login(pool: Pool, data: Json<Logindata>) -> Response {
     // check if password match
     if password != &user.password {
         return Response::Ok().json(Warn {
-            error: 404,
-            content: "password_not_match".to_string(),
+            code: 404,
+            message: "password_not_match",
         });
     }
 
@@ -65,8 +66,8 @@ pub async fn register(pool: Pool, data: Json<Logindata>) -> Response {
     // check if input empty
     if email.is_empty() || password.is_empty() {
         return Response::Ok().json(Warn {
-            error: 404,
-            content: "blank_input".to_string(),
+            code: 404,
+            message: "blank_input",
         });
     }
 
@@ -77,8 +78,8 @@ pub async fn register(pool: Pool, data: Json<Logindata>) -> Response {
     // check if email already used
     if recs.len() > 0 {
         return Response::Ok().json(Warn {
-            error: 404,
-            content: "email_already_used".to_string(),
+            code: 404,
+            message: "email_already_used",
         });
     }
 
@@ -92,7 +93,7 @@ pub async fn register(pool: Pool, data: Json<Logindata>) -> Response {
         id: recs_add.last_insert_id() as i32,
         email: email.to_string(),
         password: "******".to_string(),
-        created_at: Utc::now(),
+        created_at: chrono::Utc::now(),
     };
     return Response::Ok().json(user);
 }
