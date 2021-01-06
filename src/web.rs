@@ -2,7 +2,6 @@ pub use actix_web::web::Data as Data;
 pub use actix_web::HttpRequest as Request;
 pub use actix_web::HttpResponse as Response;
 pub use actix_web::Error as Error;
-
 pub type Pool = Data<sqlx::MySqlPool>;
 
 #[derive(Serialize)]

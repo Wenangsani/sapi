@@ -13,8 +13,10 @@ use actix_web::{web::{post, get}, App, HttpServer};
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
+    // Connect to database 
     let pool = sqlx::MySqlPool::connect("mysql://root:@127.0.0.1:3306/actixweb").await.unwrap();
 
+    // Route list
     HttpServer::new(move || {
         App::new()
         .data(pool.clone())

@@ -5,3 +5,9 @@ build with actix & sqlx (mysql) make Sapi ready to use, with auth example.
 
 Enjoy :D
 
+## How to run server?
+just run this command in folder
+```
+cargo watch -x 'run --bin actixweb'
+```
+

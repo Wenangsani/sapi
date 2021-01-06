@@ -17,8 +17,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWs {
         match msg {
             Ok(ws::Message::Ping(msg)) => ctx.pong(&msg),
             Ok(ws::Message::Text(text)) => {
-                let ma = text + "asffsa";
-                ctx.text(ma)
+                return ctx.text(text);
             },
             Ok(ws::Message::Binary(bin)) => ctx.binary(bin),
             _ => (),
@@ -28,6 +27,5 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWs {
 
 pub async fn main(req: Request, stream: actix_web::web::Payload) -> Result<Response, Error> {
     let resp = ws::start(MyWs {}, &req, stream);
-    println!("{:#?}", resp);
     return resp;
 }
