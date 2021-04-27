@@ -8,6 +8,6 @@ Enjoy :D
 ## How to run server?
 just run this command in folder
 ```
-cargo watch -x 'run --bin actixweb'
+cargo watch -x 'run --bin sapi'
 ```
 
