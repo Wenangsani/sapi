@@ -1,4 +1,4 @@
-use crate::web::{Pool, Response, Warn};
+use crate::web::{Pool, Response, Warning};
 use crate::web::types::{Int, String, Date};
 use crate::web::datas::{Json};
 
@@ -23,7 +23,7 @@ pub async fn login(pool: Pool, data: Json<Logindata>) -> Response {
 
     // check if input empty
     if email.is_empty() || password.is_empty() {
-        return Response::Ok().json(Warn {
+        return Response::Ok().json(Warning {
             code: 404,
             message: "blank_input",
         });
@@ -35,7 +35,7 @@ pub async fn login(pool: Pool, data: Json<Logindata>) -> Response {
 
     // check if result empty
     if recs.len() == 0 {
-        return Response::Ok().json(Warn {
+        return Response::Ok().json(Warning {
             code: 404,
             message: "user_not_found",
         });
@@ -45,7 +45,7 @@ pub async fn login(pool: Pool, data: Json<Logindata>) -> Response {
 
     // check if password match
     if password != &user.password {
-        return Response::Ok().json(Warn {
+        return Response::Ok().json(Warning {
             code: 404,
             message: "password_not_match",
         });
@@ -65,7 +65,7 @@ pub async fn register(pool: Pool, data: Json<Logindata>) -> Response {
 
     // check if input empty
     if email.is_empty() || password.is_empty() {
-        return Response::Ok().json(Warn {
+        return Response::Ok().json(Warning {
             code: 404,
             message: "blank_input",
         });
@@ -77,7 +77,7 @@ pub async fn register(pool: Pool, data: Json<Logindata>) -> Response {
 
     // check if email already used
     if recs.len() > 0 {
-        return Response::Ok().json(Warn {
+        return Response::Ok().json(Warning {
             code: 404,
             message: "email_already_used",
         });
