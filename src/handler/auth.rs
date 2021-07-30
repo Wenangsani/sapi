@@ -23,8 +23,7 @@ pub async fn login(pool: Pool, data: Json<Logindata>) -> Response {
 
     // check if input empty
     if email.is_empty() || password.is_empty() {
-        return Response::Ok().json(Warning {
-            code: 404,
+        return Response::Forbidden().json(Warning {
             message: "blank_input",
         });
     }
@@ -35,8 +34,7 @@ pub async fn login(pool: Pool, data: Json<Logindata>) -> Response {
 
     // check if result empty
     if recs.len() == 0 {
-        return Response::Ok().json(Warning {
-            code: 404,
+        return Response::Unauthorized().json(Warning {
             message: "user_not_found",
         });
     }
@@ -45,14 +43,13 @@ pub async fn login(pool: Pool, data: Json<Logindata>) -> Response {
 
     // check if password match
     if password != &user.password {
-        return Response::Ok().json(Warning {
-            code: 404,
+        return Response::Unauthorized().json(Warning {
             message: "password_not_match",
         });
     }
 
     // hide real password
-    user.password = "******".to_string();
+    user.password = String::from("******");
 
     // return user data
     return Response::Ok().json(user);
@@ -65,8 +62,7 @@ pub async fn register(pool: Pool, data: Json<Logindata>) -> Response {
 
     // check if input empty
     if email.is_empty() || password.is_empty() {
-        return Response::Ok().json(Warning {
-            code: 404,
+        return Response::Forbidden().json(Warning {
             message: "blank_input",
         });
     }
@@ -78,7 +74,6 @@ pub async fn register(pool: Pool, data: Json<Logindata>) -> Response {
     // check if email already used
     if recs.len() > 0 {
         return Response::Ok().json(Warning {
-            code: 404,
             message: "email_already_used",
         });
     }

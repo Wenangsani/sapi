@@ -7,7 +7,6 @@ pub type Pool = actix_web::web::Data<sqlx::MySqlPool>;
 
 #[derive(Serialize)]
 pub struct Warning<'a> {
-    pub code: i32,
     pub message: &'a str,
 }
 

@@ -13,5 +13,5 @@ pub async fn home() -> Response {
 
 // Response page with path variable
 pub async fn welcome(path: Path<WelcomePath>) -> Response {
-    return Response::Ok().body("Welcome ".to_owned() + &path.name);
+    return Response::Ok().body(String::from("Welcome ") + &path.name);
 }
