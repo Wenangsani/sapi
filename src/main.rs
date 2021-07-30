@@ -23,7 +23,6 @@ async fn main() -> std::io::Result<()> {
         .route("/auth/login", post().to(handler::auth::login))
         .route("/auth/register", post().to(handler::auth::register))
         .route("/welcome/{name}", get().to(handler::home::welcome))
-        .route("/socket", get().to(handler::socket::main))
         .route("/", get().to(handler::home::home))
         .default_service(actix_web::web::route().to(|| actix_web::HttpResponse::NotFound().body("Page not found.")))
     })
