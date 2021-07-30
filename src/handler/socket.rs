@@ -1,31 +1,13 @@
-use crate::web::{Request, Response, Error};
+use crate::web::{WsConn, Request, Response, Error};
 
 use actix::{AsyncContext, Actor, StreamHandler};
 use actix_web_actors::ws::{WebsocketContext, Message, ProtocolError};
 use uuid::Uuid;
 
-// Define HTTP actor
-#[derive(Clone, Debug)]
-pub struct WsConn {
-    id: Uuid
-}
 
-impl WsConn {
-
-    // Create new socket connection
-    fn new() -> WsConn {
-
-        return WsConn {
-            id: Uuid::new_v4()
-        };
-    }
-
-    fn send(&mut self) {
-
-        println!("self: {:?}", self);
-
-        // ctx.text("taa".to_owned());
-    }
+pub struct WsContext<'a> {
+    id: Uuid,
+    ctx: &'a mut WebsocketContext<WsConn>
 }
 
 impl Actor for WsConn {
@@ -33,7 +15,7 @@ impl Actor for WsConn {
     type Context = WebsocketContext<Self>;
 }
 
-// Handler for ws::Message message
+// Handler for ws::Message
 impl StreamHandler<Result<Message, ProtocolError>> for WsConn {
 
     // On socket connect
@@ -43,17 +25,26 @@ impl StreamHandler<Result<Message, ProtocolError>> for WsConn {
 
         println!("socket connect: {}", socket.id);
 
+        /*
         let mut socketlist: Vec<WsConn> = Vec::new();
-
         socketlist.push(socket.clone());
+        println!("socketlist: {:?}", socketlist);
+        */
 
         socket.send();
 
-        println!("socketlist: {:?}", socketlist);
+        ctx.text("ayam kalkun ...");
 
-        let address = ctx.address();
+        let ma = WsContext {
+            id: socket.id,
+            ctx: ctx,
+        };
 
-        println!("address: {:?}", address);
+        // socket.textmessage(ma);
+
+        // let address = ctx.address();
+
+        // println!("address: {:?}", address);
     }
 
     // On socket disconnect
@@ -64,16 +55,24 @@ impl StreamHandler<Result<Message, ProtocolError>> for WsConn {
         println!("socket disconnect: {}", socket.id);
     }
     
-    // Handle socket
+    // Handle socket message
     fn handle(&mut self, msg: Result<Message, ProtocolError>, ctx: &mut Self::Context) {
 
-        // println!("{:#?}", msg);
+        println!("{:#?}", msg);
+        
         match msg {
-            Ok(Message::Ping(msg)) => ctx.pong(&msg),
+            Ok(Message::Ping(msg)) => {
+
+                return ctx.pong(&msg);
+            },
             Ok(Message::Text(text)) => {
+
                 return ctx.text(text);
             },
-            Ok(Message::Binary(bin)) => ctx.binary(bin),
+            Ok(Message::Binary(bin)) => {
+                
+                return ctx.binary(bin);
+            },
             _ => (),
         }
     }
