@@ -8,10 +8,10 @@ edition = "2018"
 
 [dependencies]
 # actix
-actix-web = "3.3.2"
+actix-web = "4.0.0-beta.8"
 
 # database
-sqlx = { version = "0.4.2", default-features = false, features = ["runtime-actix-rustls", "mysql", "macros", "chrono", "decimal", "json"] }
+sqlx = { version = "0.5.6", default-features = false, features = ["runtime-actix-native-tls", "mysql", "macros", "chrono", "decimal", "json"] }
 chrono = { version = "0.4.19", features = ["serde"] }
 
 # json0.4.19
