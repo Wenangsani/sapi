@@ -7,6 +7,7 @@ extern crate serde_derive;
 
 pub mod handler;
 pub mod web;
+pub mod config;
 
 use actix_web::{
     web::{get, post, route},
@@ -24,6 +25,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         let appnew = App::new();
         let appnew = appnew.app_data(pool.clone());
+        let appnew = appnew.app_data(config::app());
         return appnew.route("/auth/login", post().to(handler::auth::login))
             .route("/auth/register", post().to(handler::auth::register))
             .route("/welcome/{name}", get().to(handler::home::welcome))
