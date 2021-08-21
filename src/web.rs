@@ -10,7 +10,7 @@ pub struct Warning<'a> {
     pub message: &'a str,
 }
 
-pub mod datas {
+pub mod data {
     pub use actix_web::web::Data;
     pub use actix_web::web::Form;
     pub use actix_web::web::Json;

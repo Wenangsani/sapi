@@ -1,5 +1,4 @@
-use crate::web::{Response};
-use crate::web::datas::{Path};
+use crate::web::{Response, data::{Path}};
 
 #[derive(Deserialize)]
 pub struct WelcomePath {

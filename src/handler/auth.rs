@@ -1,6 +1,6 @@
 use crate::web::{Pool, Response, Warning};
 use crate::web::types::{Int, String, Date};
-use crate::web::datas::{Json};
+use crate::web::data::{Json};
 
 #[derive(Deserialize)]
 pub struct Logindata {
