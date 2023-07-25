@@ -17,7 +17,7 @@ use actix_web::{
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // Connect to database
-    let pool = sqlx::MySqlPool::connect("mysql://root:@127.0.0.1:3306/actixweb")
+    let pool = sqlx::MySqlPool::connect("mysql://root:mysql@127.0.0.1:3306/actixweb")
         .await
         .unwrap();
 
@@ -26,11 +26,12 @@ async fn main() -> std::io::Result<()> {
         let appnew = App::new();
         let appnew = appnew.app_data(pool.clone());
         let appnew = appnew.app_data(config::app());
-        return appnew.route("/auth/login", post().to(handler::auth::login))
-            .route("/auth/register", post().to(handler::auth::register))
-            .route("/welcome/{name}", get().to(handler::home::welcome))
-            .route("/", get().to(handler::home::home))
-            .default_service(route().to(|| HttpResponse::NotFound().body("Page not found.")));
+        let appnew = appnew.route("/auth/login", post().to(handler::auth::login));
+        let appnew = appnew.route("/auth/register", post().to(handler::auth::register));
+        let appnew = appnew.route("/welcome/{name}", get().to(handler::home::welcome));
+        let appnew = appnew.route("/", get().to(handler::home::home));
+        let appnew = appnew.default_service(route().to(handler::home::notfound));
+        return appnew;
     })
     .bind("127.0.0.1:8080")?
     .run()
