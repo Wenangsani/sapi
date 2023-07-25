@@ -2,9 +2,16 @@ use crate::web::{Pool, Response, Warning};
 use crate::web::types::{Int, String, Date};
 use crate::web::data::{Json};
 
+// Default value if blank
+fn default_value() -> String {
+    return "".to_string();
+}
+
 #[derive(Deserialize)]
 pub struct Logindata {
+    #[serde(default = "default_value")]
     pub email: String,
+    #[serde(default = "default_value")]
     pub password: String,
 }
 
