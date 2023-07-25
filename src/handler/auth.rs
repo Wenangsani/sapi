@@ -92,10 +92,11 @@ pub async fn register(pool: Pool, data: Json<Logindata>) -> Response {
 
     // return user data
     let user = User {
-        id: recs_add.last_insert_id() as i32,
+        id: recs_add.last_insert_id() as Int,
         email: email.to_string(),
         password: "******".to_string(),
         created_at: chrono::Utc::now(),
     };
+
     return Response::Ok().json(user);
 }
