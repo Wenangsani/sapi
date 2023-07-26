@@ -5,29 +5,15 @@ extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
 
+pub mod middleware;
 pub mod handler;
 pub mod web;
 // pub mod config;
 
-use actix_web::{ web::{ get, post, route, Data }, App, HttpServer, dev::ServiceRequest, Error };
-
-use actix_web_httpauth::extractors::bearer::{ BearerAuth };
+use actix_web::{ web::{ get, post, route, Data }, App, HttpServer };
 use actix_web_httpauth::middleware::HttpAuthentication;
+use crate::middleware::auth::bearer_validator;
 
-use actix_web::HttpMessage;
-
-async fn validator(
-    req: ServiceRequest,
-    credentials: BearerAuth
-) -> Result<ServiceRequest, (Error, ServiceRequest)> {
-    if credentials.token() == "kudanil" {
-        // insert data into the request extensions
-        let mut extensions = req.extensions_mut();
-        extensions.insert("user".to_string());
-    }
-
-    return Ok(req);
-}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -39,8 +25,11 @@ async fn main() -> std::io::Result<()> {
     // route list
     return HttpServer::new(move || {
         let appnew = App::new();
-        let appnew = appnew.wrap(HttpAuthentication::bearer(validator));
+        // bearer auth
+        let appnew = appnew.wrap(HttpAuthentication::bearer(bearer_validator));
+        // database pool
         let appnew = appnew.app_data(Data::new(pool.clone()));
+        // load config
         // let appnew = appnew.app_data(config::app());
         let appnew = appnew.route("/auth/login", post().to(handler::auth::login));
         let appnew = appnew.route("/auth/register", post().to(handler::auth::register));
