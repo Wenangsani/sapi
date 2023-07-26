@@ -35,7 +35,7 @@ async fn main() -> std::io::Result<()> {
         let appnew = appnew.route("/auth/register", post().to(handler::auth::register));
         let appnew = appnew.route("/welcome/{name}", get().to(handler::home::welcome));
         let appnew = appnew.route("/", get().to(handler::home::home));
-        let appnew = appnew.default_service(route().to(handler::home::notfound));
+        let appnew = appnew.default_service(route().to(handler::notfound::notfound));
         return appnew;
     })
         .bind("127.0.0.1:8080")?

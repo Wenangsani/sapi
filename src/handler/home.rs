@@ -14,8 +14,3 @@ pub async fn home() -> Response {
 pub async fn welcome(path: Path<WelcomePath>) -> Response {
     return Response::Ok().body(String::from("Welcome ") + &path.name);
 }
-
-// Simple Not found page
-pub async fn notfound() -> Response {
-    return Response::Ok().body("Page not found.");
-}
