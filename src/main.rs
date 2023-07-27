@@ -26,7 +26,7 @@ async fn main() -> std::io::Result<()> {
     return HttpServer::new(move || {
         let appnew = App::new();
         // bearer auth
-        let appnew = appnew.wrap(HttpAuthentication::bearer(bearer_validator));
+        let appnew = appnew.wrap(HttpAuthentication::with_fn(bearer_validator));
         // database pool
         let appnew = appnew.app_data(Data::new(pool.clone()));
         // load config
