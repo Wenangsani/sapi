@@ -6,8 +6,16 @@ pub async fn bearer_validator(
     credentials: Option<BearerAuth>
 ) -> Result<ServiceRequest, (Error, ServiceRequest)> {
     // check token
+    let mut is_user: bool = false;
+
     let token = req.headers_mut().get("authorization");
+
+    if token.is_none() == false {
+        is_user = true;
+    }
+
     println!("{:?}", token);
+    println!("{:?}", is_user);
     /*
     if credentials.token() == "kudanil" {
         // insert data into the request extensions
