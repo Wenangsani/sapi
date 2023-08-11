@@ -7,6 +7,7 @@ pub async fn bearer_validator(
 ) -> Result<ServiceRequest, (Error, ServiceRequest)> {
     // check token
     let mut is_user: bool = false;
+    let mut is_cook: bool = false;
 
     let token = req.headers_mut().get("authorization");
 
@@ -14,8 +15,22 @@ pub async fn bearer_validator(
         is_user = true;
     }
 
-    println!("{:?}", token);
-    println!("{:?}", is_user);
+    // println!("{:?}", token);
+    // println!("{:?}", is_user);
+
+    // let x:Cookie = req.cookie("ayam").unwrap();
+    let x = req.cookie("my_cookie");
+
+    println!("{:?}", x);
+
+    /*
+    if x == None {
+        // is_cook = true;
+        println!("{:?}", x);
+    }*/
+
+    println!("======");
+
     /*
     if credentials.token() == "kudanil" {
         // insert data into the request extensions
