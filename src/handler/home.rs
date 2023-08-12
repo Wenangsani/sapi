@@ -1,6 +1,7 @@
 use crate::web::{Response, data::{Path}};
 use actix_web::cookie::Cookie;
 use actix_web::cookie::time::Duration;
+use actix_session::Session;
 
 #[derive(Deserialize)]
 pub struct WelcomePath {
@@ -15,6 +16,12 @@ pub async fn home() -> Response {
 }
 
 // Response page with path variable
-pub async fn welcome(path: Path<WelcomePath>) -> Response {
+pub async fn welcome(path: Path<WelcomePath>, session: Session) -> Response {
+
+    let count = session.get::<i32>("count");
+
+    // insert session
+    session.insert("count", 1);
+
     return Response::Ok().body(String::from("Welcome ") + &path.name);
 }

@@ -10,10 +10,10 @@ pub mod handler;
 pub mod web;
 // pub mod config;
 
-use actix_web::{ web::{ get, post, route, Data }, App, HttpServer };
+use actix_web::{ web::{ get, post, route, Data }, App, HttpServer, cookie::Key };
 use actix_web_httpauth::middleware::HttpAuthentication;
 use crate::middleware::auth::bearer_validator;
-
+use actix_session::{ Session, SessionMiddleware, storage::CookieSessionStore };
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -27,6 +27,12 @@ async fn main() -> std::io::Result<()> {
         let appnew = App::new();
         // bearer auth
         let appnew = appnew.wrap(HttpAuthentication::with_fn(bearer_validator));
+        // session
+        let appnew = appnew.wrap(
+            SessionMiddleware::builder(CookieSessionStore::default(), Key::from(&[0; 64]))
+                .cookie_secure(false)
+                .build()
+        );
         // database pool
         let appnew = appnew.app_data(Data::new(pool.clone()));
         // load config
