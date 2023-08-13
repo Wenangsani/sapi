@@ -14,6 +14,7 @@ use actix_web::{ web::{ get, post, route, Data }, App, HttpServer, cookie::Key }
 use actix_web_httpauth::middleware::HttpAuthentication;
 use crate::middleware::auth::bearer_validator;
 use actix_session::{ Session, SessionMiddleware, storage::CookieSessionStore };
+use actix_cors::Cors;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -21,7 +22,6 @@ async fn main() -> std::io::Result<()> {
     let pool = sqlx::MySqlPool
         ::connect("mysql://root:mysql@127.0.0.1:3306/actixweb").await
         .unwrap();
-
     // route list
     return HttpServer::new(move || {
         let appnew = App::new();
@@ -33,6 +33,8 @@ async fn main() -> std::io::Result<()> {
                 .cookie_secure(false)
                 .build()
         );
+        // cors
+        let appnew = appnew.wrap(Cors::permissive().supports_credentials().max_age(3600));
         // database pool
         let appnew = appnew.app_data(Data::new(pool.clone()));
         // load config
