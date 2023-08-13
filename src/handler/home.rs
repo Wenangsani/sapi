@@ -18,10 +18,16 @@ pub async fn home() -> Response {
 // Response page with path variable
 pub async fn welcome(path: Path<WelcomePath>, session: Session) -> Response {
 
-    let count = session.get::<i32>("count");
+    let mut current = 1;
+
+    let mut count = session.get::<i32>("count");
+
+    if count.as_ref().unwrap().is_none() == false {
+        current = count.unwrap().unwrap();
+    }
 
     // insert session
-    session.insert("count", 1);
-
-    return Response::Ok().body(String::from("Welcome ") + &path.name);
+    session.insert("count", current + 1);
+    
+    return Response::Ok().body(String::from("Welcome ") + &path.name + &current.to_string());
 }

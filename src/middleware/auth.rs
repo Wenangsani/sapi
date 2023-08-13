@@ -21,7 +21,7 @@ pub async fn bearer_validator(
     // let x:Cookie = req.cookie("ayam").unwrap();
     let x = req.cookie("my_cookie");
 
-    println!("{:?}", x);
+    // println!("{:?}", x);
 
     /*
     if x == None {
@@ -29,7 +29,7 @@ pub async fn bearer_validator(
         println!("{:?}", x);
     }*/
 
-    println!("======");
+    // println!("======");
 
     /*
     if credentials.token() == "kudanil" {
