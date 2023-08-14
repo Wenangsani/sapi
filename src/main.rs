@@ -10,7 +10,7 @@ pub mod handler;
 pub mod web;
 // pub mod config;
 
-use actix_web::{ web::{ get, post, route, Data }, App, HttpServer, cookie::Key };
+use actix_web::{ web::{ get, post, route, Data }, App, HttpServer, cookie::Key, cookie::SameSite };
 use actix_web_httpauth::middleware::HttpAuthentication;
 use crate::middleware::auth::bearer_validator;
 use actix_session::{ Session, SessionMiddleware, storage::CookieSessionStore };
@@ -30,11 +30,11 @@ async fn main() -> std::io::Result<()> {
         // session
         let appnew = appnew.wrap(
             SessionMiddleware::builder(CookieSessionStore::default(), Key::from(&[0; 64]))
-                .cookie_secure(false)
+                .cookie_same_site(SameSite::None)
                 .build()
         );
         // cors
-        let appnew = appnew.wrap(Cors::permissive().supports_credentials().max_age(3600));
+        let appnew = appnew.wrap(Cors::permissive());
         // database pool
         let appnew = appnew.app_data(Data::new(pool.clone()));
         // load config
