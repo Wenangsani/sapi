@@ -8,7 +8,8 @@ extern crate serde_derive;
 pub mod middleware;
 pub mod handler;
 pub mod web;
-// pub mod config;
+pub mod appstate;
+pub mod socketsession;
 
 use actix_web::{ web::{ get, post, route, Data }, App, HttpServer, cookie::Key, cookie::SameSite };
 use actix_web_httpauth::middleware::HttpAuthentication;
@@ -38,7 +39,8 @@ async fn main() -> std::io::Result<()> {
         // database pool
         let appnew = appnew.app_data(Data::new(pool.clone()));
         // load config
-        // let appnew = appnew.app_data(config::app());
+        let appnew = appnew.app_data(Data::new(appstate::new()));
+        let appnew = appnew.route("/ws", get().to(handler::websocket::ws));
         let appnew = appnew.route("/auth/login", post().to(handler::auth::login));
         let appnew = appnew.route("/auth/register", post().to(handler::auth::register));
         let appnew = appnew.route("/welcome/{name}", get().to(handler::home::welcome));

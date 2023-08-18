@@ -29,5 +29,5 @@ pub async fn welcome(path: Path<WelcomePath>, session: Session) -> Response {
     // insert session
     session.insert("count", current + 1);
     
-    return Response::Ok().body(String::from("Welcome ") + &path.name + &current.to_string());
+    return Response::Ok().body(String::from("Welcome ") + &path.name + " " + &current.to_string());
 }
