@@ -1,4 +1,4 @@
-use crate::web::{ Response };
+use crate::web::Response;
 
 // Simple Not found page
 pub async fn notfound() -> Response {

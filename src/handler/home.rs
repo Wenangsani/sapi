@@ -1,7 +1,8 @@
-use crate::web::{Response, data::{Path}};
+use crate::web::{Response, data::{Path, Data}};
 use actix_web::cookie::Cookie;
 use actix_web::cookie::time::Duration;
 use actix_session::Session;
+use crate::appstate::Appstate;
 
 #[derive(Deserialize)]
 pub struct WelcomePath {
@@ -9,10 +10,10 @@ pub struct WelcomePath {
 }
 
 // Simple response page
-pub async fn home() -> Response {
+pub async fn home(state: Data<Appstate>) -> Response {
     // set cookie
     let cookie = Cookie::build("my_cookie", "naga").secure(true).http_only(true).max_age(Duration::days(1)).finish();
-    return Response::Ok().cookie(cookie).body("Hello World!");
+    return Response::Ok().cookie(cookie).body("Hello World ".to_owned() + &state.appname);
 }
 
 // Response page with path variable

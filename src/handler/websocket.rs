@@ -52,7 +52,7 @@ pub async fn echo_ws(mut session: actix_ws::Session, mut msg_stream: actix_ws::M
     println!("Disconnetted");
 }
 
-// Simple Not found page
+// Simple websocket
 pub async fn ws(req: HttpRequest, body: web::Payload) -> Result<HttpResponse, Error> {
     let (response, mut session, mut msg_stream) = actix_ws::handle(&req, body)?;
 

@@ -1,8 +1,8 @@
 use crate::socketsession::UsessionContainer;
 
 pub struct Appstate {
-    appname: String,
-    usession: UsessionContainer
+    pub appname: String,
+    pub usession: UsessionContainer
 }
 
 pub fn new() -> Appstate {
