@@ -6,8 +6,16 @@ use crate::web::data::Data;
 use crate::appstate::Appstate;
 use crate::socketsession::{ Usession, UsessionContainer };
 
-pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, state: Data<Appstate>) {
+pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socketlist: Data<UsessionContainer>) {
     println!("Connetted");
+
+    /*
+    * Example to push socketlist
+    */
+    socketlist.add_session(Usession {
+        id: 13,
+        session: session.clone(),
+    });
 
     let close_reason = loop {
         match msg_stream.next().await {
@@ -53,6 +61,10 @@ pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, state:
     // attempt to close connection gracefully
     let _ = session.close(close_reason).await;
 
+    /**
+    * add delete socketlist here !
+    */
+
     println!("Disconnetted");
 }
 
@@ -61,16 +73,8 @@ pub async fn ws(req: HttpRequest, body: web::Payload, state: Data<Appstate>, soc
 
     let (response, mut session, mut msg_stream) = actix_ws::handle(&req, body)?;
 
-    /*
-    * Example to push socketlist
-    */
-    socketlist.add_session(Usession {
-        id: 13,
-        session: session.clone(),
-    });
-
     // spawn websocket handler (and don't await it) so that the response is returned immediately
-    actix_rt::spawn(echo_ws(session, msg_stream, state));
+    actix_rt::spawn(echo_ws(session, msg_stream, socketlist));
 
     return Ok(response);
 }
