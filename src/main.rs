@@ -14,6 +14,7 @@ pub mod socketsession;
 use actix_web::{ web::{ get, post, route, Data }, App, HttpServer, cookie::Key, cookie::SameSite };
 use actix_web_httpauth::middleware::HttpAuthentication;
 use crate::middleware::auth::bearer_validator;
+use crate::socketsession::{ Usession, UsessionContainer };
 use actix_session::{ Session, SessionMiddleware, storage::CookieSessionStore };
 use actix_cors::Cors;
 
@@ -40,6 +41,7 @@ async fn main() -> std::io::Result<()> {
         let appnew = appnew.app_data(Data::new(pool.clone()));
         // load config
         let appnew = appnew.app_data(Data::new(appstate::new()));
+        let appnew = appnew.app_data(Data::new(UsessionContainer::new()));
         let appnew = appnew.route("/ws", get().to(handler::websocket::ws));
         let appnew = appnew.route("/auth/login", post().to(handler::auth::login));
         let appnew = appnew.route("/auth/register", post().to(handler::auth::register));
