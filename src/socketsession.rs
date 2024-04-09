@@ -4,24 +4,34 @@ use std::sync::{Arc, Mutex};
 // Struct representing an object
 pub struct Usession {
     pub id: i32,
-    pub session: Session,
+    // pub session: Session,
 }
 
 pub struct UsessionContainer {
-    pub items: Arc<Mutex<Vec<Usession>>>,
+    pub count: Arc<Mutex<i32>>,
+    pub items: Vec<Usession>,
 }
 
 impl UsessionContainer {
 
     pub fn new() -> Self {
-        UsessionContainer { 
-            items: Arc::new(Mutex::new(Vec::new())) 
-        }
+        return UsessionContainer {
+            count: Arc::new(Mutex::new(0)),
+            items: Vec::new()
+        };
     }
 
-    pub fn add_session(&self, session: Usession) {
-        self.items.lock().unwrap().push(session);
+    pub fn add_session(&mut self, session: Usession) {
+        self.items.push(session);
     }
+
+    /*
+
+    pub fn get_session(&self) -> Vec<Usession> {
+        return self.items;
+    }
+    */
+
     /*
 
     pub fn add_session(&mut self, session: Usession) {

@@ -17,6 +17,7 @@ use crate::middleware::auth::bearer_validator;
 use crate::socketsession::{ Usession, UsessionContainer };
 use actix_session::{ Session, SessionMiddleware, storage::CookieSessionStore };
 use actix_cors::Cors;
+use std::sync::{Arc, Mutex};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -35,6 +36,8 @@ async fn main() -> std::io::Result<()> {
                 .cookie_same_site(SameSite::None)
                 .build()
         );
+        // socketlist
+        // let socketlist = Data::new(Mutex::new(UsessionContainer::new()));
         // cors
         let appnew = appnew.wrap(Cors::permissive());
         // database pool

@@ -5,17 +5,50 @@ use futures_util::{ future::{ self, Either }, StreamExt as _ };
 use crate::web::data::Data;
 use crate::appstate::Appstate;
 use crate::socketsession::{ Usession, UsessionContainer };
+use std::sync::{Arc, Mutex};
+use rand::Rng;
 
 pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socketlist: Data<UsessionContainer>) {
     println!("Connetted");
 
+    let mut rng = rand::thread_rng();
+
     /*
     * Example to push socketlist
     */
-    socketlist.add_session(Usession {
-        id: 13,
+
+    let mut my_data = socketlist.count.lock().unwrap();
+
+    println!("{:?}", my_data);
+
+    *my_data += 1;
+
+
+    // my_data.count = my_data.count + 1;
+    // my_data = my_data + 1;
+
+    /*
+    my_data.items.push(Usession {
+        id: rng.gen::<i32>(),
         session: session.clone(),
     });
+    */
+
+    /*
+    my_data.add_session(Usession {
+        id: rng.gen::<i32>(),
+        session: session.clone(),
+    });
+    */
+
+    // let mut list = &my_data.items;
+    println!("{:?}", my_data);
+
+    /*
+    
+
+    
+    */
 
     let close_reason = loop {
         match msg_stream.next().await {
@@ -25,6 +58,16 @@ pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socket
 
                 match msg {
                     Message::Text(text) => {
+
+                        /*
+                        let mut list = socketlist.get_session();
+
+                        for sc in list.iter_mut() {
+                            println!("{:?}", sc.id);
+                            sc.session.text("dsfsdf").await.unwrap();
+                        }
+                        */
+                        
                         session.text(text).await.unwrap();
                     }
 
