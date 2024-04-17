@@ -1,45 +1,62 @@
 use actix_ws::Session;
-use std::sync::{Arc, Mutex};
+use futures::stream::{FuturesUnordered, StreamExt};
+use std::sync::{ Arc, Mutex };
 
-// Struct representing an object
+#[derive(Clone)]
 pub struct Usession {
-    pub id: i32,
-    // pub session: Session,
+    inner: Arc<Mutex<UsessionInner>>,
 }
 
-pub struct UsessionContainer {
-    pub count: Arc<Mutex<i32>>,
-    pub items: Vec<Usession>,
+pub struct UsessionInner {
+    sessions: Vec<Session>,
 }
 
-impl UsessionContainer {
-
+impl Usession {
     pub fn new() -> Self {
-        return UsessionContainer {
-            count: Arc::new(Mutex::new(0)),
-            items: Vec::new()
+        Usession {
+            inner: Arc::new(
+                Mutex::new(UsessionInner {
+                    sessions: Vec::new(),
+                })
+            ),
+        }
+    }
+
+    pub async fn insert(&self, session: Session) {
+        if let Ok(mut inner) = self.inner.lock() {
+            inner.sessions.push(session);
+        } else {
+            // Handle poison error
+            eprintln!("Mutex is poisoned");
+        }
+    }
+
+    //https://git.asonix.dog/asonix/actix-actorless-websockets/src/branch/main/examples/chat/src/main.rs
+
+    pub async fn send(&self, msg: String) {
+        let mut inner = match self.inner.lock() {
+            Ok(inner) => inner,
+            Err(_) => {
+                // Handle poison error
+                eprintln!("Mutex is poisoned");
+                return;
+            }
         };
+
+        let mut unordered = FuturesUnordered::new();
+
+        for mut session in inner.sessions.drain(..) {
+            let msg = msg.clone();
+            unordered.push(async move {
+                let res = session.text(msg).await;
+                res.map(|_| session).map_err(|_| eprintln!("Dropping session"))
+            });
+        }
+
+        while let Some(res) = unordered.next().await {
+            if let Ok(session) = res {
+                inner.sessions.push(session);
+            }
+        }
     }
-
-    pub fn add_session(&mut self, session: Usession) {
-        self.items.push(session);
-    }
-
-    /*
-
-    pub fn get_session(&self) -> Vec<Usession> {
-        return self.items;
-    }
-    */
-
-    /*
-
-    pub fn add_session(&mut self, session: Usession) {
-        self.items.push(session);
-    }
-
-    pub fn delete_session(&mut self, session_id: i32) {
-        self.items.retain(|s| s.id != session_id);
-    }
-    */
 }
