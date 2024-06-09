@@ -1,6 +1,6 @@
 use actix_ws::Session;
 use futures::stream::{FuturesUnordered, StreamExt};
-use std::sync::{ Arc, Mutex };
+use std::sync::{ Arc, Mutex, MutexGuard };
 
 #[derive(Clone)]
 pub struct Usession {
@@ -23,15 +23,11 @@ impl Usession {
     }
 
     pub async fn insert(&self, session: Session) {
-        if let Ok(mut inner) = self.inner.lock() {
-            inner.sessions.push(session);
-        } else {
-            // Handle poison error
-            eprintln!("Mutex is poisoned");
-        }
+        let mut inner = self.inner.lock().unwrap();
+        inner.sessions.push(session);
     }
 
-    //https://git.asonix.dog/asonix/actix-actorless-websockets/src/branch/main/examples/chat/src/main.rs
+    // https://git.asonix.dog/asonix/actix-actorless-websockets/src/branch/main/examples/chat/src/main.rs
 
     pub async fn send(&self, msg: String) {
         let mut inner = match self.inner.lock() {
@@ -46,6 +42,7 @@ impl Usession {
         let mut unordered = FuturesUnordered::new();
 
         for mut session in inner.sessions.drain(..) {
+            eprintln!("chat --- ");
             let msg = msg.clone();
             unordered.push(async move {
                 let res = session.text(msg).await;

@@ -22,26 +22,34 @@ use futures::stream::{FuturesUnordered, StreamExt};
 
 #[actix_web::main]
 async fn main() -> Result<(), anyhow::Error> {
+    
     // connect to database
-    let pool = sqlx::MySqlPool
-        ::connect("mysql://root:mysql@127.0.0.1:3306/actixweb").await
-        .unwrap();
+    let pool = sqlx::MySqlPool::connect("mysql://root:mysql@127.0.0.1:3306/actixweb").await.unwrap();
+
     // route list
     HttpServer::new(move || {
+
         let appnew = App::new();
+
         // bearer auth
         let appnew = appnew.wrap(HttpAuthentication::with_fn(bearer_validator));
+
         // session
         let appnew = appnew.wrap(
             SessionMiddleware::builder(CookieSessionStore::default(), Key::from(&[0; 64]))
                 .cookie_same_site(SameSite::None)
                 .build()
         );
+
         // cors
         let appnew = appnew.wrap(Cors::permissive());
+
         // database pool
         let appnew = appnew.app_data(Data::new(pool.clone()));
+
+        // sockets
         let socketlist = Usession::new();
+
         // load config
         let appnew = appnew.app_data(Data::new(appstate::new()));
         let appnew = appnew.app_data(Data::new(socketlist.clone()));

@@ -10,6 +10,11 @@ pub struct Warning<'a> {
     pub message: &'a str,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Authdata {
+    pub is_user: bool
+}
+
 pub mod data {
     pub use actix_web::web::Data;
     pub use actix_web::web::Form;

@@ -1,10 +1,12 @@
 use crate::web::{Pool, Response, Warning};
 use crate::web::types::{Int, String, Date};
 use crate::web::data::{Json};
+use actix_session::Session;
+use rand::distributions::{Alphanumeric, DistString};
 
 // Default value if blank
 fn default_value() -> String {
-    return "".to_string();
+    return String::from("");
 }
 
 #[derive(Deserialize)]
@@ -23,7 +25,13 @@ pub struct User {
     pub created_at: Date,
 }
 
-pub async fn login(pool: Pool, data: Json<Logindata>) -> Response {
+#[derive(Serialize)]
+pub struct Output {
+    pub id: Int,
+    pub token: String,
+}
+
+pub async fn login(pool: Pool, data: Json<Logindata>, session: Session) -> Response {
 
     let email    = &data.email.trim();
     let password = &data.password;
@@ -39,7 +47,7 @@ pub async fn login(pool: Pool, data: Json<Logindata>) -> Response {
     let conn = pool.get_ref();
     let mut recs = sqlx::query_as::<_, User>("SELECT * FROM users WHERE email = ? LIMIT 1").bind(email).fetch_all(conn).await.unwrap();
 
-    // check if result empty
+    // check if records is empty
     if recs.len() == 0 {
         return Response::Unauthorized().json(Warning {
             message: "user_not_found",
@@ -55,14 +63,20 @@ pub async fn login(pool: Pool, data: Json<Logindata>) -> Response {
         });
     }
 
-    // hide real password
-    user.password = String::from("******");
+    // create token
+    let token = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
+
+    // insert token on session
+    session.insert("authtoken", &token);
 
     // return user data
-    return Response::Ok().json(user);
+    return Response::Ok().json(Output {
+        id: user.id,
+        token: token
+    });
 }
 
-pub async fn register(pool: Pool, data: Json<Logindata>) -> Response {
+pub async fn register(pool: Pool, data: Json<Logindata>, session: Session) -> Response {
 
     let email    = &data.email.trim();
     let password = &data.password;
@@ -85,18 +99,18 @@ pub async fn register(pool: Pool, data: Json<Logindata>) -> Response {
         });
     }
 
-    // add user
+    // add user on records
     let recs_add = sqlx::query("INSERT INTO users (email, password) VALUES (?, ?)").bind(email).bind(password).execute(conn).await.unwrap();
 
-    // println!("{:#?}", recs_add.last_insert_id());
+    // create token
+    let token = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
+
+    // insert token on session
+    session.insert("authtoken", &token);
 
     // return user data
-    let user = User {
+    return Response::Ok().json(Output {
         id: recs_add.last_insert_id() as Int,
-        email: email.to_string(),
-        password: "******".to_string(),
-        created_at: chrono::Utc::now(),
-    };
-
-    return Response::Ok().json(user);
+        token: token
+    });
 }

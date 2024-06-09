@@ -1,8 +1,9 @@
-use crate::web::{Response, data::{Path, Data}};
+use crate::web::{Request, Response, data::{Path, Data}, Authdata};
+use crate::appstate::Appstate;
 use actix_web::cookie::Cookie;
 use actix_web::cookie::time::Duration;
 use actix_session::Session;
-use crate::appstate::Appstate;
+use actix_web::HttpMessage;
 
 #[derive(Deserialize)]
 pub struct WelcomePath {
@@ -17,7 +18,12 @@ pub async fn home(state: Data<Appstate>) -> Response {
 }
 
 // Response page with path variable
-pub async fn welcome(path: Path<WelcomePath>, session: Session) -> Response {
+pub async fn welcome(mut req: Request, path: Path<WelcomePath>, session: Session) -> Response {
+
+    // get Authdata from middleware
+    if let Some(auth_data) = req.extensions().get::<Authdata>() {
+        println!("{:?}", auth_data);
+    }
 
     let mut current = 1;
 

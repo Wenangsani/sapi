@@ -8,6 +8,9 @@ use crate::socketsession::{ Usession, UsessionInner };
 use std::sync::{Arc, Mutex};
 use rand::Rng;
 use futures::stream::{FuturesUnordered, StreamExt};
+use std::{
+    time::{Duration, Instant},
+};
 
 pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socketlist: Data<Usession>) {
     println!("Connetted");
@@ -32,7 +35,8 @@ pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socket
                         }
                         */
                         
-                        session.text(text).await.unwrap();
+                        // session.text(text).await.unwrap();
+                        socketlist.send(text.to_string()).await;
                     }
 
                     Message::Binary(bin) => {
@@ -81,6 +85,8 @@ pub async fn ws(req: HttpRequest, body: web::Payload, state: Data<Appstate>, soc
     let (response, mut session, mut msg_stream) = actix_ws::handle(&req, body)?;
 
     socketlist.insert(session.clone()).await;
+
+    let alive = Arc::new(Mutex::new(Instant::now()));
 
     // spawn websocket handler (and don't await it) so that the response is returned immediately
     actix_rt::spawn(echo_ws(session, msg_stream, socketlist));
