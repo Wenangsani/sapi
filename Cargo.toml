@@ -40,4 +40,3 @@ uuid = { version = "1.4.1", features = ["v4"] }
 futures = "0.3.30"
 futures-util = "0.3.28"
 rand = "0.8.5"
-tokio = "1.52.3"
