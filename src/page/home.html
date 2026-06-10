@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Fetch Tester</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen">
+
+<div class="max-w-7xl mx-auto p-6">
+    <div class="bg-white rounded-xl shadow-lg p-6">
+
+        <h1 class="text-3xl font-bold text-slate-800 mb-6">
+            API Fetch Tester
+        </h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Request -->
+            <div class="space-y-4">
+
+                <div>
+                    <label class="block mb-2 font-medium">
+                        URL
+                    </label>
+                    <input
+                        id="url"
+                        type="text"
+                        value="http://localhost:8080/"
+                        class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                    >
+                </div>
+
+                <div>
+                    <label class="block mb-2 font-medium">
+                        Method
+                    </label>
+                    <select
+                        id="method"
+                        class="w-full border rounded-lg px-4 py-2"
+                    >
+                        <option>GET</option>
+                        <option>POST</option>
+                        <option>PUT</option>
+                        <option>PATCH</option>
+                        <option>DELETE</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block mb-2 font-medium">
+                        Headers (JSON)
+                    </label>
+                    <textarea
+                        id="headers"
+                        rows="6"
+                        class="w-full border rounded-lg px-4 py-2 font-mono text-sm"
+                    >{
+  "Content-Type": "application/json"
+}</textarea>
+                </div>
+
+                <div>
+                    <label class="block mb-2 font-medium">
+                        Body (JSON)
+                    </label>
+                    <textarea
+                        id="body"
+                        rows="10"
+                        class="w-full border rounded-lg px-4 py-2 font-mono text-sm"
+                    >{
+  "title": "contoh",
+  "body": "isi data",
+  "userId": 1
+}</textarea>
+                </div>
+
+                <button
+                    id="sendBtn"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold"
+                >
+                    Kirim Request
+                </button>
+
+            </div>
+
+            <!-- Response -->
+            <div>
+
+                <div class="mb-4">
+                    <h2 class="font-semibold text-lg mb-2">
+                        Response
+                    </h2>
+
+                    <div
+                        id="status"
+                        class="bg-slate-100 rounded-lg p-3 text-sm"
+                    >
+                        Belum ada request.
+                    </div>
+                </div>
+
+                <textarea
+                    id="response"
+                    rows="25"
+                    readonly
+                    class="w-full border rounded-lg p-4 bg-slate-900 text-green-400 font-mono text-sm"
+                ></textarea>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+const sendBtn = document.getElementById('sendBtn');
+
+sendBtn.addEventListener('click', async () => {
+
+    const url = document.getElementById('url').value.trim();
+    const method = document.getElementById('method').value;
+    const headersText = document.getElementById('headers').value;
+    const bodyText = document.getElementById('body').value;
+
+    const statusBox = document.getElementById('status');
+    const responseBox = document.getElementById('response');
+
+    statusBox.innerHTML = 'Mengirim request...';
+    responseBox.value = '';
+
+    try {
+
+        let headers = {};
+
+        if (headersText.trim()) {
+            headers = JSON.parse(headersText);
+        }
+
+        const options = {
+            method,
+            headers
+        };
+
+        if (!['GET', 'DELETE'].includes(method)) {
+            options.body = bodyText;
+        }
+
+        const start = performance.now();
+
+        const response = await fetch(url, options);
+
+        const end = performance.now();
+
+        const responseText = await response.text();
+
+        let formattedResponse;
+
+        try {
+            formattedResponse = JSON.stringify(
+                JSON.parse(responseText),
+                null,
+                2
+            );
+        } catch {
+            formattedResponse = responseText;
+        }
+
+        statusBox.innerHTML = `
+            <div><b>Status:</b> ${response.status} ${response.statusText}</div>
+            <div><b>Waktu:</b> ${(end - start).toFixed(2)} ms</div>
+            <div><b>Content-Type:</b> ${response.headers.get('content-type') || '-'}</div>
+        `;
+
+        responseBox.value = formattedResponse;
+
+    } catch (error) {
+
+        statusBox.innerHTML = `
+            <span class="text-red-600 font-semibold">
+                Error
+            </span>
+        `;
+
+        responseBox.value = error.toString();
+    }
+});
+</script>
+
+</body>
+</html>

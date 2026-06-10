@@ -12,6 +12,18 @@ pub struct WelcomePath {
 
 // Simple response page
 pub async fn home(state: Data<Appstate>) -> Response {
+    let html = tokio::fs::read_to_string("src/page/home.html")
+        .await
+        .unwrap();
+
+    return Response::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(html);
+
+}
+
+// Simple response page
+pub async fn _old(state: Data<Appstate>) -> Response {
     // set cookie
     let cookie = Cookie::build("my_cookie", "naga").secure(true).http_only(true).max_age(Duration::days(1)).finish();
     return Response::Ok().cookie(cookie).body("Hello World ".to_owned() + &state.appname);
