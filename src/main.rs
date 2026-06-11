@@ -50,6 +50,7 @@ async fn main() -> Result<(), anyhow::Error> {
             .service(
                 scope("")
                     .route("/",              get().to(handler::home::home))
+                    .route("/test",          get().to(handler::home::test))
                     .route("/ws",            get().to(handler::websocket::ws))
                     .route("/auth/login",    post().to(handler::auth::login))
                     .route("/auth/register", post().to(handler::auth::register))

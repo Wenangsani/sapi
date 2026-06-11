@@ -10,11 +10,20 @@ pub struct WelcomePath {
     name: String,
 }
 
-// Simple response page
+// Home page
 pub async fn home(state: Data<Appstate>) -> Response {
+    let html = include_str!("../page/home.html");
+
     return Response::Ok()
         .content_type("text/html; charset=utf-8")
-        .body(include_str!("../page/home.html"));
+        .body(html);
+}
+
+// Simple response page
+pub async fn test(state: Data<Appstate>) -> Response {
+    return Response::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(include_str!("../page/test.html"));
 
 }
 

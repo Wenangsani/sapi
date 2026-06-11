@@ -1,792 +1,523 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>API Tester</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap');
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sapi-rs — Prototype at Warp Speed</title>
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-  :root {
-    --bg: #0f1117;
-    --surface: #181c27;
-    --surface2: #1e2334;
-    --border: #2a3048;
-    --border-hover: #3d4f7a;
-    --text: #e2e8f0;
-    --text-muted: #64748b;
-    --text-dim: #94a3b8;
-    --accent: #6366f1;
-    --accent-glow: rgba(99,102,241,0.2);
-    --green: #10b981;
-    --red: #f43f5e;
-    --yellow: #f59e0b;
-    --blue: #3b82f6;
-    --mono: 'JetBrains Mono', monospace;
-    --sans: 'Inter', sans-serif;
-  }
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-  body {
-    font-family: var(--sans);
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-  /* Header */
-  .header {
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
-  .logo {
-    width: 28px; height: 28px;
-    background: linear-gradient(135deg, var(--accent), #8b5cf6);
-    border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
-  }
-  .header-title { font-size: 15px; font-weight: 600; }
-  .header-badge {
-    font-size: 11px; font-family: var(--mono);
-    background: var(--surface2); border: 1px solid var(--border);
-    padding: 2px 8px; border-radius: 4px; color: var(--text-muted);
-    margin-left: 4px;
-  }
-  .header-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
-  .history-btn, .clear-btn {
-    font-size: 12px; padding: 5px 12px; border-radius: 6px; cursor: pointer;
-    border: 1px solid var(--border); background: transparent; color: var(--text-dim);
-    transition: all .15s; font-family: var(--sans);
-  }
-  .history-btn:hover, .clear-btn:hover {
-    border-color: var(--border-hover); color: var(--text); background: var(--surface2);
-  }
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
 
-  /* URL Bar */
-  .url-bar {
-    display: flex; gap: 8px; align-items: center;
-    padding: 12px 20px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
-  .method-select {
-    font-family: var(--mono); font-size: 12px; font-weight: 600;
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); padding: 8px 10px; border-radius: 7px;
-    cursor: pointer; outline: none; min-width: 86px;
-    transition: border-color .15s;
-  }
-  .method-select:focus { border-color: var(--accent); }
-  .method-select.GET { color: #10b981; }
-  .method-select.POST { color: #f59e0b; }
-  .method-select.PUT { color: #3b82f6; }
-  .method-select.PATCH { color: #a78bfa; }
-  .method-select.DELETE { color: #f43f5e; }
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Space Grotesk', 'sans-serif'],
+                        body: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        canvas: '#0F1117',
+                        surface: '#1E293B',
+                        'surface-2': '#263348',
+                        border: '#2D3F55',
+                        'text-primary': '#E8F4FD',
+                        'text-muted': '#7A92A8',
+                        accent: '#3B82F6',
+                        'accent-glow': '#60A5FA',
+                        amber: '#F59E0B',
+                        'amber-soft': '#FCD34D',
+                        rust: '#CE4A2A',
+                    },
+                    animation: {
+                        blink: 'blink 1.1s step-end infinite',
+                        'fade-up': 'fadeUp 0.6s ease forwards',
+                    },
+                    keyframes: {
+                        blink: { '0%,100%': { opacity: '1' }, '50%': { opacity: '0' } },
+                        fadeUp: { from: { opacity: '0', transform: 'translateY(20px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
+                    }
+                }
+            }
+        }
+    </script>
 
-  .url-input {
-    flex: 1; font-family: var(--mono); font-size: 13px;
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); padding: 8px 14px; border-radius: 7px; outline: none;
-    transition: border-color .15s;
-  }
-  .url-input:focus { border-color: var(--accent); }
-  .url-input::placeholder { color: var(--text-muted); }
-
-  .send-btn {
-    background: var(--accent); color: #fff;
-    border: none; padding: 8px 22px; border-radius: 7px; font-size: 13px;
-    font-weight: 600; cursor: pointer; transition: all .15s; font-family: var(--sans);
-    display: flex; align-items: center; gap: 6px; white-space: nowrap;
-  }
-  .send-btn:hover { background: #4f46e5; transform: translateY(-1px); box-shadow: 0 4px 14px var(--accent-glow); }
-  .send-btn:active { transform: translateY(0); }
-  .send-btn.loading { opacity: .7; pointer-events: none; }
-
-  /* Main layout */
-  .main { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 97px); }
-
-  /* Panels */
-  .panel {
-    flex: 1; display: flex; flex-direction: column; overflow: hidden;
-    border-right: 1px solid var(--border);
-  }
-  .panel:last-child { border-right: none; }
-
-  .panel-tabs {
-    display: flex; border-bottom: 1px solid var(--border);
-    background: var(--surface); padding: 0 12px;
-    gap: 2px; min-height: 38px; align-items: flex-end;
-  }
-  .tab {
-    font-size: 12px; padding: 8px 12px; cursor: pointer;
-    border: none; background: transparent; color: var(--text-muted);
-    border-bottom: 2px solid transparent; transition: all .15s;
-    font-family: var(--sans); white-space: nowrap;
-  }
-  .tab:hover { color: var(--text); }
-  .tab.active { color: var(--text); border-bottom-color: var(--accent); }
-  .tab .badge {
-    background: var(--surface2); border-radius: 9px;
-    padding: 1px 5px; font-size: 10px; margin-left: 4px; color: var(--text-muted);
-  }
-
-  .panel-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-  .tab-panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
-  .tab-panel.active { display: flex; }
-
-  /* Editor areas */
-  .editor-wrap { flex: 1; position: relative; overflow: hidden; }
-  textarea.editor {
-    width: 100%; height: 100%; resize: none;
-    background: var(--bg); border: none; outline: none;
-    color: var(--text); font-family: var(--mono); font-size: 12.5px;
-    line-height: 1.6; padding: 16px;
-    transition: background .15s;
-  }
-  textarea.editor::placeholder { color: var(--text-muted); }
-
-  /* Params / Headers table */
-  .kv-table { flex: 1; overflow-y: auto; }
-  .kv-row {
-    display: grid; grid-template-columns: 1fr 1fr auto;
-    border-bottom: 1px solid var(--border); align-items: stretch;
-  }
-  .kv-cell {
-    padding: 0;
-    border-right: 1px solid var(--border);
-  }
-  .kv-cell:last-child { border-right: none; display: flex; align-items: center; justify-content: center; width: 40px; }
-  .kv-cell input {
-    width: 100%; height: 34px; padding: 0 12px;
-    background: transparent; border: none; outline: none;
-    color: var(--text); font-family: var(--mono); font-size: 12px;
-    transition: background .1s;
-  }
-  .kv-cell input:focus { background: var(--surface2); }
-  .kv-cell input::placeholder { color: var(--text-muted); }
-  .kv-header { background: var(--surface); }
-  .kv-header .kv-cell input { font-weight: 600; font-size: 11px; color: var(--text-muted); pointer-events: none; }
-  .kv-add { padding: 8px 12px; cursor: pointer; text-align: center; font-size: 12px; color: var(--accent); border: none; background: transparent; width: 100%; font-family: var(--sans); transition: background .1s; }
-  .kv-add:hover { background: var(--surface2); }
-  .del-btn { width: 24px; height: 24px; border-radius: 4px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all .1s; }
-  .del-btn:hover { background: rgba(244,63,94,.15); color: var(--red); }
-
-  /* Response */
-  .response-meta {
-    padding: 10px 16px; border-bottom: 1px solid var(--border);
-    background: var(--surface); display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
-  }
-  .status-pill {
-    font-family: var(--mono); font-size: 12px; font-weight: 600;
-    padding: 3px 10px; border-radius: 99px;
-  }
-  .status-pill.s2 { background: rgba(16,185,129,.15); color: var(--green); }
-  .status-pill.s3 { background: rgba(245,158,11,.15); color: var(--yellow); }
-  .status-pill.s4 { background: rgba(244,63,94,.15); color: var(--red); }
-  .status-pill.s5 { background: rgba(244,63,94,.15); color: var(--red); }
-  .status-pill.se { background: rgba(244,63,94,.15); color: var(--red); }
-  .meta-item { font-size: 12px; color: var(--text-muted); display: flex; gap: 5px; }
-  .meta-item b { color: var(--text-dim); }
-
-  .res-actions { margin-left: auto; display: flex; gap: 6px; }
-  .icon-btn {
-    padding: 5px 10px; border-radius: 5px; border: 1px solid var(--border);
-    background: transparent; color: var(--text-dim); font-size: 11px; cursor: pointer;
-    font-family: var(--sans); transition: all .1s;
-  }
-  .icon-btn:hover { border-color: var(--border-hover); color: var(--text); background: var(--surface2); }
-
-  .res-body { flex: 1; overflow: auto; }
-  #responseOutput {
-    font-family: var(--mono); font-size: 12.5px; line-height: 1.7;
-    padding: 16px; white-space: pre-wrap; word-break: break-all;
-    min-height: 100%; color: var(--text);
-  }
-
-  /* Empty state */
-  .empty-state {
-    flex: 1; display: flex; flex-direction: column; align-items: center;
-    justify-content: center; gap: 10px; color: var(--text-muted); padding: 40px;
-  }
-  .empty-icon { font-size: 40px; opacity: .4; }
-  .empty-text { font-size: 13px; text-align: center; }
-
-  /* Response headers table */
-  .res-headers { flex: 1; overflow-y: auto; }
-  .res-header-row { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border); }
-  .res-header-cell { padding: 8px 14px; font-family: var(--mono); font-size: 12px; }
-  .res-header-cell.key { color: var(--blue); }
-  .res-header-cell.val { color: var(--text-dim); word-break: break-all; }
-
-  /* History sidebar */
-  .history-panel {
-    width: 260px; border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; background: var(--surface);
-    transition: width .2s; overflow: hidden;
-  }
-  .history-panel.hidden { width: 0; }
-  .history-head { padding: 10px 14px; font-size: 12px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
-  .history-list { flex: 1; overflow-y: auto; }
-  .history-item {
-    padding: 10px 14px; cursor: pointer; border-bottom: 1px solid var(--border);
-    transition: background .1s; display: flex; flex-direction: column; gap: 3px;
-  }
-  .history-item:hover { background: var(--surface2); }
-  .history-item.active { background: var(--accent-glow); border-left: 2px solid var(--accent); }
-  .h-method { font-family: var(--mono); font-size: 11px; font-weight: 600; }
-  .h-url { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-  .h-status { font-size: 10px; }
-
-  /* Loading spinner */
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .spinner { width: 14px; height: 14px; border: 2px solid #ffffff44; border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
-
-  /* Toast */
-  .toast {
-    position: fixed; bottom: 24px; right: 24px;
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); padding: 10px 18px; border-radius: 8px; font-size: 13px;
-    box-shadow: 0 8px 24px rgba(0,0,0,.5); transition: opacity .3s; z-index: 999;
-  }
-  .toast.hidden { opacity: 0; pointer-events: none; }
-
-  /* Resizer */
-  .resizer { width: 4px; background: var(--border); cursor: col-resize; flex-shrink: 0; transition: background .1s; }
-  .resizer:hover { background: var(--accent); }
-</style>
+    <style>
+        body { background-color: #0F1117; font-family: 'Inter', sans-serif; }
+        .gradient-text {
+            background: linear-gradient(135deg, #E8F4FD 0%, #3B82F6 50%, #F59E0B 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .glow-blue { box-shadow: 0 0 30px rgba(59, 130, 246, 0.25); }
+        .glow-border { border: 1px solid rgba(59, 130, 246, 0.3); }
+        .code-keyword { color: #C792EA; }
+        .code-fn { color: #82AAFF; }
+        .code-string { color: #C3E88D; }
+        .code-type { color: #FFCB6B; }
+        .code-comment { color: #546E7A; }
+        .code-attr { color: #F07178; }
+        .code-macro { color: #89DDFF; }
+        .noise-bg {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+        }
+    </style>
 </head>
-<body>
 
-<div class="header">
-  <div class="logo">⚡</div>
-  <span class="header-title">API Tester</span>
-  <span class="header-badge">v2.0</span>
-  <div class="header-right">
-    <button class="history-btn" id="historyToggle">⏱ Riwayat</button>
-    <button class="clear-btn" id="clearAll">✕ Reset</button>
-  </div>
-</div>
+<body class="text-text-primary antialiased" x-data="{ mobileMenuOpen: false }">
 
-<div class="url-bar">
-  <select class="method-select GET" id="method">
-    <option value="GET">GET</option>
-    <option value="POST">POST</option>
-    <option value="PUT">PUT</option>
-    <option value="PATCH">PATCH</option>
-    <option value="DELETE">DELETE</option>
-  </select>
-  <input class="url-input" id="url" type="text" placeholder="https://api.example.com/endpoint" value="http://localhost:8080/">
-  <button class="send-btn" id="sendBtn">
-    <span id="btnLabel">Kirim</span>
-  </button>
-</div>
+    <!-- ─── NAVBAR ─────────────────────────────────────────────── -->
+    <header class="fixed top-0 inset-x-0 z-50 border-b border-border/50 bg-canvas/80 backdrop-blur-md">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="/" class="flex items-center gap-2 font-display font-700 text-lg">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded bg-accent text-white text-xs font-mono font-bold">S</span>
+                <span class="text-text-primary">Sapi<span class="text-accent">-rs</span></span>
+            </a>
 
-<div class="main">
+            <!-- Desktop nav -->
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-text-muted">
+                <a href="#features" class="hover:text-text-primary transition-colors">Features</a>
+                <a href="#quickstart" class="hover:text-text-primary transition-colors">Quick Start</a>
+                <a href="#stack" class="hover:text-text-primary transition-colors">Stack</a>
+                <a href="#" class="hover:text-text-primary transition-colors">Docs</a>
+            </nav>
 
-  <!-- History Sidebar -->
-  <div class="history-panel hidden" id="historyPanel">
-    <div class="history-head">Riwayat Request</div>
-    <div class="history-list" id="historyList">
-      <div class="empty-state"><div class="empty-text">Belum ada riwayat</div></div>
-    </div>
-  </div>
-
-  <!-- Request Panel -->
-  <div class="panel" id="reqPanel">
-    <div class="panel-tabs">
-      <button class="tab active" data-tab="req-params">Params</button>
-      <button class="tab" data-tab="req-headers">Headers</button>
-      <button class="tab" data-tab="req-body">Body</button>
-      <button class="tab" data-tab="req-auth">Auth</button>
-    </div>
-    <div class="panel-content">
-
-      <!-- Params Tab -->
-      <div class="tab-panel active" id="req-params">
-        <div class="kv-table" id="paramsTable">
-          <div class="kv-row kv-header">
-            <div class="kv-cell"><input value="Key" readonly></div>
-            <div class="kv-cell"><input value="Value" readonly></div>
-            <div class="kv-cell" style="width:40px"></div>
-          </div>
-        </div>
-        <button class="kv-add" id="addParam">+ Tambah Parameter</button>
-      </div>
-
-      <!-- Headers Tab -->
-      <div class="tab-panel" id="req-headers">
-        <div class="kv-table" id="headersTable">
-          <div class="kv-row kv-header">
-            <div class="kv-cell"><input value="Header" readonly></div>
-            <div class="kv-cell"><input value="Value" readonly></div>
-            <div class="kv-cell" style="width:40px"></div>
-          </div>
-        </div>
-        <button class="kv-add" id="addHeader">+ Tambah Header</button>
-      </div>
-
-      <!-- Body Tab -->
-      <div class="tab-panel" id="req-body">
-        <div style="padding:8px 12px; border-bottom:1px solid var(--border); display:flex; gap:6px; background:var(--surface);">
-          <button class="tab active" data-body-format="json" style="padding:4px 10px;">JSON</button>
-          <button class="tab" data-body-format="text" style="padding:4px 10px;">Text</button>
-          <button class="tab" data-body-format="form" style="padding:4px 10px;">Form</button>
-        </div>
-        <div class="editor-wrap" id="bodyEditorWrap">
-          <textarea class="editor" id="bodyEditor" placeholder='{\n  "key": "value"\n}'>{
-  "title": "Contoh Request",
-  "body": "Isi konten di sini",
-  "userId": 1
-}</textarea>
-        </div>
-        <div class="kv-table" id="formTable" style="display:none">
-          <div class="kv-row kv-header">
-            <div class="kv-cell"><input value="Field" readonly></div>
-            <div class="kv-cell"><input value="Value" readonly></div>
-            <div class="kv-cell" style="width:40px"></div>
-          </div>
-        </div>
-        <button class="kv-add" id="addForm" style="display:none">+ Tambah Field</button>
-      </div>
-
-      <!-- Auth Tab -->
-      <div class="tab-panel" id="req-auth">
-        <div style="padding:12px 16px; border-bottom:1px solid var(--border); background:var(--surface);">
-          <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:6px;">Tipe Auth</label>
-          <select id="authType" style="background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:7px 12px; border-radius:6px; font-family:var(--sans); font-size:13px; outline:none; width:100%;">
-            <option value="none">Tidak Ada</option>
-            <option value="bearer">Bearer Token</option>
-            <option value="basic">Basic Auth</option>
-            <option value="apikey">API Key</option>
-          </select>
-        </div>
-        <div id="authFields" style="padding:14px 16px; display:flex; flex-direction:column; gap:10px;"></div>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="resizer" id="resizer"></div>
-
-  <!-- Response Panel -->
-  <div class="panel" id="resPanel">
-    <div class="panel-tabs">
-      <button class="tab active" data-tab="res-body">Body</button>
-      <button class="tab" data-tab="res-headers">Headers <span class="badge" id="resHeaderCount">0</span></button>
-    </div>
-
-    <div id="response-meta-bar" style="display:none">
-      <div class="response-meta" id="responseMeta"></div>
-    </div>
-
-    <div class="panel-content">
-
-      <!-- Response Body -->
-      <div class="tab-panel active" id="res-body">
-        <div id="emptyState" class="empty-state">
-          <div class="empty-icon">⬆</div>
-          <div class="empty-text">Kirim request untuk melihat<br>response di sini</div>
-        </div>
-        <div id="resBodyWrap" style="display:none; flex:1; flex-direction:column; overflow:hidden;">
-          <div style="padding:6px 12px; border-bottom:1px solid var(--border); background:var(--surface); display:flex; gap:6px; align-items:center;">
-            <button class="tab active" data-res-view="pretty" style="padding:3px 10px;">Pretty</button>
-            <button class="tab" data-res-view="raw" style="padding:3px 10px;">Raw</button>
-            <div class="res-actions">
-              <button class="icon-btn" id="copyBtn">📋 Salin</button>
-              <button class="icon-btn" id="downloadBtn">⬇ Unduh</button>
+            <!-- CTA + mobile toggle -->
+            <div class="flex items-center gap-3">
+                <a href="#quickstart" class="hidden md:inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-accent hover:bg-accent/90 text-white text-sm font-medium transition-colors">
+                    Get Started
+                </a>
+                <!-- Mobile hamburger -->
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-1.5 rounded text-text-muted hover:text-text-primary">
+                    <svg x-show="!mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    <svg x-show="mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
-          </div>
-          <div class="res-body">
-            <pre id="responseOutput"></pre>
-          </div>
         </div>
-      </div>
 
-      <!-- Response Headers -->
-      <div class="tab-panel" id="res-headers">
-        <div class="res-headers" id="resHeadersList">
-          <div class="empty-state"><div class="empty-text">Kirim request terlebih dahulu</div></div>
+        <!-- Mobile menu -->
+        <div x-show="mobileMenuOpen" x-transition class="md:hidden border-t border-border/50 bg-canvas px-4 py-4 flex flex-col gap-4 text-sm font-medium text-text-muted">
+            <a href="#features" @click="mobileMenuOpen=false" class="hover:text-text-primary transition-colors">Features</a>
+            <a href="#quickstart" @click="mobileMenuOpen=false" class="hover:text-text-primary transition-colors">Quick Start</a>
+            <a href="#stack" @click="mobileMenuOpen=false" class="hover:text-text-primary transition-colors">Stack</a>
+            <a href="#" @click="mobileMenuOpen=false" class="hover:text-text-primary transition-colors">Docs</a>
+            <a href="#quickstart" class="inline-flex justify-center items-center px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium">Get Started</a>
         </div>
-      </div>
+    </header>
 
-    </div>
-  </div>
+    <main>
 
-</div>
+        <!-- ─── HERO ───────────────────────────────────────────────── -->
+        <section class="min-h-screen pt-14 flex flex-col items-center justify-center relative overflow-hidden noise-bg">
 
-<div class="toast hidden" id="toast"></div>
+            <!-- Grid background decoration -->
+            <div class="absolute inset-0 pointer-events-none" style="background-image: linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px); background-size: 60px 60px;"></div>
 
-<script>
-// ---- State ----
-let rawResponse = '';
-let responseHeaders = {};
-let history = JSON.parse(localStorage.getItem('apitester_history') || '[]');
-let bodyFormat = 'json';
-let resView = 'pretty';
-let historyVisible = false;
+            <!-- Glow blob -->
+            <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full opacity-10 blur-3xl pointer-events-none" style="background: radial-gradient(ellipse, #3B82F6 0%, transparent 70%);"></div>
 
-// ---- Tabs ----
-document.querySelectorAll('[data-tab]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const group = btn.closest('.panel-tabs');
-    group.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    const panel = btn.closest('.panel');
-    panel.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    panel.querySelector('#' + btn.dataset.tab)?.classList.add('active');
-  });
-});
+            <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 w-full py-20 lg:py-28 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
-// Body format tabs
-document.querySelectorAll('[data-body-format]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('[data-body-format]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    bodyFormat = btn.dataset.bodyFormat;
-    document.getElementById('bodyEditorWrap').style.display = bodyFormat === 'form' ? 'none' : 'flex';
-    document.getElementById('formTable').style.display = bodyFormat === 'form' ? 'flex' : 'none';
-    document.getElementById('addForm').style.display = bodyFormat === 'form' ? 'block' : 'none';
-  });
-});
+                <!-- Left: Copy -->
+                <div class="space-y-7">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border text-xs font-mono text-text-muted bg-surface/50">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber animate-pulse"></span>
+                        Actix Web · SQLx · Session-based Auth
+                    </div>
 
-// Res view tabs
-document.querySelectorAll('[data-res-view]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('[data-res-view]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    resView = btn.dataset.resView;
-    renderResponse();
-  });
-});
+                    <h1 class="font-display font-bold leading-[1.1] text-4xl sm:text-5xl lg:text-6xl">
+                        <span class="text-text-primary">Prototype</span><br/>
+                        <span class="gradient-text">at warp speed.</span><br/>
+                        <span class="text-text-primary">Ship with</span>
+                        <span class="text-rust font-mono"> Rust.</span>
+                    </h1>
 
-// ---- Method color ----
-const methodSel = document.getElementById('method');
-methodSel.addEventListener('change', () => {
-  methodSel.className = 'method-select ' + methodSel.value;
-});
+                    <p class="text-text-muted text-base sm:text-lg max-w-md leading-relaxed">
+                        Sapi-rs adalah opinionated web framework layer di atas Actix Web — ringan untuk prototyping cepat, kencang untuk production.
+                    </p>
 
-// ---- KV Tables ----
-function addKVRow(tableId, keyPlaceholder = 'key', valPlaceholder = 'value') {
-  const table = document.getElementById(tableId);
-  const row = document.createElement('div');
-  row.className = 'kv-row';
-  row.innerHTML = `
-    <div class="kv-cell"><input placeholder="${keyPlaceholder}"></div>
-    <div class="kv-cell"><input placeholder="${valPlaceholder}"></div>
-    <div class="kv-cell"><button class="del-btn" onclick="this.closest('.kv-row').remove()">×</button></div>
-  `;
-  // sync params to URL
-  if (tableId === 'paramsTable') {
-    row.querySelectorAll('input').forEach(i => i.addEventListener('input', syncParamsToUrl));
-  }
-  table.appendChild(row);
-}
+                    <div class="flex flex-col sm:flex-row gap-3 pt-1">
+                        <a href="#quickstart" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-accent hover:bg-accent/90 text-white font-medium text-sm transition-all glow-blue">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            Quick Start
+                        </a>
+                        <a href="#features" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-border hover:border-accent/50 text-text-muted hover:text-text-primary font-medium text-sm transition-all">
+                            Explore Features
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                        </a>
+                    </div>
 
-document.getElementById('addParam').addEventListener('click', () => { addKVRow('paramsTable', 'key', 'value'); });
-document.getElementById('addHeader').addEventListener('click', () => { addKVRow('headersTable', 'Content-Type', 'application/json'); });
-document.getElementById('addForm').addEventListener('click', () => { addKVRow('formTable', 'field', 'value'); });
+                    <!-- Stats -->
+                    <div class="flex gap-8 pt-2">
+                        <div>
+                            <div class="font-display font-bold text-2xl text-text-primary">~5ms</div>
+                            <div class="text-xs text-text-muted mt-0.5">avg response</div>
+                        </div>
+                        <div class="w-px bg-border"></div>
+                        <div>
+                            <div class="font-display font-bold text-2xl text-text-primary">0 alloc</div>
+                            <div class="text-xs text-text-muted mt-0.5">route boilerplate</div>
+                        </div>
+                        <div class="w-px bg-border"></div>
+                        <div>
+                            <div class="font-display font-bold text-2xl text-amber">1 file</div>
+                            <div class="text-xs text-text-muted mt-0.5">to add a page</div>
+                        </div>
+                    </div>
+                </div>
 
-function getKVRows(tableId) {
-  const rows = {};
-  document.querySelectorAll(`#${tableId} .kv-row:not(.kv-header)`).forEach(row => {
-    const [k, v] = row.querySelectorAll('input');
-    if (k.value.trim()) rows[k.value.trim()] = v.value;
-  });
-  return rows;
-}
+                <!-- Right: Code snippet -->
+                <div class="glow-border rounded-2xl overflow-hidden bg-surface shadow-2xl" style="box-shadow: 0 0 60px rgba(59,130,246,0.12);">
+                    <!-- Window bar -->
+                    <div class="flex items-center gap-2 px-4 py-3 bg-surface-2 border-b border-border">
+                        <span class="w-3 h-3 rounded-full bg-red-500/70"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber/70"></span>
+                        <span class="w-3 h-3 rounded-full bg-green-500/70"></span>
+                        <span class="ml-auto font-mono text-xs text-text-muted">src/handler/dashboard.rs</span>
+                    </div>
+                    <!-- Code body -->
+                    <div class="p-5 font-mono text-[13px] leading-relaxed overflow-x-auto">
+                        <pre><span class="code-attr">#[get("/dashboard")]</span>
+<span class="code-keyword">pub async fn</span> <span class="code-fn">dashboard</span>(
+    <span class="code-fn">session</span>: Session,
+    <span class="code-fn">pool</span>: Pool,
+) <span class="code-keyword">-></span> <span class="code-type">Response</span> {
+    <span class="code-comment">// auth guard — satu baris</span>
+    <span class="code-keyword">let</span> user_id = <span class="code-fn">auth</span>!(<span class="code-fn">session</span>);
 
-// Sync params to URL
-function syncParamsToUrl() {
-  const params = getKVRows('paramsTable');
-  const base = document.getElementById('url').value.split('?')[0];
-  const qs = Object.entries(params).map(([k,v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
-  document.getElementById('url').value = qs ? `${base}?${qs}` : base;
-}
+    <span class="code-keyword">let</span> data = <span class="code-macro">sqlx::query_as!</span>(
+        UserRow,
+        <span class="code-string">"SELECT * FROM users WHERE id = ?"</span>,
+        user_id
+    )
+    .<span class="code-fn">fetch_one</span>(&*pool).<span class="code-keyword">await</span>?;
 
-// Sync URL to params
-document.getElementById('url').addEventListener('input', () => {
-  try {
-    const u = new URL(document.getElementById('url').value);
-    const table = document.getElementById('paramsTable');
-    table.querySelectorAll('.kv-row:not(.kv-header)').forEach(r => r.remove());
-    u.searchParams.forEach((v, k) => {
-      addKVRow('paramsTable');
-      const rows = table.querySelectorAll('.kv-row:not(.kv-header)');
-      const last = rows[rows.length - 1].querySelectorAll('input');
-      last[0].value = k; last[1].value = v;
-    });
-  } catch {}
-});
+    <span class="code-comment">// render server-side HTML</span>
+    <span class="code-fn">render</span>!(<span class="code-string">"page/dashboard.html"</span>, {
+        <span class="code-string">"user"</span> <span class="code-keyword">=></span> data
+    })
+}<span class="animate-blink text-accent">▌</span></pre>
+                    </div>
+                    <!-- Footer badge -->
+                    <div class="px-5 py-3 border-t border-border bg-surface-2 flex items-center justify-between">
+                        <span class="text-xs text-text-muted font-mono">handler lengkap dalam ~15 baris</span>
+                        <span class="text-xs font-medium text-green-400 font-mono flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                            compiles ✓
+                        </span>
+                    </div>
+                </div>
 
-// ---- Auth ----
-const authType = document.getElementById('authType');
-const authFields = document.getElementById('authFields');
-const inputStyle = 'width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-family:var(--mono);font-size:13px;outline:none;';
+            </div>
+        </section>
 
-authType.addEventListener('change', () => {
-  authFields.innerHTML = '';
-  if (authType.value === 'bearer') {
-    authFields.innerHTML = `<label style="font-size:12px;color:var(--text-muted)">Token</label><input id="bearerToken" placeholder="Bearer token..." style="${inputStyle}">`;
-  } else if (authType.value === 'basic') {
-    authFields.innerHTML = `<label style="font-size:12px;color:var(--text-muted)">Username</label><input id="basicUser" style="${inputStyle}"><label style="font-size:12px;color:var(--text-muted);margin-top:4px">Password</label><input id="basicPass" type="password" style="${inputStyle}">`;
-  } else if (authType.value === 'apikey') {
-    authFields.innerHTML = `<label style="font-size:12px;color:var(--text-muted)">Header Name</label><input id="apikeyName" value="X-API-Key" style="${inputStyle}"><label style="font-size:12px;color:var(--text-muted);margin-top:4px">Value</label><input id="apikeyVal" style="${inputStyle}">`;
-  }
-});
+        <!-- ─── FEATURES ───────────────────────────────────────────── -->
+        <section id="features" class="py-24 px-4 sm:px-6 border-t border-border/50">
+            <div class="max-w-6xl mx-auto">
 
-function getAuthHeaders() {
-  const headers = {};
-  if (authType.value === 'bearer') {
-    const t = document.getElementById('bearerToken')?.value;
-    if (t) headers['Authorization'] = 'Bearer ' + t;
-  } else if (authType.value === 'basic') {
-    const u = document.getElementById('basicUser')?.value;
-    const p = document.getElementById('basicPass')?.value;
-    if (u) headers['Authorization'] = 'Basic ' + btoa(u + ':' + p);
-  } else if (authType.value === 'apikey') {
-    const n = document.getElementById('apikeyName')?.value;
-    const v = document.getElementById('apikeyVal')?.value;
-    if (n && v) headers[n] = v;
-  }
-  return headers;
-}
+                <div class="text-center mb-16 space-y-3">
+                    <p class="font-mono text-xs text-accent uppercase tracking-widest">Kenapa Sapi-rs</p>
+                    <h2 class="font-display font-bold text-3xl sm:text-4xl text-text-primary">Semua yang kamu butuhkan,<br/>tanpa yang tidak kamu butuhkan.</h2>
+                    <p class="text-text-muted max-w-xl mx-auto text-sm leading-relaxed">Setiap layer dipilih dengan satu prinsip: tulis sedikit, jalankan cepat, ubah mudah.</p>
+                </div>
 
-// ---- Send Request ----
-document.getElementById('sendBtn').addEventListener('click', sendRequest);
-document.getElementById('url').addEventListener('keydown', e => { if (e.key === 'Enter') sendRequest(); });
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
 
-async function sendRequest() {
-  const url = document.getElementById('url').value.trim();
-  if (!url) { showToast('⚠ Masukkan URL terlebih dahulu'); return; }
+                    <!-- Feature card -->
+                    <div class="group rounded-2xl border border-border bg-surface hover:border-accent/40 transition-all p-6 space-y-4">
+                        <div class="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent group-hover:bg-accent/20 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Zero-boilerplate Routing</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">Daftarkan route di <code class="font-mono text-xs text-accent-glow bg-surface-2 px-1.5 py-0.5 rounded">main.rs</code> dan handler siap dipanggil. Tidak ada magic, tidak ada macro tersembunyi.</p>
+                        </div>
+                    </div>
 
-  const method = methodSel.value;
-  const btn = document.getElementById('sendBtn');
-  const lbl = document.getElementById('btnLabel');
-  btn.classList.add('loading');
-  lbl.innerHTML = '<div class="spinner"></div>';
+                    <div class="group rounded-2xl border border-border bg-surface hover:border-amber/40 transition-all p-6 space-y-4">
+                        <div class="w-10 h-10 rounded-xl bg-amber/10 flex items-center justify-center text-amber group-hover:bg-amber/20 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582 4-8 4"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">SQLx MySQL Native</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">Query compile-time checked langsung ke MySQL. <code class="font-mono text-xs text-amber-soft bg-surface-2 px-1.5 py-0.5 rounded">Pool</code> siap pakai di setiap handler tanpa konfigurasi manual.</p>
+                        </div>
+                    </div>
 
-  try {
-    const headers = { ...getKVRows('headersTable'), ...getAuthHeaders() };
-    const options = { method, headers };
+                    <div class="group rounded-2xl border border-border bg-surface hover:border-green-500/40 transition-all p-6 space-y-4">
+                        <div class="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center text-green-400 group-hover:bg-green-500/20 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Session Auth Bawaan</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">Autentikasi berbasis <code class="font-mono text-xs text-green-400 bg-surface-2 px-1.5 py-0.5 rounded">actix-session</code> sudah terintegrasi. Guard, login, logout — tinggal pakai.</p>
+                        </div>
+                    </div>
 
-    if (!['GET', 'DELETE'].includes(method)) {
-      if (bodyFormat === 'json' || bodyFormat === 'text') {
-        options.body = document.getElementById('bodyEditor').value;
-        if (bodyFormat === 'json' && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
-      } else if (bodyFormat === 'form') {
-        const fd = new FormData();
-        Object.entries(getKVRows('formTable')).forEach(([k,v]) => fd.append(k, v));
-        options.body = fd;
-      }
-    }
+                    <div class="group rounded-2xl border border-border bg-surface hover:border-purple-500/40 transition-all p-6 space-y-4">
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 group-hover:bg-purple-500/20 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Server-Side HTML</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">HTML murni di <code class="font-mono text-xs text-purple-400 bg-surface-2 px-1.5 py-0.5 rounded">src/page/</code>. Tidak ada template engine baru untuk dipelajari — gunakan HTMX dan Alpine.js untuk interaktivitas.</p>
+                        </div>
+                    </div>
 
-    const start = performance.now();
-    const res = await fetch(url, options);
-    const elapsed = (performance.now() - start).toFixed(0);
-    const text = await res.text();
-    rawResponse = text;
+                    <div class="group rounded-2xl border border-border bg-surface hover:border-rose-500/40 transition-all p-6 space-y-4">
+                        <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-400 group-hover:bg-rose-500/20 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">bcrypt Password Hash</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">Password hashing dengan bcrypt sudah tersedia out-of-the-box. Tidak ada setup tambahan — keamanan default yang benar.</p>
+                        </div>
+                    </div>
 
-    // Collect response headers
-    responseHeaders = {};
-    res.headers.forEach((v, k) => { responseHeaders[k] = v; });
+                    <div class="group rounded-2xl border border-border bg-surface hover:border-cyan-500/40 transition-all p-6 space-y-4">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500/20 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Type Alias Konsisten</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">Alias seperti <code class="font-mono text-xs text-cyan-400 bg-surface-2 px-1.5 py-0.5 rounded">Pool, Request, Response, Warning</code> membuat setiap handler terlihat seragam dan mudah dibaca tim.</p>
+                        </div>
+                    </div>
 
-    // Status meta bar
-    const sc = String(res.status)[0];
-    document.getElementById('response-meta-bar').style.display = 'block';
-    document.getElementById('responseMeta').innerHTML = `
-      <span class="status-pill s${sc}">${res.status} ${res.statusText}</span>
-      <span class="meta-item"><b>Waktu</b> ${elapsed} ms</span>
-      <span class="meta-item"><b>Ukuran</b> ${formatBytes(new Blob([text]).size)}</span>
-      <span class="meta-item"><b>Tipe</b> ${res.headers.get('content-type')?.split(';')[0] || '—'}</span>
-    `;
+                </div>
+            </div>
+        </section>
 
-    // Render
-    renderResponse();
-    renderResHeaders();
+        <!-- ─── QUICK START ─────────────────────────────────────────── -->
+        <section id="quickstart" class="py-24 px-4 sm:px-6 border-t border-border/50" x-data="{ tab: 'route' }">
+            <div class="max-w-4xl mx-auto">
 
-    // Show body wrap, hide empty
-    document.getElementById('emptyState').style.display = 'none';
-    document.getElementById('resBodyWrap').style.display = 'flex';
+                <div class="text-center mb-14 space-y-3">
+                    <p class="font-mono text-xs text-accent uppercase tracking-widest">Quick Start</p>
+                    <h2 class="font-display font-bold text-3xl sm:text-4xl text-text-primary">Halaman baru dalam 3 langkah.</h2>
+                    <p class="text-text-muted text-sm">Route → Handler → HTML. Itu saja.</p>
+                </div>
 
-    // Save history
-    addHistory({ method, url, status: res.status, elapsed });
+                <!-- Step tabs -->
+                <div class="flex items-center gap-1 p-1 bg-surface rounded-xl mb-8 border border-border">
+                    <button @click="tab = 'route'"
+                        :class="tab === 'route' ? 'bg-accent text-white shadow' : 'text-text-muted hover:text-text-primary'"
+                        class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all">
+                        1. Route
+                    </button>
+                    <button @click="tab = 'handler'"
+                        :class="tab === 'handler' ? 'bg-accent text-white shadow' : 'text-text-muted hover:text-text-primary'"
+                        class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all">
+                        2. Handler
+                    </button>
+                    <button @click="tab = 'html'"
+                        :class="tab === 'html' ? 'bg-accent text-white shadow' : 'text-text-muted hover:text-text-primary'"
+                        class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all">
+                        3. HTML
+                    </button>
+                </div>
 
-  } catch (err) {
-    rawResponse = err.toString();
-    document.getElementById('response-meta-bar').style.display = 'block';
-    document.getElementById('responseMeta').innerHTML = `<span class="status-pill se">Error</span><span class="meta-item">${err.message}</span>`;
-    renderResponse();
-    document.getElementById('emptyState').style.display = 'none';
-    document.getElementById('resBodyWrap').style.display = 'flex';
-    addHistory({ method, url, status: 'ERR', elapsed: 0 });
-  } finally {
-    btn.classList.remove('loading');
-    lbl.textContent = 'Kirim';
-  }
-}
+                <!-- Code panels -->
+                <div class="rounded-2xl border border-border overflow-hidden" style="box-shadow: 0 0 40px rgba(0,0,0,0.4);">
+                    <!-- Window bar -->
+                    <div class="flex items-center gap-2 px-4 py-3 bg-surface-2 border-b border-border">
+                        <span class="w-3 h-3 rounded-full bg-red-500/70"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber/70"></span>
+                        <span class="w-3 h-3 rounded-full bg-green-500/70"></span>
+                        <span class="ml-auto font-mono text-xs text-text-muted" x-text="tab === 'route' ? 'src/main.rs' : tab === 'handler' ? 'src/handler/profile.rs' : 'src/page/profile.html'"></span>
+                    </div>
 
-function renderResponse() {
-  const out = document.getElementById('responseOutput');
-  if (resView === 'raw') {
-    out.textContent = rawResponse;
-    out.style.color = 'var(--text-dim)';
-    return;
-  }
-  try {
-    const parsed = JSON.parse(rawResponse);
-    out.innerHTML = syntaxHighlight(JSON.stringify(parsed, null, 2));
-  } catch {
-    out.textContent = rawResponse;
-    out.style.color = 'var(--text-dim)';
-  }
-}
+                    <!-- Route -->
+                    <div x-show="tab === 'route'" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-surface">
+<pre><span class="code-comment">// src/main.rs — daftarkan satu baris</span>
+<span class="code-fn">App</span>::<span class="code-fn">new</span>()
+    .<span class="code-fn">route</span>(
+        <span class="code-string">"/profile"</span>,
+        <span class="code-fn">web</span>::<span class="code-fn">get</span>().<span class="code-fn">to</span>(handler::profile::<span class="code-fn">index</span>)
+    )
+    .<span class="code-fn">route</span>(
+        <span class="code-string">"/profile/update"</span>,
+        <span class="code-fn">web</span>::<span class="code-fn">post</span>().<span class="code-fn">to</span>(handler::profile::<span class="code-fn">update</span>)
+    )</pre>
+                    </div>
 
-function syntaxHighlight(json) {
-  return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
-    let cls = 'color:var(--yellow)';
-    if (/^"/.test(match)) {
-      cls = /:$/.test(match) ? 'color:var(--blue)' : 'color:var(--green)';
-    } else if (/true|false/.test(match)) {
-      cls = 'color:var(--accent)';
-    } else if (/null/.test(match)) {
-      cls = 'color:var(--text-muted)';
-    }
-    return `<span style="${cls}">${match}</span>`;
-  });
-}
+                    <!-- Handler -->
+                    <div x-show="tab === 'handler'" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-surface">
+<pre><span class="code-comment">// src/handler/profile.rs</span>
+<span class="code-keyword">use</span> crate::web::{Pool, Request, Response, Warning};
+<span class="code-keyword">use</span> actix_session::Session;
 
-function renderResHeaders() {
-  const list = document.getElementById('resHeadersList');
-  const entries = Object.entries(responseHeaders);
-  document.getElementById('resHeaderCount').textContent = entries.length;
-  list.innerHTML = entries.map(([k,v]) =>
-    `<div class="res-header-row"><div class="res-header-cell key">${k}</div><div class="res-header-cell val">${v}</div></div>`
-  ).join('') || '<div class="empty-state"><div class="empty-text">Tidak ada header</div></div>';
-}
+<span class="code-keyword">pub async fn</span> <span class="code-fn">index</span>(
+    <span class="code-fn">session</span>: Session,
+    <span class="code-fn">pool</span>: Pool,
+) <span class="code-keyword">-></span> <span class="code-type">Response</span> {
+    <span class="code-keyword">let</span> user_id: i32 = <span class="code-keyword">match</span> <span class="code-fn">session</span>.<span class="code-fn">get</span>::&lt;i32&gt;(<span class="code-string">"user_id"</span>) {
+        <span class="code-fn">Ok</span>(<span class="code-fn">Some</span>(id)) <span class="code-keyword">=></span> id,
+        _ <span class="code-keyword">=></span> <span class="code-keyword">return</span> <span class="code-type">Response</span>::<span class="code-fn">Found</span>()
+              .<span class="code-fn">insert_header</span>((<span class="code-string">"Location"</span>, <span class="code-string">"/login"</span>))
+              .<span class="code-fn">finish</span>(),
+    };
 
-// ---- Copy & Download ----
-document.getElementById('copyBtn').addEventListener('click', () => {
-  navigator.clipboard.writeText(rawResponse).then(() => showToast('✓ Response disalin'));
-});
+    <span class="code-keyword">let</span> html = <span class="code-macro">include_str!</span>(<span class="code-string">"../page/profile.html"</span>);
+    <span class="code-type">Response</span>::<span class="code-fn">Ok</span>()
+        .<span class="code-fn">content_type</span>(<span class="code-string">"text/html; charset=utf-8"</span>)
+        .<span class="code-fn">body</span>(html)
+}</pre>
+                    </div>
 
-document.getElementById('downloadBtn').addEventListener('click', () => {
-  let ext = 'txt', type = 'text/plain';
-  try { JSON.parse(rawResponse); ext = 'json'; type = 'application/json'; } catch {}
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([rawResponse], { type }));
-  a.download = `response.${ext}`;
-  a.click();
-  showToast('⬇ File diunduh');
-});
+                    <!-- HTML -->
+                    <div x-show="tab === 'html'" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-surface">
+<pre><span class="code-comment">&lt;!-- src/page/profile.html --&gt;</span>
+<span class="code-attr">&lt;!DOCTYPE html&gt;</span>
+<span class="code-keyword">&lt;html</span> <span class="code-fn">lang</span>=<span class="code-string">"id"</span><span class="code-keyword">&gt;</span>
+<span class="code-keyword">&lt;head&gt;</span>
+  <span class="code-keyword">&lt;script</span> <span class="code-fn">src</span>=<span class="code-string">"https://cdn.tailwindcss.com"</span><span class="code-keyword">&gt;&lt;/script&gt;</span>
+  <span class="code-keyword">&lt;script</span> <span class="code-fn">src</span>=<span class="code-string">"https://unpkg.com/htmx.org"</span><span class="code-keyword">&gt;&lt;/script&gt;</span>
+<span class="code-keyword">&lt;/head&gt;</span>
+<span class="code-keyword">&lt;body&gt;</span>
+  <span class="code-keyword">&lt;form</span>
+    <span class="code-fn">hx-post</span>=<span class="code-string">"/profile/update"</span>
+    <span class="code-fn">hx-swap</span>=<span class="code-string">"none"</span><span class="code-keyword">&gt;</span>
+    <span class="code-keyword">&lt;input</span> <span class="code-fn">name</span>=<span class="code-string">"name"</span> <span class="code-fn">type</span>=<span class="code-string">"text"</span> <span class="code-keyword">/&gt;</span>
+    <span class="code-keyword">&lt;button</span> <span class="code-fn">type</span>=<span class="code-string">"submit"</span><span class="code-keyword">&gt;</span>Simpan<span class="code-keyword">&lt;/button&gt;</span>
+  <span class="code-keyword">&lt;/form&gt;</span>
+<span class="code-keyword">&lt;/body&gt;</span>
+<span class="code-keyword">&lt;/html&gt;</span></pre>
+                    </div>
+                </div>
 
-// ---- History ----
-function addHistory(item) {
-  history.unshift({ ...item, time: new Date().toLocaleTimeString('id') });
-  if (history.length > 30) history.pop();
-  localStorage.setItem('apitester_history', JSON.stringify(history));
-  renderHistory();
-}
+                <p class="text-center text-text-muted text-sm mt-6">Selesai. Tidak ada build step tambahan, tidak ada config baru.</p>
+            </div>
+        </section>
 
-function renderHistory() {
-  const list = document.getElementById('historyList');
-  if (!history.length) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-text">Belum ada riwayat</div></div>';
-    return;
-  }
-  list.innerHTML = history.map((h, i) => {
-    const sc = typeof h.status === 'number' ? String(h.status)[0] : 'e';
-    const col = { '2': 'var(--green)', '3': 'var(--yellow)', '4': 'var(--red)', '5': 'var(--red)', 'e': 'var(--red)' }[sc] || 'var(--text-muted)';
-    return `<div class="history-item" onclick="loadHistory(${i})">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <span class="h-method" style="color:${methodColor(h.method)}">${h.method}</span>
-        <span class="h-status" style="color:${col}">${h.status} · ${h.elapsed}ms</span>
-      </div>
-      <div class="h-url">${h.url}</div>
-      <div style="font-size:10px;color:var(--text-muted)">${h.time}</div>
-    </div>`;
-  }).join('');
-}
+        <!-- ─── STACK ───────────────────────────────────────────────── -->
+        <section id="stack" class="py-24 px-4 sm:px-6 border-t border-border/50">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-14 space-y-3">
+                    <p class="font-mono text-xs text-accent uppercase tracking-widest">Tech Stack</p>
+                    <h2 class="font-display font-bold text-3xl sm:text-4xl text-text-primary">Dipilih, bukan dikumpulkan.</h2>
+                </div>
 
-function loadHistory(i) {
-  const h = history[i];
-  document.getElementById('url').value = h.url;
-  methodSel.value = h.method;
-  methodSel.className = 'method-select ' + h.method;
-}
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 reveal reveal-delay-2">
+                <!-- Rust -->
+                <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30
+                            hover:border-orange-800/40 hover:bg-zinc-900/60 transition-all duration-300">
+                    <svg class="w-8 h-8 text-zinc-400 group-hover:text-orange-400 transition-colors duration-300" viewBox="0 0 128 128" fill="currentColor">
+                        <path d="M117.5 33.5l.3-.2c-.6-1.1-1.5-2.1-2.4-2.6L67.1 2.9c-.8-.5-1.9-.7-3.1-.7-1.2 0-2.3.3-3.1.7l-48 27.9c-1.7 1-2.9 3.5-2.9 5.4v55.7c0 1.1.2 2.3.9 3.4l-.2.1c.5.8 1.2 1.5 1.9 1.9l48.2 27.9c.8.5 1.9.7 3.1.7 1.2 0 2.3-.3 3.1-.7l48-27.9c1.7-1 2.9-3.5 2.9-5.4V36.1c.1-.8 0-1.7-.4-2.6zm-53.5-4c9.3 0 18.6 1.5 27.4 4.4l-27.4 15.8L36.6 33.9c8.8-2.9 18.1-4.4 27.4-4.4zM24.5 42.2l27.5 15.9v31.5l-27.5-15.8V42.2zm79 31.6L76 89.6V58.1l27.5-15.9v31.6z"/>
+                    </svg>
+                    <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Rust</span>
+                </div>
 
-function methodColor(m) {
-  return { GET:'var(--green)', POST:'var(--yellow)', PUT:'var(--blue)', PATCH:'#a78bfa', DELETE:'var(--red)' }[m] || 'var(--text)';
-}
+                <!-- Actix Web -->
+                <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30
+                            hover:border-emerald-800/40 hover:bg-zinc-900/60 transition-all duration-300">
+                    <div class="w-8 h-8 flex items-center justify-center">
+                        <svg class="w-7 h-7 text-zinc-400 group-hover:text-emerald-400 transition-colors duration-300" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-7.076-2.19l-.89 5.595C5.589 23.378 8.735 24 12.142 24c2.641 0 4.843-.624 6.327-1.813 1.655-1.275 2.504-3.176 2.504-5.584 0-4.128-2.524-5.851-6.997-7.453z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Actix Web</span>
+                </div>
 
-document.getElementById('historyToggle').addEventListener('click', () => {
-  historyVisible = !historyVisible;
-  document.getElementById('historyPanel').classList.toggle('hidden', !historyVisible);
-});
+                <!-- SQLx -->
+                <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30
+                            hover:border-cyan-800/40 hover:bg-zinc-900/60 transition-all duration-300">
+                    <div class="w-8 h-8 flex items-center justify-center">
+                        <svg class="w-7 h-7 text-zinc-400 group-hover:text-cyan-400 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">SQLx</span>
+                </div>
 
-document.getElementById('clearAll').addEventListener('click', () => {
-  document.getElementById('url').value = '';
-  document.getElementById('bodyEditor').value = '';
-  document.getElementById('paramsTable').querySelectorAll('.kv-row:not(.kv-header)').forEach(r => r.remove());
-  document.getElementById('headersTable').querySelectorAll('.kv-row:not(.kv-header)').forEach(r => r.remove());
-  rawResponse = '';
-  document.getElementById('emptyState').style.display = 'flex';
-  document.getElementById('resBodyWrap').style.display = 'none';
-  document.getElementById('response-meta-bar').style.display = 'none';
-  showToast('✓ Form direset');
-});
+                <!-- Tailwind CSS -->
+                <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30
+                            hover:border-sky-800/40 hover:bg-zinc-900/60 transition-all duration-300">
+                    <div class="w-8 h-8 flex items-center justify-center">
+                        <svg class="w-7 h-7 text-zinc-400 group-hover:text-sky-400 transition-colors duration-300" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.337 6.182 14.976 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.337 13.382 8.976 12 6.001 12z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Tailwind CSS</span>
+                </div>
 
-// ---- Toast ----
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.remove('hidden');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.add('hidden'), 2200);
-}
+                <!-- Alpine.js -->
+                <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30
+                            hover:border-teal-800/40 hover:bg-zinc-900/60 transition-all duration-300">
+                    <div class="w-8 h-8 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-zinc-400 group-hover:text-teal-400 transition-colors duration-300" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641 0 12.017 0z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Alpine.js</span>
+                </div>
 
-// ---- Resizer ----
-const resizer = document.getElementById('resizer');
-const reqPanel = document.getElementById('reqPanel');
-const resPanel = document.getElementById('resPanel');
-let isResizing = false;
+                <!-- HTMX -->
+                <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30
+                            hover:border-rose-800/40 hover:bg-zinc-900/60 transition-all duration-300">
+                    <div class="w-8 h-8 flex items-center justify-center font-mono font-bold text-sm text-zinc-400 group-hover:text-rose-400 transition-colors duration-300">
+                        &lt;/&gt;
+                    </div>
+                    <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">HTMX</span>
+                </div>
+            </div>
+            </div>
+        </section>
 
-resizer.addEventListener('mousedown', e => { isResizing = true; document.body.style.cursor = 'col-resize'; e.preventDefault(); });
-document.addEventListener('mousemove', e => {
-  if (!isResizing) return;
-  const main = document.querySelector('.main');
-  const mainRect = main.getBoundingClientRect();
-  const leftW = e.clientX - mainRect.left - (historyVisible ? 260 : 0);
-  const total = mainRect.width - (historyVisible ? 260 : 0) - 4;
-  const pct = Math.min(Math.max(leftW / total * 100, 25), 75);
-  reqPanel.style.flex = 'none'; reqPanel.style.width = pct + '%';
-  resPanel.style.flex = '1';
-});
-document.addEventListener('mouseup', () => { isResizing = false; document.body.style.cursor = ''; });
+        <!-- ─── CTA BOTTOM ─────────────────────────────────────────── -->
+        <section class="py-24 px-4 sm:px-6 border-t border-border/50">
+            <div class="max-w-2xl mx-auto text-center space-y-8">
+                <h2 class="font-display font-bold text-3xl sm:text-4xl text-text-primary leading-snug">
+                    Siap build sesuatu yang<br/>
+                    <span class="gradient-text">benar-benar cepat?</span>
+                </h2>
+                <p class="text-text-muted text-base">Tambah halaman pertama kamu dalam hitungan menit, bukan jam.</p>
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <a href="#quickstart" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-accent hover:bg-accent/90 text-white font-medium transition-all glow-blue">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        Mulai Sekarang
+                    </a>
+                    <a href="#" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-border hover:border-accent/50 text-text-muted hover:text-text-primary font-medium transition-all text-sm">
+                        Baca Dokumentasi
+                    </a>
+                </div>
 
-// ---- Utils ----
-function formatBytes(b) {
-  if (b < 1024) return b + ' B';
-  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
-  return (b/1048576).toFixed(1) + ' MB';
-}
+                <!-- Terminal snippet -->
+                <div class="inline-flex items-center gap-3 px-5 py-3 rounded-xl bg-surface border border-border font-mono text-sm text-text-muted mx-auto">
+                    <span class="text-accent">$</span>
+                    <span>cargo run</span>
+                    <span class="animate-blink text-accent">▌</span>
+                </div>
+            </div>
+        </section>
 
-// Init
-renderHistory();
-</script>
+    </main>
+
+    <!-- ─── FOOTER ─────────────────────────────────────────────── -->
+    <footer class="border-t border-border/50 py-8 px-4 sm:px-6">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-text-muted">
+            <div class="flex items-center gap-2 font-display font-medium">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded bg-accent text-white text-[10px] font-mono font-bold">RF</span>
+                Sapi-rs
+            </div>
+            <p class="font-mono text-xs">Built with Actix Web · SQLx · Tailwind CSS</p>
+            <p class="text-xs">© 2025 Sapi-rs. Prototype fast. Ship faster.</p>
+        </div>
+    </footer>
+
 </body>
 </html>
