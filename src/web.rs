@@ -1,7 +1,9 @@
+pub use serde_json::Value;
 pub use actix_web::Error;
 pub use actix_web::HttpRequest as Request;
 pub use actix_web::HttpResponse as Response;
 pub use uuid::Uuid;
+
 
 pub type Pool = actix_web::web::Data<sqlx::MySqlPool>;
 
@@ -13,6 +15,16 @@ pub struct Warning<'a> {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Authdata {
     pub is_user: bool
+}
+
+#[derive(Serialize)]
+pub struct ApiResponse {
+    pub success: bool,
+    pub message: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub meta: Option<Value>,
 }
 
 pub mod data {
