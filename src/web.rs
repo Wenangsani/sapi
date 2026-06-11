@@ -1,21 +1,11 @@
-pub use serde_json::Value;
 pub use actix_web::Error;
 pub use actix_web::HttpRequest as Request;
 pub use actix_web::HttpResponse as Response;
+pub use serde_json::Value;
 pub use uuid::Uuid;
 
 
 pub type Pool = actix_web::web::Data<sqlx::MySqlPool>;
-
-#[derive(Serialize)]
-pub struct Warning<'a> {
-    pub message: &'a str,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Authdata {
-    pub is_user: bool
-}
 
 #[derive(Serialize)]
 pub struct ApiResponse {

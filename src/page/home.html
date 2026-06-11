@@ -294,7 +294,7 @@
                         </div>
                         <div>
                             <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Type Alias Konsisten</h3>
-                            <p class="text-text-muted text-sm leading-relaxed">Alias seperti <code class="font-mono text-xs text-cyan-400 bg-surface-2 px-1.5 py-0.5 rounded">Pool, Request, Response, Warning</code> membuat setiap handler terlihat seragam dan mudah dibaca tim.</p>
+                            <p class="text-text-muted text-sm leading-relaxed">Alias seperti <code class="font-mono text-xs text-cyan-400 bg-surface-2 px-1.5 py-0.5 rounded">Pool, Request, Response</code> membuat setiap handler terlihat seragam dan mudah dibaca tim.</p>
                         </div>
                     </div>
 
@@ -358,7 +358,7 @@
                     <!-- Handler -->
                     <div x-show="tab === 'handler'" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-surface">
 <pre><span class="code-comment">// src/handler/profile.rs</span>
-<span class="code-keyword">use</span> crate::web::{Pool, Request, Response, Warning};
+<span class="code-keyword">use</span> crate::web::{Pool, Request, Response};
 <span class="code-keyword">use</span> actix_session::Session;
 
 <span class="code-keyword">pub async fn</span> <span class="code-fn">index</span>(

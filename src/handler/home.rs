@@ -1,4 +1,4 @@
-use crate::web::{Request, Response, data::{Path, Data}, Authdata};
+use crate::web::{Request, Response, data::{Path, Data}};
 use crate::appstate::Appstate;
 use actix_web::cookie::Cookie;
 use actix_web::cookie::time::Duration;

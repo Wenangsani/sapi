@@ -1,8 +1,9 @@
-use crate::web::{Pool, Response, Warning};
+use crate::web::{Pool, Response, ApiResponse};
 use crate::web::types::{Int, String, Date};
 use crate::web::data::Json;
 use actix_session::Session;
 use bcrypt::{hash, verify, DEFAULT_COST};
+use serde_json::json;
 
 fn default_value() -> String {
     String::from("")
@@ -24,25 +25,22 @@ pub struct User {
     pub created_at: Date,
 }
 
-#[derive(Serialize)]
-pub struct Output {
-    pub id: Int,
-    pub email: String,
-}
-
 pub async fn login(pool: Pool, data: Json<Logindata>, session: Session) -> Response {
 
     let email    = data.email.trim();
     let password = &data.password;
 
-    // Cek input kosong
     if email.is_empty() || password.is_empty() {
-        return Response::Forbidden().json(Warning { message: "blank_input" });
+        return Response::Forbidden().json(ApiResponse {
+            success: false,
+            message: "blank_input".into(),
+            data: None,
+            meta: None,
+        });
     }
 
     let conn = pool.get_ref();
 
-    // Gunakan fetch_optional — lebih efisien untuk cek 1 record
     let user = sqlx::query_as::<_, User>(
         "SELECT * FROM users WHERE email = ? LIMIT 1"
     )
@@ -50,27 +48,49 @@ pub async fn login(pool: Pool, data: Json<Logindata>, session: Session) -> Respo
     .fetch_optional(conn)
     .await;
 
-    // Tangani error koneksi DB
     let user = match user {
         Ok(Some(u)) => u,
-        Ok(None)    => return Response::Unauthorized().json(Warning { message: "user_not_found" }),
-        Err(_)      => return Response::InternalServerError().json(Warning { message: "db_error" }),
+        Ok(None)    => return Response::Unauthorized().json(ApiResponse {
+            success: false,
+            message: "user_not_found".into(),
+            data: None,
+            meta: None,
+        }),
+        Err(_) => return Response::InternalServerError().json(ApiResponse {
+            success: false,
+            message: "db_error".into(),
+            data: None,
+            meta: None,
+        }),
     };
 
-    // Verifikasi password dengan bcrypt
     let password_match = verify(password, &user.password).unwrap_or(false);
     if !password_match {
-        return Response::Unauthorized().json(Warning { message: "password_not_match" });
+        return Response::Unauthorized().json(ApiResponse {
+            success: false,
+            message: "password_not_match".into(),
+            data: None,
+            meta: None,
+        });
     }
 
-    // Simpan user_id ke session — ini yang dibaca SessionGuard
     if session.insert("user_id", user.id).is_err() {
-        return Response::InternalServerError().json(Warning { message: "session_error" });
+        return Response::InternalServerError().json(ApiResponse {
+            success: false,
+            message: "session_error".into(),
+            data: None,
+            meta: None,
+        });
     }
 
-    Response::Ok().json(Output {
-        id: user.id,
-        email: user.email,
+    Response::Ok().json(ApiResponse {
+        success: true,
+        message: "login_success".into(),
+        data: Some(json!({
+            "id": user.id,
+            "email": user.email,
+        })),
+        meta: None,
     })
 }
 
@@ -79,14 +99,17 @@ pub async fn register(pool: Pool, data: Json<Logindata>, session: Session) -> Re
     let email    = data.email.trim();
     let password = &data.password;
 
-    // Cek input kosong
     if email.is_empty() || password.is_empty() {
-        return Response::Forbidden().json(Warning { message: "blank_input" });
+        return Response::Forbidden().json(ApiResponse {
+            success: false,
+            message: "blank_input".into(),
+            data: None,
+            meta: None,
+        });
     }
 
     let conn = pool.get_ref();
 
-    // Cek apakah email sudah terdaftar
     let existing = sqlx::query_as::<_, User>(
         "SELECT * FROM users WHERE email = ? LIMIT 1"
     )
@@ -95,18 +118,31 @@ pub async fn register(pool: Pool, data: Json<Logindata>, session: Session) -> Re
     .await;
 
     match existing {
-        Ok(Some(_)) => return Response::Conflict().json(Warning { message: "email_already_used" }),
-        Ok(None)    => {},
-        Err(_)      => return Response::InternalServerError().json(Warning { message: "db_error" }),
+        Ok(Some(_)) => return Response::Conflict().json(ApiResponse {
+            success: false,
+            message: "email_already_used".into(),
+            data: None,
+            meta: None,
+        }),
+        Ok(None) => {},
+        Err(_)   => return Response::InternalServerError().json(ApiResponse {
+            success: false,
+            message: "db_error".into(),
+            data: None,
+            meta: None,
+        }),
     }
 
-    // Hash password sebelum disimpan
     let hashed = match hash(password, DEFAULT_COST) {
         Ok(h)  => h,
-        Err(_) => return Response::InternalServerError().json(Warning { message: "hash_error" }),
+        Err(_) => return Response::InternalServerError().json(ApiResponse {
+            success: false,
+            message: "hash_error".into(),
+            data: None,
+            meta: None,
+        }),
     };
 
-    // Insert user baru
     let inserted = sqlx::query(
         "INSERT INTO users (email, password) VALUES (?, ?)"
     )
@@ -117,23 +153,42 @@ pub async fn register(pool: Pool, data: Json<Logindata>, session: Session) -> Re
 
     let inserted = match inserted {
         Ok(r)  => r,
-        Err(_) => return Response::InternalServerError().json(Warning { message: "db_error" }),
+        Err(_) => return Response::InternalServerError().json(ApiResponse {
+            success: false,
+            message: "db_error".into(),
+            data: None,
+            meta: None,
+        }),
     };
 
     let new_id = inserted.last_insert_id() as Int;
 
-    // Langsung login setelah register
     if session.insert("user_id", new_id).is_err() {
-        return Response::InternalServerError().json(Warning { message: "session_error" });
+        return Response::InternalServerError().json(ApiResponse {
+            success: false,
+            message: "session_error".into(),
+            data: None,
+            meta: None,
+        });
     }
 
-    Response::Created().json(Output {
-        id: new_id,
-        email: email.to_string(),
+    Response::Created().json(ApiResponse {
+        success: true,
+        message: "register_success".into(),
+        data: Some(json!({
+            "id": new_id,
+            "email": email,
+        })),
+        meta: None,
     })
 }
 
 pub async fn logout(session: Session) -> Response {
     session.purge();
-    Response::Ok().json(Warning { message: "logged_out" })
+    Response::Ok().json(ApiResponse {
+        success: true,
+        message: "logged_out".into(),
+        data: None,
+        meta: None,
+    })
 }
