@@ -1,12 +1,11 @@
 use crate::web::{Pool, Response, Warning};
 use crate::web::types::{Int, String, Date};
-use crate::web::data::{Json};
+use crate::web::data::Json;
 use actix_session::Session;
-use rand::distributions::{Alphanumeric, DistString};
+use bcrypt::{hash, verify, DEFAULT_COST};
 
-// Default value if blank
 fn default_value() -> String {
-    return String::from("");
+    String::from("")
 }
 
 #[derive(Deserialize)]
@@ -28,89 +27,113 @@ pub struct User {
 #[derive(Serialize)]
 pub struct Output {
     pub id: Int,
-    pub token: String,
+    pub email: String,
 }
 
 pub async fn login(pool: Pool, data: Json<Logindata>, session: Session) -> Response {
 
-    let email    = &data.email.trim();
+    let email    = data.email.trim();
     let password = &data.password;
 
-    // check if input empty
+    // Cek input kosong
     if email.is_empty() || password.is_empty() {
-        return Response::Forbidden().json(Warning {
-            message: "blank_input",
-        });
+        return Response::Forbidden().json(Warning { message: "blank_input" });
     }
 
-    // process search email
     let conn = pool.get_ref();
-    let mut recs = sqlx::query_as::<_, User>("SELECT * FROM users WHERE email = ? LIMIT 1").bind(email).fetch_all(conn).await.unwrap();
 
-    // check if records is empty
-    if recs.len() == 0 {
-        return Response::Unauthorized().json(Warning {
-            message: "user_not_found",
-        });
+    // Gunakan fetch_optional — lebih efisien untuk cek 1 record
+    let user = sqlx::query_as::<_, User>(
+        "SELECT * FROM users WHERE email = ? LIMIT 1"
+    )
+    .bind(email)
+    .fetch_optional(conn)
+    .await;
+
+    // Tangani error koneksi DB
+    let user = match user {
+        Ok(Some(u)) => u,
+        Ok(None)    => return Response::Unauthorized().json(Warning { message: "user_not_found" }),
+        Err(_)      => return Response::InternalServerError().json(Warning { message: "db_error" }),
+    };
+
+    // Verifikasi password dengan bcrypt
+    let password_match = verify(password, &user.password).unwrap_or(false);
+    if !password_match {
+        return Response::Unauthorized().json(Warning { message: "password_not_match" });
     }
 
-    let mut user = &mut recs[0];
-
-    // check if password match
-    if password != &user.password {
-        return Response::Unauthorized().json(Warning {
-            message: "password_not_match",
-        });
+    // Simpan user_id ke session — ini yang dibaca SessionGuard
+    if session.insert("user_id", user.id).is_err() {
+        return Response::InternalServerError().json(Warning { message: "session_error" });
     }
 
-    // create token
-    let token = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
-
-    // insert token on session
-    session.insert("authtoken", &token);
-
-    // return user data
-    return Response::Ok().json(Output {
+    Response::Ok().json(Output {
         id: user.id,
-        token: token
-    });
+        email: user.email,
+    })
 }
 
 pub async fn register(pool: Pool, data: Json<Logindata>, session: Session) -> Response {
 
-    let email    = &data.email.trim();
+    let email    = data.email.trim();
     let password = &data.password;
 
-    // check if input empty
+    // Cek input kosong
     if email.is_empty() || password.is_empty() {
-        return Response::Forbidden().json(Warning {
-            message: "blank_input",
-        });
+        return Response::Forbidden().json(Warning { message: "blank_input" });
     }
 
-    // process search email
     let conn = pool.get_ref();
-    let recs = sqlx::query_as::<_, User>("SELECT * FROM users WHERE email = ? LIMIT 1").bind(email).fetch_all(conn).await.unwrap();
 
-    // check if email already used
-    if recs.len() > 0 {
-        return Response::Ok().json(Warning {
-            message: "email_already_used",
-        });
+    // Cek apakah email sudah terdaftar
+    let existing = sqlx::query_as::<_, User>(
+        "SELECT * FROM users WHERE email = ? LIMIT 1"
+    )
+    .bind(email)
+    .fetch_optional(conn)
+    .await;
+
+    match existing {
+        Ok(Some(_)) => return Response::Conflict().json(Warning { message: "email_already_used" }),
+        Ok(None)    => {},
+        Err(_)      => return Response::InternalServerError().json(Warning { message: "db_error" }),
     }
 
-    // add user on records
-    let recs_add = sqlx::query("INSERT INTO users (email, password) VALUES (?, ?)").bind(email).bind(password).execute(conn).await.unwrap();
+    // Hash password sebelum disimpan
+    let hashed = match hash(password, DEFAULT_COST) {
+        Ok(h)  => h,
+        Err(_) => return Response::InternalServerError().json(Warning { message: "hash_error" }),
+    };
 
-    // create token
-    let token = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
+    // Insert user baru
+    let inserted = sqlx::query(
+        "INSERT INTO users (email, password) VALUES (?, ?)"
+    )
+    .bind(email)
+    .bind(&hashed)
+    .execute(conn)
+    .await;
 
-    // insert token on session
-    session.insert("authtoken", &token);
+    let inserted = match inserted {
+        Ok(r)  => r,
+        Err(_) => return Response::InternalServerError().json(Warning { message: "db_error" }),
+    };
 
-    // return user data
-    return Response::Ok().json(Output {
-        id: recs_add.last_insert_id() as Int,
-        token: token
-    });
+    let new_id = inserted.last_insert_id() as Int;
+
+    // Langsung login setelah register
+    if session.insert("user_id", new_id).is_err() {
+        return Response::InternalServerError().json(Warning { message: "session_error" });
+    }
+
+    Response::Created().json(Output {
+        id: new_id,
+        email: email.to_string(),
+    })
+}
+
+pub async fn logout(session: Session) -> Response {
+    session.purge();
+    Response::Ok().json(Warning { message: "logged_out" })
 }

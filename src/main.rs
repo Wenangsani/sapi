@@ -11,58 +11,61 @@ pub mod web;
 pub mod appstate;
 pub mod socketsession;
 
-use actix_web::{ web::{ get, post, route, Data }, App, HttpServer, cookie::Key, cookie::SameSite };
-use actix_web_httpauth::middleware::HttpAuthentication;
-use crate::middleware::auth::bearer_validator;
+use actix_web::{ web::{ get, post, route, scope, Data }, App, HttpServer, cookie::Key, cookie::SameSite };
 use crate::socketsession::{ Usession, UsessionInner };
-use actix_session::{ Session, SessionMiddleware, storage::CookieSessionStore };
+use actix_session::{ SessionMiddleware, storage::CookieSessionStore };
 use actix_cors::Cors;
-use std::sync::{Arc, Mutex};
-use futures::stream::{FuturesUnordered, StreamExt};
 
 #[actix_web::main]
 async fn main() -> Result<(), anyhow::Error> {
     
-    // connect to database
     let pool = sqlx::MySqlPool::connect("mysql://root:mysql@127.0.0.1:3306/actixweb").await.unwrap();
 
-    // route list
     HttpServer::new(move || {
 
-        let appnew = App::new();
+        // Gunakan key tetap di production! Key::generate() berubah tiap restart
+        let secret_key = Key::generate();
 
-        // bearer auth
-        let appnew = appnew.wrap(HttpAuthentication::with_fn(bearer_validator));
+        let session_mw = SessionMiddleware::builder(CookieSessionStore::default(), secret_key)
+            .cookie_same_site(SameSite::None)   // Sesuaikan dengan kebutuhan aplikasi
+            .cookie_http_only(true)             // JS tidak bisa akses cookie
+            .cookie_secure(false)               // true jika HTTPS
+            .build();
 
-        // session
-        let appnew = appnew.wrap(
-            SessionMiddleware::builder(CookieSessionStore::default(), Key::from(&[0; 64]))
-                .cookie_same_site(SameSite::None)
-                .build()
-        );
+        let cors = Cors::default()
+            .allowed_origin("http://localhost:8080")
+            .allowed_methods(vec!["GET", "POST"])
+            .allow_any_header()
+            .supports_credentials();     // wajib agar cookie dikirim cross-origin
 
-        // cors
-        let appnew = appnew.wrap(Cors::permissive());
+        App::new()
+            .wrap(cors)
+            .wrap(session_mw)
 
-        // database pool
-        let appnew = appnew.app_data(Data::new(pool.clone()));
+            .app_data(Data::new(pool.clone()))
+            .app_data(Data::new(appstate::new()))
+            .app_data(Data::new(Usession::new()))
 
-        // sockets
-        let socketlist = Usession::new();
+            // ── Public scope ─────────────────────────────
+            .service(
+                scope("")
+                    .route("/",              get().to(handler::home::home))
+                    .route("/ws",            get().to(handler::websocket::ws))
+                    .route("/auth/login",    post().to(handler::auth::login))
+                    .route("/auth/register", post().to(handler::auth::register))
+            )
 
-        // load config
-        let appnew = appnew.app_data(Data::new(appstate::new()));
-        let appnew = appnew.app_data(Data::new(socketlist.clone()));
-        let appnew = appnew.route("/ws", get().to(handler::websocket::ws));
-        let appnew = appnew.route("/auth/login", post().to(handler::auth::login));
-        let appnew = appnew.route("/auth/register", post().to(handler::auth::register));
-        let appnew = appnew.route("/welcome/{name}", get().to(handler::home::welcome));
-        let appnew = appnew.route("/", get().to(handler::home::home));
-        let appnew = appnew.default_service(route().to(handler::notfound::notfound));
-        return appnew;
+            // ── Protected scope ──────────────────────────
+            .service(
+                scope("/api")
+                    .wrap(middleware::session_guard::SessionGuard)
+                    .route("/welcome/{name}", get().to(handler::home::welcome))
+            )
+
+            .default_service(route().to(handler::notfound::notfound))
     })
-        .bind("127.0.0.1:8080")?
-        .run().await?;
+    .bind("127.0.0.1:8080")?
+    .run().await?;
 
-        return Ok(());
+    Ok(())
 }

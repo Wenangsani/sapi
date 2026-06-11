@@ -1,193 +1,792 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Fetch Tester</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Tester</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap');
 
-    <script src="https://cdn.tailwindcss.com"></script>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1e2334;
+    --border: #2a3048;
+    --border-hover: #3d4f7a;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --accent: #6366f1;
+    --accent-glow: rgba(99,102,241,0.2);
+    --green: #10b981;
+    --red: #f43f5e;
+    --yellow: #f59e0b;
+    --blue: #3b82f6;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  .header {
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .logo {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .header-title { font-size: 15px; font-weight: 600; }
+  .header-badge {
+    font-size: 11px; font-family: var(--mono);
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 2px 8px; border-radius: 4px; color: var(--text-muted);
+    margin-left: 4px;
+  }
+  .header-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .history-btn, .clear-btn {
+    font-size: 12px; padding: 5px 12px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--border); background: transparent; color: var(--text-dim);
+    transition: all .15s; font-family: var(--sans);
+  }
+  .history-btn:hover, .clear-btn:hover {
+    border-color: var(--border-hover); color: var(--text); background: var(--surface2);
+  }
+
+  /* URL Bar */
+  .url-bar {
+    display: flex; gap: 8px; align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .method-select {
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 8px 10px; border-radius: 7px;
+    cursor: pointer; outline: none; min-width: 86px;
+    transition: border-color .15s;
+  }
+  .method-select:focus { border-color: var(--accent); }
+  .method-select.GET { color: #10b981; }
+  .method-select.POST { color: #f59e0b; }
+  .method-select.PUT { color: #3b82f6; }
+  .method-select.PATCH { color: #a78bfa; }
+  .method-select.DELETE { color: #f43f5e; }
+
+  .url-input {
+    flex: 1; font-family: var(--mono); font-size: 13px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 8px 14px; border-radius: 7px; outline: none;
+    transition: border-color .15s;
+  }
+  .url-input:focus { border-color: var(--accent); }
+  .url-input::placeholder { color: var(--text-muted); }
+
+  .send-btn {
+    background: var(--accent); color: #fff;
+    border: none; padding: 8px 22px; border-radius: 7px; font-size: 13px;
+    font-weight: 600; cursor: pointer; transition: all .15s; font-family: var(--sans);
+    display: flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .send-btn:hover { background: #4f46e5; transform: translateY(-1px); box-shadow: 0 4px 14px var(--accent-glow); }
+  .send-btn:active { transform: translateY(0); }
+  .send-btn.loading { opacity: .7; pointer-events: none; }
+
+  /* Main layout */
+  .main { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 97px); }
+
+  /* Panels */
+  .panel {
+    flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    border-right: 1px solid var(--border);
+  }
+  .panel:last-child { border-right: none; }
+
+  .panel-tabs {
+    display: flex; border-bottom: 1px solid var(--border);
+    background: var(--surface); padding: 0 12px;
+    gap: 2px; min-height: 38px; align-items: flex-end;
+  }
+  .tab {
+    font-size: 12px; padding: 8px 12px; cursor: pointer;
+    border: none; background: transparent; color: var(--text-muted);
+    border-bottom: 2px solid transparent; transition: all .15s;
+    font-family: var(--sans); white-space: nowrap;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+  .tab .badge {
+    background: var(--surface2); border-radius: 9px;
+    padding: 1px 5px; font-size: 10px; margin-left: 4px; color: var(--text-muted);
+  }
+
+  .panel-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+  .tab-panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+  .tab-panel.active { display: flex; }
+
+  /* Editor areas */
+  .editor-wrap { flex: 1; position: relative; overflow: hidden; }
+  textarea.editor {
+    width: 100%; height: 100%; resize: none;
+    background: var(--bg); border: none; outline: none;
+    color: var(--text); font-family: var(--mono); font-size: 12.5px;
+    line-height: 1.6; padding: 16px;
+    transition: background .15s;
+  }
+  textarea.editor::placeholder { color: var(--text-muted); }
+
+  /* Params / Headers table */
+  .kv-table { flex: 1; overflow-y: auto; }
+  .kv-row {
+    display: grid; grid-template-columns: 1fr 1fr auto;
+    border-bottom: 1px solid var(--border); align-items: stretch;
+  }
+  .kv-cell {
+    padding: 0;
+    border-right: 1px solid var(--border);
+  }
+  .kv-cell:last-child { border-right: none; display: flex; align-items: center; justify-content: center; width: 40px; }
+  .kv-cell input {
+    width: 100%; height: 34px; padding: 0 12px;
+    background: transparent; border: none; outline: none;
+    color: var(--text); font-family: var(--mono); font-size: 12px;
+    transition: background .1s;
+  }
+  .kv-cell input:focus { background: var(--surface2); }
+  .kv-cell input::placeholder { color: var(--text-muted); }
+  .kv-header { background: var(--surface); }
+  .kv-header .kv-cell input { font-weight: 600; font-size: 11px; color: var(--text-muted); pointer-events: none; }
+  .kv-add { padding: 8px 12px; cursor: pointer; text-align: center; font-size: 12px; color: var(--accent); border: none; background: transparent; width: 100%; font-family: var(--sans); transition: background .1s; }
+  .kv-add:hover { background: var(--surface2); }
+  .del-btn { width: 24px; height: 24px; border-radius: 4px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all .1s; }
+  .del-btn:hover { background: rgba(244,63,94,.15); color: var(--red); }
+
+  /* Response */
+  .response-meta {
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+    background: var(--surface); display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+  }
+  .status-pill {
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+    padding: 3px 10px; border-radius: 99px;
+  }
+  .status-pill.s2 { background: rgba(16,185,129,.15); color: var(--green); }
+  .status-pill.s3 { background: rgba(245,158,11,.15); color: var(--yellow); }
+  .status-pill.s4 { background: rgba(244,63,94,.15); color: var(--red); }
+  .status-pill.s5 { background: rgba(244,63,94,.15); color: var(--red); }
+  .status-pill.se { background: rgba(244,63,94,.15); color: var(--red); }
+  .meta-item { font-size: 12px; color: var(--text-muted); display: flex; gap: 5px; }
+  .meta-item b { color: var(--text-dim); }
+
+  .res-actions { margin-left: auto; display: flex; gap: 6px; }
+  .icon-btn {
+    padding: 5px 10px; border-radius: 5px; border: 1px solid var(--border);
+    background: transparent; color: var(--text-dim); font-size: 11px; cursor: pointer;
+    font-family: var(--sans); transition: all .1s;
+  }
+  .icon-btn:hover { border-color: var(--border-hover); color: var(--text); background: var(--surface2); }
+
+  .res-body { flex: 1; overflow: auto; }
+  #responseOutput {
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.7;
+    padding: 16px; white-space: pre-wrap; word-break: break-all;
+    min-height: 100%; color: var(--text);
+  }
+
+  /* Empty state */
+  .empty-state {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 10px; color: var(--text-muted); padding: 40px;
+  }
+  .empty-icon { font-size: 40px; opacity: .4; }
+  .empty-text { font-size: 13px; text-align: center; }
+
+  /* Response headers table */
+  .res-headers { flex: 1; overflow-y: auto; }
+  .res-header-row { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border); }
+  .res-header-cell { padding: 8px 14px; font-family: var(--mono); font-size: 12px; }
+  .res-header-cell.key { color: var(--blue); }
+  .res-header-cell.val { color: var(--text-dim); word-break: break-all; }
+
+  /* History sidebar */
+  .history-panel {
+    width: 260px; border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; background: var(--surface);
+    transition: width .2s; overflow: hidden;
+  }
+  .history-panel.hidden { width: 0; }
+  .history-head { padding: 10px 14px; font-size: 12px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .history-list { flex: 1; overflow-y: auto; }
+  .history-item {
+    padding: 10px 14px; cursor: pointer; border-bottom: 1px solid var(--border);
+    transition: background .1s; display: flex; flex-direction: column; gap: 3px;
+  }
+  .history-item:hover { background: var(--surface2); }
+  .history-item.active { background: var(--accent-glow); border-left: 2px solid var(--accent); }
+  .h-method { font-family: var(--mono); font-size: 11px; font-weight: 600; }
+  .h-url { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+  .h-status { font-size: 10px; }
+
+  /* Loading spinner */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { width: 14px; height: 14px; border: 2px solid #ffffff44; border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 10px 18px; border-radius: 8px; font-size: 13px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.5); transition: opacity .3s; z-index: 999;
+  }
+  .toast.hidden { opacity: 0; pointer-events: none; }
+
+  /* Resizer */
+  .resizer { width: 4px; background: var(--border); cursor: col-resize; flex-shrink: 0; transition: background .1s; }
+  .resizer:hover { background: var(--accent); }
+</style>
 </head>
-<body class="bg-slate-100 min-h-screen">
+<body>
 
-<div class="max-w-7xl mx-auto p-6">
-    <div class="bg-white rounded-xl shadow-lg p-6">
-
-        <h1 class="text-3xl font-bold text-slate-800 mb-6">
-            API Fetch Tester
-        </h1>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-            <!-- Request -->
-            <div class="space-y-4">
-
-                <div>
-                    <label class="block mb-2 font-medium">
-                        URL
-                    </label>
-                    <input
-                        id="url"
-                        type="text"
-                        value="http://localhost:8080/"
-                        class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300"
-                    >
-                </div>
-
-                <div>
-                    <label class="block mb-2 font-medium">
-                        Method
-                    </label>
-                    <select
-                        id="method"
-                        class="w-full border rounded-lg px-4 py-2"
-                    >
-                        <option>GET</option>
-                        <option>POST</option>
-                        <option>PUT</option>
-                        <option>PATCH</option>
-                        <option>DELETE</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block mb-2 font-medium">
-                        Headers (JSON)
-                    </label>
-                    <textarea
-                        id="headers"
-                        rows="6"
-                        class="w-full border rounded-lg px-4 py-2 font-mono text-sm"
-                    >{
-  "Content-Type": "application/json"
-}</textarea>
-                </div>
-
-                <div>
-                    <label class="block mb-2 font-medium">
-                        Body (JSON)
-                    </label>
-                    <textarea
-                        id="body"
-                        rows="10"
-                        class="w-full border rounded-lg px-4 py-2 font-mono text-sm"
-                    >{
-  "title": "contoh",
-  "body": "isi data",
-  "userId": 1
-}</textarea>
-                </div>
-
-                <button
-                    id="sendBtn"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold"
-                >
-                    Kirim Request
-                </button>
-
-            </div>
-
-            <!-- Response -->
-            <div>
-
-                <div class="mb-4">
-                    <h2 class="font-semibold text-lg mb-2">
-                        Response
-                    </h2>
-
-                    <div
-                        id="status"
-                        class="bg-slate-100 rounded-lg p-3 text-sm"
-                    >
-                        Belum ada request.
-                    </div>
-                </div>
-
-                <textarea
-                    id="response"
-                    rows="25"
-                    readonly
-                    class="w-full border rounded-lg p-4 bg-slate-900 text-green-400 font-mono text-sm"
-                ></textarea>
-
-            </div>
-
-        </div>
-    </div>
+<div class="header">
+  <div class="logo">⚡</div>
+  <span class="header-title">API Tester</span>
+  <span class="header-badge">v2.0</span>
+  <div class="header-right">
+    <button class="history-btn" id="historyToggle">⏱ Riwayat</button>
+    <button class="clear-btn" id="clearAll">✕ Reset</button>
+  </div>
 </div>
 
+<div class="url-bar">
+  <select class="method-select GET" id="method">
+    <option value="GET">GET</option>
+    <option value="POST">POST</option>
+    <option value="PUT">PUT</option>
+    <option value="PATCH">PATCH</option>
+    <option value="DELETE">DELETE</option>
+  </select>
+  <input class="url-input" id="url" type="text" placeholder="https://api.example.com/endpoint" value="http://localhost:8080/">
+  <button class="send-btn" id="sendBtn">
+    <span id="btnLabel">Kirim</span>
+  </button>
+</div>
+
+<div class="main">
+
+  <!-- History Sidebar -->
+  <div class="history-panel hidden" id="historyPanel">
+    <div class="history-head">Riwayat Request</div>
+    <div class="history-list" id="historyList">
+      <div class="empty-state"><div class="empty-text">Belum ada riwayat</div></div>
+    </div>
+  </div>
+
+  <!-- Request Panel -->
+  <div class="panel" id="reqPanel">
+    <div class="panel-tabs">
+      <button class="tab active" data-tab="req-params">Params</button>
+      <button class="tab" data-tab="req-headers">Headers</button>
+      <button class="tab" data-tab="req-body">Body</button>
+      <button class="tab" data-tab="req-auth">Auth</button>
+    </div>
+    <div class="panel-content">
+
+      <!-- Params Tab -->
+      <div class="tab-panel active" id="req-params">
+        <div class="kv-table" id="paramsTable">
+          <div class="kv-row kv-header">
+            <div class="kv-cell"><input value="Key" readonly></div>
+            <div class="kv-cell"><input value="Value" readonly></div>
+            <div class="kv-cell" style="width:40px"></div>
+          </div>
+        </div>
+        <button class="kv-add" id="addParam">+ Tambah Parameter</button>
+      </div>
+
+      <!-- Headers Tab -->
+      <div class="tab-panel" id="req-headers">
+        <div class="kv-table" id="headersTable">
+          <div class="kv-row kv-header">
+            <div class="kv-cell"><input value="Header" readonly></div>
+            <div class="kv-cell"><input value="Value" readonly></div>
+            <div class="kv-cell" style="width:40px"></div>
+          </div>
+        </div>
+        <button class="kv-add" id="addHeader">+ Tambah Header</button>
+      </div>
+
+      <!-- Body Tab -->
+      <div class="tab-panel" id="req-body">
+        <div style="padding:8px 12px; border-bottom:1px solid var(--border); display:flex; gap:6px; background:var(--surface);">
+          <button class="tab active" data-body-format="json" style="padding:4px 10px;">JSON</button>
+          <button class="tab" data-body-format="text" style="padding:4px 10px;">Text</button>
+          <button class="tab" data-body-format="form" style="padding:4px 10px;">Form</button>
+        </div>
+        <div class="editor-wrap" id="bodyEditorWrap">
+          <textarea class="editor" id="bodyEditor" placeholder='{\n  "key": "value"\n}'>{
+  "title": "Contoh Request",
+  "body": "Isi konten di sini",
+  "userId": 1
+}</textarea>
+        </div>
+        <div class="kv-table" id="formTable" style="display:none">
+          <div class="kv-row kv-header">
+            <div class="kv-cell"><input value="Field" readonly></div>
+            <div class="kv-cell"><input value="Value" readonly></div>
+            <div class="kv-cell" style="width:40px"></div>
+          </div>
+        </div>
+        <button class="kv-add" id="addForm" style="display:none">+ Tambah Field</button>
+      </div>
+
+      <!-- Auth Tab -->
+      <div class="tab-panel" id="req-auth">
+        <div style="padding:12px 16px; border-bottom:1px solid var(--border); background:var(--surface);">
+          <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:6px;">Tipe Auth</label>
+          <select id="authType" style="background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:7px 12px; border-radius:6px; font-family:var(--sans); font-size:13px; outline:none; width:100%;">
+            <option value="none">Tidak Ada</option>
+            <option value="bearer">Bearer Token</option>
+            <option value="basic">Basic Auth</option>
+            <option value="apikey">API Key</option>
+          </select>
+        </div>
+        <div id="authFields" style="padding:14px 16px; display:flex; flex-direction:column; gap:10px;"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="resizer" id="resizer"></div>
+
+  <!-- Response Panel -->
+  <div class="panel" id="resPanel">
+    <div class="panel-tabs">
+      <button class="tab active" data-tab="res-body">Body</button>
+      <button class="tab" data-tab="res-headers">Headers <span class="badge" id="resHeaderCount">0</span></button>
+    </div>
+
+    <div id="response-meta-bar" style="display:none">
+      <div class="response-meta" id="responseMeta"></div>
+    </div>
+
+    <div class="panel-content">
+
+      <!-- Response Body -->
+      <div class="tab-panel active" id="res-body">
+        <div id="emptyState" class="empty-state">
+          <div class="empty-icon">⬆</div>
+          <div class="empty-text">Kirim request untuk melihat<br>response di sini</div>
+        </div>
+        <div id="resBodyWrap" style="display:none; flex:1; flex-direction:column; overflow:hidden;">
+          <div style="padding:6px 12px; border-bottom:1px solid var(--border); background:var(--surface); display:flex; gap:6px; align-items:center;">
+            <button class="tab active" data-res-view="pretty" style="padding:3px 10px;">Pretty</button>
+            <button class="tab" data-res-view="raw" style="padding:3px 10px;">Raw</button>
+            <div class="res-actions">
+              <button class="icon-btn" id="copyBtn">📋 Salin</button>
+              <button class="icon-btn" id="downloadBtn">⬇ Unduh</button>
+            </div>
+          </div>
+          <div class="res-body">
+            <pre id="responseOutput"></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Response Headers -->
+      <div class="tab-panel" id="res-headers">
+        <div class="res-headers" id="resHeadersList">
+          <div class="empty-state"><div class="empty-text">Kirim request terlebih dahulu</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="toast hidden" id="toast"></div>
+
 <script>
-const sendBtn = document.getElementById('sendBtn');
+// ---- State ----
+let rawResponse = '';
+let responseHeaders = {};
+let history = JSON.parse(localStorage.getItem('apitester_history') || '[]');
+let bodyFormat = 'json';
+let resView = 'pretty';
+let historyVisible = false;
 
-sendBtn.addEventListener('click', async () => {
-
-    const url = document.getElementById('url').value.trim();
-    const method = document.getElementById('method').value;
-    const headersText = document.getElementById('headers').value;
-    const bodyText = document.getElementById('body').value;
-
-    const statusBox = document.getElementById('status');
-    const responseBox = document.getElementById('response');
-
-    statusBox.innerHTML = 'Mengirim request...';
-    responseBox.value = '';
-
-    try {
-
-        let headers = {};
-
-        if (headersText.trim()) {
-            headers = JSON.parse(headersText);
-        }
-
-        const options = {
-            method,
-            headers
-        };
-
-        if (!['GET', 'DELETE'].includes(method)) {
-            options.body = bodyText;
-        }
-
-        const start = performance.now();
-
-        const response = await fetch(url, options);
-
-        const end = performance.now();
-
-        const responseText = await response.text();
-
-        let formattedResponse;
-
-        try {
-            formattedResponse = JSON.stringify(
-                JSON.parse(responseText),
-                null,
-                2
-            );
-        } catch {
-            formattedResponse = responseText;
-        }
-
-        statusBox.innerHTML = `
-            <div><b>Status:</b> ${response.status} ${response.statusText}</div>
-            <div><b>Waktu:</b> ${(end - start).toFixed(2)} ms</div>
-            <div><b>Content-Type:</b> ${response.headers.get('content-type') || '-'}</div>
-        `;
-
-        responseBox.value = formattedResponse;
-
-    } catch (error) {
-
-        statusBox.innerHTML = `
-            <span class="text-red-600 font-semibold">
-                Error
-            </span>
-        `;
-
-        responseBox.value = error.toString();
-    }
+// ---- Tabs ----
+document.querySelectorAll('[data-tab]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const group = btn.closest('.panel-tabs');
+    group.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    const panel = btn.closest('.panel');
+    panel.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    panel.querySelector('#' + btn.dataset.tab)?.classList.add('active');
+  });
 });
-</script>
 
+// Body format tabs
+document.querySelectorAll('[data-body-format]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-body-format]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    bodyFormat = btn.dataset.bodyFormat;
+    document.getElementById('bodyEditorWrap').style.display = bodyFormat === 'form' ? 'none' : 'flex';
+    document.getElementById('formTable').style.display = bodyFormat === 'form' ? 'flex' : 'none';
+    document.getElementById('addForm').style.display = bodyFormat === 'form' ? 'block' : 'none';
+  });
+});
+
+// Res view tabs
+document.querySelectorAll('[data-res-view]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-res-view]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    resView = btn.dataset.resView;
+    renderResponse();
+  });
+});
+
+// ---- Method color ----
+const methodSel = document.getElementById('method');
+methodSel.addEventListener('change', () => {
+  methodSel.className = 'method-select ' + methodSel.value;
+});
+
+// ---- KV Tables ----
+function addKVRow(tableId, keyPlaceholder = 'key', valPlaceholder = 'value') {
+  const table = document.getElementById(tableId);
+  const row = document.createElement('div');
+  row.className = 'kv-row';
+  row.innerHTML = `
+    <div class="kv-cell"><input placeholder="${keyPlaceholder}"></div>
+    <div class="kv-cell"><input placeholder="${valPlaceholder}"></div>
+    <div class="kv-cell"><button class="del-btn" onclick="this.closest('.kv-row').remove()">×</button></div>
+  `;
+  // sync params to URL
+  if (tableId === 'paramsTable') {
+    row.querySelectorAll('input').forEach(i => i.addEventListener('input', syncParamsToUrl));
+  }
+  table.appendChild(row);
+}
+
+document.getElementById('addParam').addEventListener('click', () => { addKVRow('paramsTable', 'key', 'value'); });
+document.getElementById('addHeader').addEventListener('click', () => { addKVRow('headersTable', 'Content-Type', 'application/json'); });
+document.getElementById('addForm').addEventListener('click', () => { addKVRow('formTable', 'field', 'value'); });
+
+function getKVRows(tableId) {
+  const rows = {};
+  document.querySelectorAll(`#${tableId} .kv-row:not(.kv-header)`).forEach(row => {
+    const [k, v] = row.querySelectorAll('input');
+    if (k.value.trim()) rows[k.value.trim()] = v.value;
+  });
+  return rows;
+}
+
+// Sync params to URL
+function syncParamsToUrl() {
+  const params = getKVRows('paramsTable');
+  const base = document.getElementById('url').value.split('?')[0];
+  const qs = Object.entries(params).map(([k,v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
+  document.getElementById('url').value = qs ? `${base}?${qs}` : base;
+}
+
+// Sync URL to params
+document.getElementById('url').addEventListener('input', () => {
+  try {
+    const u = new URL(document.getElementById('url').value);
+    const table = document.getElementById('paramsTable');
+    table.querySelectorAll('.kv-row:not(.kv-header)').forEach(r => r.remove());
+    u.searchParams.forEach((v, k) => {
+      addKVRow('paramsTable');
+      const rows = table.querySelectorAll('.kv-row:not(.kv-header)');
+      const last = rows[rows.length - 1].querySelectorAll('input');
+      last[0].value = k; last[1].value = v;
+    });
+  } catch {}
+});
+
+// ---- Auth ----
+const authType = document.getElementById('authType');
+const authFields = document.getElementById('authFields');
+const inputStyle = 'width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-family:var(--mono);font-size:13px;outline:none;';
+
+authType.addEventListener('change', () => {
+  authFields.innerHTML = '';
+  if (authType.value === 'bearer') {
+    authFields.innerHTML = `<label style="font-size:12px;color:var(--text-muted)">Token</label><input id="bearerToken" placeholder="Bearer token..." style="${inputStyle}">`;
+  } else if (authType.value === 'basic') {
+    authFields.innerHTML = `<label style="font-size:12px;color:var(--text-muted)">Username</label><input id="basicUser" style="${inputStyle}"><label style="font-size:12px;color:var(--text-muted);margin-top:4px">Password</label><input id="basicPass" type="password" style="${inputStyle}">`;
+  } else if (authType.value === 'apikey') {
+    authFields.innerHTML = `<label style="font-size:12px;color:var(--text-muted)">Header Name</label><input id="apikeyName" value="X-API-Key" style="${inputStyle}"><label style="font-size:12px;color:var(--text-muted);margin-top:4px">Value</label><input id="apikeyVal" style="${inputStyle}">`;
+  }
+});
+
+function getAuthHeaders() {
+  const headers = {};
+  if (authType.value === 'bearer') {
+    const t = document.getElementById('bearerToken')?.value;
+    if (t) headers['Authorization'] = 'Bearer ' + t;
+  } else if (authType.value === 'basic') {
+    const u = document.getElementById('basicUser')?.value;
+    const p = document.getElementById('basicPass')?.value;
+    if (u) headers['Authorization'] = 'Basic ' + btoa(u + ':' + p);
+  } else if (authType.value === 'apikey') {
+    const n = document.getElementById('apikeyName')?.value;
+    const v = document.getElementById('apikeyVal')?.value;
+    if (n && v) headers[n] = v;
+  }
+  return headers;
+}
+
+// ---- Send Request ----
+document.getElementById('sendBtn').addEventListener('click', sendRequest);
+document.getElementById('url').addEventListener('keydown', e => { if (e.key === 'Enter') sendRequest(); });
+
+async function sendRequest() {
+  const url = document.getElementById('url').value.trim();
+  if (!url) { showToast('⚠ Masukkan URL terlebih dahulu'); return; }
+
+  const method = methodSel.value;
+  const btn = document.getElementById('sendBtn');
+  const lbl = document.getElementById('btnLabel');
+  btn.classList.add('loading');
+  lbl.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    const headers = { ...getKVRows('headersTable'), ...getAuthHeaders() };
+    const options = { method, headers };
+
+    if (!['GET', 'DELETE'].includes(method)) {
+      if (bodyFormat === 'json' || bodyFormat === 'text') {
+        options.body = document.getElementById('bodyEditor').value;
+        if (bodyFormat === 'json' && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+      } else if (bodyFormat === 'form') {
+        const fd = new FormData();
+        Object.entries(getKVRows('formTable')).forEach(([k,v]) => fd.append(k, v));
+        options.body = fd;
+      }
+    }
+
+    const start = performance.now();
+    const res = await fetch(url, options);
+    const elapsed = (performance.now() - start).toFixed(0);
+    const text = await res.text();
+    rawResponse = text;
+
+    // Collect response headers
+    responseHeaders = {};
+    res.headers.forEach((v, k) => { responseHeaders[k] = v; });
+
+    // Status meta bar
+    const sc = String(res.status)[0];
+    document.getElementById('response-meta-bar').style.display = 'block';
+    document.getElementById('responseMeta').innerHTML = `
+      <span class="status-pill s${sc}">${res.status} ${res.statusText}</span>
+      <span class="meta-item"><b>Waktu</b> ${elapsed} ms</span>
+      <span class="meta-item"><b>Ukuran</b> ${formatBytes(new Blob([text]).size)}</span>
+      <span class="meta-item"><b>Tipe</b> ${res.headers.get('content-type')?.split(';')[0] || '—'}</span>
+    `;
+
+    // Render
+    renderResponse();
+    renderResHeaders();
+
+    // Show body wrap, hide empty
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('resBodyWrap').style.display = 'flex';
+
+    // Save history
+    addHistory({ method, url, status: res.status, elapsed });
+
+  } catch (err) {
+    rawResponse = err.toString();
+    document.getElementById('response-meta-bar').style.display = 'block';
+    document.getElementById('responseMeta').innerHTML = `<span class="status-pill se">Error</span><span class="meta-item">${err.message}</span>`;
+    renderResponse();
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('resBodyWrap').style.display = 'flex';
+    addHistory({ method, url, status: 'ERR', elapsed: 0 });
+  } finally {
+    btn.classList.remove('loading');
+    lbl.textContent = 'Kirim';
+  }
+}
+
+function renderResponse() {
+  const out = document.getElementById('responseOutput');
+  if (resView === 'raw') {
+    out.textContent = rawResponse;
+    out.style.color = 'var(--text-dim)';
+    return;
+  }
+  try {
+    const parsed = JSON.parse(rawResponse);
+    out.innerHTML = syntaxHighlight(JSON.stringify(parsed, null, 2));
+  } catch {
+    out.textContent = rawResponse;
+    out.style.color = 'var(--text-dim)';
+  }
+}
+
+function syntaxHighlight(json) {
+  return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
+    let cls = 'color:var(--yellow)';
+    if (/^"/.test(match)) {
+      cls = /:$/.test(match) ? 'color:var(--blue)' : 'color:var(--green)';
+    } else if (/true|false/.test(match)) {
+      cls = 'color:var(--accent)';
+    } else if (/null/.test(match)) {
+      cls = 'color:var(--text-muted)';
+    }
+    return `<span style="${cls}">${match}</span>`;
+  });
+}
+
+function renderResHeaders() {
+  const list = document.getElementById('resHeadersList');
+  const entries = Object.entries(responseHeaders);
+  document.getElementById('resHeaderCount').textContent = entries.length;
+  list.innerHTML = entries.map(([k,v]) =>
+    `<div class="res-header-row"><div class="res-header-cell key">${k}</div><div class="res-header-cell val">${v}</div></div>`
+  ).join('') || '<div class="empty-state"><div class="empty-text">Tidak ada header</div></div>';
+}
+
+// ---- Copy & Download ----
+document.getElementById('copyBtn').addEventListener('click', () => {
+  navigator.clipboard.writeText(rawResponse).then(() => showToast('✓ Response disalin'));
+});
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  let ext = 'txt', type = 'text/plain';
+  try { JSON.parse(rawResponse); ext = 'json'; type = 'application/json'; } catch {}
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([rawResponse], { type }));
+  a.download = `response.${ext}`;
+  a.click();
+  showToast('⬇ File diunduh');
+});
+
+// ---- History ----
+function addHistory(item) {
+  history.unshift({ ...item, time: new Date().toLocaleTimeString('id') });
+  if (history.length > 30) history.pop();
+  localStorage.setItem('apitester_history', JSON.stringify(history));
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!history.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-text">Belum ada riwayat</div></div>';
+    return;
+  }
+  list.innerHTML = history.map((h, i) => {
+    const sc = typeof h.status === 'number' ? String(h.status)[0] : 'e';
+    const col = { '2': 'var(--green)', '3': 'var(--yellow)', '4': 'var(--red)', '5': 'var(--red)', 'e': 'var(--red)' }[sc] || 'var(--text-muted)';
+    return `<div class="history-item" onclick="loadHistory(${i})">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="h-method" style="color:${methodColor(h.method)}">${h.method}</span>
+        <span class="h-status" style="color:${col}">${h.status} · ${h.elapsed}ms</span>
+      </div>
+      <div class="h-url">${h.url}</div>
+      <div style="font-size:10px;color:var(--text-muted)">${h.time}</div>
+    </div>`;
+  }).join('');
+}
+
+function loadHistory(i) {
+  const h = history[i];
+  document.getElementById('url').value = h.url;
+  methodSel.value = h.method;
+  methodSel.className = 'method-select ' + h.method;
+}
+
+function methodColor(m) {
+  return { GET:'var(--green)', POST:'var(--yellow)', PUT:'var(--blue)', PATCH:'#a78bfa', DELETE:'var(--red)' }[m] || 'var(--text)';
+}
+
+document.getElementById('historyToggle').addEventListener('click', () => {
+  historyVisible = !historyVisible;
+  document.getElementById('historyPanel').classList.toggle('hidden', !historyVisible);
+});
+
+document.getElementById('clearAll').addEventListener('click', () => {
+  document.getElementById('url').value = '';
+  document.getElementById('bodyEditor').value = '';
+  document.getElementById('paramsTable').querySelectorAll('.kv-row:not(.kv-header)').forEach(r => r.remove());
+  document.getElementById('headersTable').querySelectorAll('.kv-row:not(.kv-header)').forEach(r => r.remove());
+  rawResponse = '';
+  document.getElementById('emptyState').style.display = 'flex';
+  document.getElementById('resBodyWrap').style.display = 'none';
+  document.getElementById('response-meta-bar').style.display = 'none';
+  showToast('✓ Form direset');
+});
+
+// ---- Toast ----
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.add('hidden'), 2200);
+}
+
+// ---- Resizer ----
+const resizer = document.getElementById('resizer');
+const reqPanel = document.getElementById('reqPanel');
+const resPanel = document.getElementById('resPanel');
+let isResizing = false;
+
+resizer.addEventListener('mousedown', e => { isResizing = true; document.body.style.cursor = 'col-resize'; e.preventDefault(); });
+document.addEventListener('mousemove', e => {
+  if (!isResizing) return;
+  const main = document.querySelector('.main');
+  const mainRect = main.getBoundingClientRect();
+  const leftW = e.clientX - mainRect.left - (historyVisible ? 260 : 0);
+  const total = mainRect.width - (historyVisible ? 260 : 0) - 4;
+  const pct = Math.min(Math.max(leftW / total * 100, 25), 75);
+  reqPanel.style.flex = 'none'; reqPanel.style.width = pct + '%';
+  resPanel.style.flex = '1';
+});
+document.addEventListener('mouseup', () => { isResizing = false; document.body.style.cursor = ''; });
+
+// ---- Utils ----
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+
+// Init
+renderHistory();
+</script>
 </body>
 </html>

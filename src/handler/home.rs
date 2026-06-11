@@ -25,24 +25,15 @@ pub async fn _old(state: Data<Appstate>) -> Response {
     return Response::Ok().cookie(cookie).body("Hello World ".to_owned() + &state.appname);
 }
 
-// Response page with path variable
 pub async fn welcome(mut req: Request, path: Path<WelcomePath>, session: Session) -> Response {
 
-    // get Authdata from middleware
-    if let Some(auth_data) = req.extensions().get::<Authdata>() {
-        println!("{:?}", auth_data);
-    }
+    // Ambil user_id yang di-set saat login
+    let user_id = session.get::<i64>("user_id").unwrap_or(None);
+    println!("User ID: {:?}", user_id);
 
-    let mut current = 1;
+    // Hitung kunjungan — cara lebih ringkas
+    let count = session.get::<i32>("count").unwrap_or(None).unwrap_or(0);
+    session.insert("count", count + 1).ok();
 
-    let mut count = session.get::<i32>("count");
-
-    if count.as_ref().unwrap().is_none() == false {
-        current = count.unwrap().unwrap();
-    }
-
-    // insert session
-    session.insert("count", current + 1);
-    
-    return Response::Ok().body(String::from("Welcome ") + &path.name + " " + &current.to_string());
+    Response::Ok().body(format!("Welcome {} — visit #{}", path.name, count + 1))
 }
