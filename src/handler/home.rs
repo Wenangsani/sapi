@@ -11,7 +11,7 @@ pub struct WelcomePath {
 }
 
 // Home page
-pub async fn home(state: Data<Appstate>) -> Response {
+pub async fn home() -> Response {
     let html = include_str!("../page/home.html");
 
     return Response::Ok()

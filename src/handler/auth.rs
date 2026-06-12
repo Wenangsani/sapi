@@ -12,7 +12,7 @@ fn default_value() -> String {
 #[derive(Deserialize)]
 pub struct Logindata {
     #[serde(default = "default_value")]
-    pub email: String,
+    pub username: String,
     #[serde(default = "default_value")]
     pub password: String,
 }
@@ -20,17 +20,17 @@ pub struct Logindata {
 #[derive(Serialize, FromRow)]
 pub struct User {
     pub id: Int,
-    pub email: String,
+    pub username: String,
     pub password: String,
     pub created_at: Date,
 }
 
 pub async fn login(pool: Pool, data: Json<Logindata>, session: Session) -> Response {
 
-    let email    = data.email.trim();
+    let username = data.username.trim();
     let password = &data.password;
 
-    if email.is_empty() || password.is_empty() {
+    if username.is_empty() || password.is_empty() {
         return Response::Forbidden().json(ApiResponse {
             success: false,
             message: "blank_input".into(),
@@ -42,9 +42,9 @@ pub async fn login(pool: Pool, data: Json<Logindata>, session: Session) -> Respo
     let conn = pool.get_ref();
 
     let user = sqlx::query_as::<_, User>(
-        "SELECT * FROM users WHERE email = ? LIMIT 1"
+        "SELECT * FROM users WHERE username = ? LIMIT 1"
     )
-    .bind(email)
+    .bind(username)
     .fetch_optional(conn)
     .await;
 
@@ -88,7 +88,7 @@ pub async fn login(pool: Pool, data: Json<Logindata>, session: Session) -> Respo
         message: "login_success".into(),
         data: Some(json!({
             "id": user.id,
-            "email": user.email,
+            "username": user.username,
         })),
         meta: None,
     })
@@ -96,10 +96,10 @@ pub async fn login(pool: Pool, data: Json<Logindata>, session: Session) -> Respo
 
 pub async fn register(pool: Pool, data: Json<Logindata>, session: Session) -> Response {
 
-    let email    = data.email.trim();
+    let username = data.username.trim();
     let password = &data.password;
 
-    if email.is_empty() || password.is_empty() {
+    if username.is_empty() || password.is_empty() {
         return Response::Forbidden().json(ApiResponse {
             success: false,
             message: "blank_input".into(),
@@ -111,16 +111,16 @@ pub async fn register(pool: Pool, data: Json<Logindata>, session: Session) -> Re
     let conn = pool.get_ref();
 
     let existing = sqlx::query_as::<_, User>(
-        "SELECT * FROM users WHERE email = ? LIMIT 1"
+        "SELECT * FROM users WHERE username = ? LIMIT 1"
     )
-    .bind(email)
+    .bind(username)
     .fetch_optional(conn)
     .await;
 
     match existing {
         Ok(Some(_)) => return Response::Conflict().json(ApiResponse {
             success: false,
-            message: "email_already_used".into(),
+            message: "username_already_used".into(),
             data: None,
             meta: None,
         }),
@@ -144,9 +144,9 @@ pub async fn register(pool: Pool, data: Json<Logindata>, session: Session) -> Re
     };
 
     let inserted = sqlx::query(
-        "INSERT INTO users (email, password) VALUES (?, ?)"
+        "INSERT INTO users (username, password) VALUES (?, ?)"
     )
-    .bind(email)
+    .bind(username)
     .bind(&hashed)
     .execute(conn)
     .await;
@@ -177,7 +177,7 @@ pub async fn register(pool: Pool, data: Json<Logindata>, session: Session) -> Re
         message: "register_success".into(),
         data: Some(json!({
             "id": new_id,
-            "email": email,
+            "username": username,
         })),
         meta: None,
     })
