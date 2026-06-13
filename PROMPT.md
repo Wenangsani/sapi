@@ -65,15 +65,8 @@ return Response::Ok().json(ApiResponse {
 - Murni HTML — tidak ada kode Rust di dalamnya
 - Tailwind CSS (utility-first, tanpa custom CSS kecuali benar-benar perlu)
 - Alpine.js untuk state lokal: modal, dropdown, tab, toggle, sidebar, alert
-- HTMX untuk komunikasi dengan backend
+- Fetch API untuk komunikasi dengan backend
 - Mobile friendly
-
-Pola HTMX untuk form:
-```html
-<form hx-post="/api/endpoint" hx-swap="none">
-    ...
-</form>
-```
 
 Gunakan Alpine.js untuk state yang tidak perlu round-trip ke server:
 ```html
@@ -96,7 +89,7 @@ Berikan output dalam urutan berikut:
 2. **Route** — baris yang ditambahkan di main.rs
 3. **Handler** — file lengkap di src/handler/nama.rs
 4. **HTML** — file lengkap di src/page/nama.html
-5. **Endpoint tambahan** — handler HTMX tambahan jika ada (misal: search, pagination, delete)
+5. **Endpoint tambahan** — handler tambahan jika ada (misal: search, pagination, delete)
 6. **Alur halaman** — penjelasan singkat alur dari request pertama hingga render
 
 ---
