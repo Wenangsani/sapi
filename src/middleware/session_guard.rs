@@ -5,6 +5,8 @@ use actix_web::{
 use actix_session::SessionExt;
 use futures_util::future::{ ok, Ready, LocalBoxFuture };
 use std::rc::Rc;
+use crate::web::{ ApiResponse };
+use crate::web::types::Int;
 
 // ── Transform (factory) ──────────────────────────────────────────────────────
 
@@ -47,22 +49,22 @@ where
         let service = Rc::clone(&self.service);
 
         Box::pin(async move {
-            // Ambil session dari request
             let session = req.get_session();
 
-            // Cek key "user_id" — sesuaikan dengan yang di-set saat login
-            let authenticated = session.get::<i64>("user_id")
+            let authenticated = session.get::<Int>("user_id")
                 .unwrap_or(None)
                 .is_some();
 
             if authenticated {
-                // Lanjut ke handler
                 let res = service.call(req).await?;
                 Ok(res.map_into_left_body())
             } else {
-                // Tolak — kembalikan 401
-                let response = HttpResponse::Unauthorized()
-                    .json(serde_json::json!({ "error": "Unauthorized" }));
+                let response = HttpResponse::Unauthorized().json(ApiResponse {
+                    success: false,
+                    message: "unauthorized".into(),
+                    data: None,
+                    meta: None,
+                });
                 Ok(req.into_response(response).map_into_right_body())
             }
         })

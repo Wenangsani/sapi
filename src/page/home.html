@@ -5,18 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sapi-rs — Prototype at Warp Speed</title>
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@2.0.0"></script>
 
     <script>
@@ -74,6 +68,19 @@
         .noise-bg {
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
         }
+        .prompt-pre {
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.7;
+            color: #94a3b8;
+        }
+        .prompt-pre .ph { color: #60A5FA; font-style: italic; }
+        .prompt-pre .kw { color: #C792EA; }
+        .prompt-pre .hd { color: #E8F4FD; font-weight: 600; }
+        .prompt-pre .cm { color: #546E7A; }
+        .prompt-pre .val { color: #C3E88D; }
     </style>
 </head>
 
@@ -82,26 +89,22 @@
     <!-- ─── NAVBAR ─────────────────────────────────────────────── -->
     <header class="fixed top-0 inset-x-0 z-50 border-b border-border/50 bg-canvas/80 backdrop-blur-md">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-            <!-- Logo -->
             <a href="/" class="flex items-center gap-2 font-display font-700 text-lg">
                 <span class="inline-flex items-center justify-center w-7 h-7 rounded bg-accent text-white text-xs font-mono font-bold">S</span>
                 <span class="text-text-primary">Sapi<span class="text-accent">-rs</span></span>
             </a>
 
-            <!-- Desktop nav -->
             <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-text-muted">
                 <a href="#features" class="hover:text-text-primary transition-colors">Features</a>
                 <a href="#quickstart" class="hover:text-text-primary transition-colors">Quick Start</a>
                 <a href="#stack" class="hover:text-text-primary transition-colors">Stack</a>
-                <a href="#" class="hover:text-text-primary transition-colors">Docs</a>
+                <a href="#prompt" class="hover:text-text-primary transition-colors">Prompt Generator</a>
             </nav>
 
-            <!-- CTA + mobile toggle -->
             <div class="flex items-center gap-3">
-                <a href="#quickstart" class="hidden md:inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-accent hover:bg-accent/90 text-white text-sm font-medium transition-colors">
+                <a href="#prompt" class="hidden md:inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-accent hover:bg-accent/90 text-white text-sm font-medium transition-colors">
                     Get Started
                 </a>
-                <!-- Mobile hamburger -->
                 <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-1.5 rounded text-text-muted hover:text-text-primary">
                     <svg x-show="!mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     <svg x-show="mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -109,13 +112,12 @@
             </div>
         </div>
 
-        <!-- Mobile menu -->
         <div x-show="mobileMenuOpen" x-transition class="md:hidden border-t border-border/50 bg-canvas px-4 py-4 flex flex-col gap-4 text-sm font-medium text-text-muted">
             <a href="#features" @click="mobileMenuOpen=false" class="hover:text-text-primary transition-colors">Features</a>
             <a href="#quickstart" @click="mobileMenuOpen=false" class="hover:text-text-primary transition-colors">Quick Start</a>
             <a href="#stack" @click="mobileMenuOpen=false" class="hover:text-text-primary transition-colors">Stack</a>
-            <a href="#" @click="mobileMenuOpen=false" class="hover:text-text-primary transition-colors">Docs</a>
-            <a href="#quickstart" class="inline-flex justify-center items-center px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium">Get Started</a>
+            <a href="#prompt" @click="mobileMenuOpen=false" class="hover:text-text-primary transition-colors">Prompt Generator</a>
+            <a href="#prompt" class="inline-flex justify-center items-center px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium">Get Started</a>
         </div>
     </header>
 
@@ -123,16 +125,10 @@
 
         <!-- ─── HERO ───────────────────────────────────────────────── -->
         <section class="min-h-screen pt-14 flex flex-col items-center justify-center relative overflow-hidden noise-bg">
-
-            <!-- Grid background decoration -->
             <div class="absolute inset-0 pointer-events-none" style="background-image: linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px); background-size: 60px 60px;"></div>
-
-            <!-- Glow blob -->
             <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full opacity-10 blur-3xl pointer-events-none" style="background: radial-gradient(ellipse, #3B82F6 0%, transparent 70%);"></div>
 
             <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 w-full py-20 lg:py-28 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-
-                <!-- Left: Copy -->
                 <div class="space-y-7">
                     <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border text-xs font-mono text-text-muted bg-surface/50">
                         <span class="w-1.5 h-1.5 rounded-full bg-amber animate-pulse"></span>
@@ -155,13 +151,12 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                             Quick Start
                         </a>
-                        <a href="#features" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-border hover:border-accent/50 text-text-muted hover:text-text-primary font-medium text-sm transition-all">
-                            Explore Features
+                        <a href="#prompt" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-border hover:border-accent/50 text-text-muted hover:text-text-primary font-medium text-sm transition-all">
+                            Prompt Generator
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                         </a>
                     </div>
 
-                    <!-- Stats -->
                     <div class="flex gap-8 pt-2">
                         <div>
                             <div class="font-display font-bold text-2xl text-text-primary">~5ms</div>
@@ -180,16 +175,13 @@
                     </div>
                 </div>
 
-                <!-- Right: Code snippet -->
                 <div class="glow-border rounded-2xl overflow-hidden bg-surface shadow-2xl" style="box-shadow: 0 0 60px rgba(59,130,246,0.12);">
-                    <!-- Window bar -->
                     <div class="flex items-center gap-2 px-4 py-3 bg-surface-2 border-b border-border">
                         <span class="w-3 h-3 rounded-full bg-red-500/70"></span>
                         <span class="w-3 h-3 rounded-full bg-amber/70"></span>
                         <span class="w-3 h-3 rounded-full bg-green-500/70"></span>
                         <span class="ml-auto font-mono text-xs text-text-muted">src/handler/dashboard.rs</span>
                     </div>
-                    <!-- Code body -->
                     <div class="p-5 font-mono text-[13px] leading-relaxed overflow-x-auto">
                         <pre><span class="code-attr">#[get("/dashboard")]</span>
 <span class="code-keyword">pub async fn</span> <span class="code-fn">dashboard</span>(
@@ -212,7 +204,6 @@
     })
 }<span class="animate-blink text-accent">▌</span></pre>
                     </div>
-                    <!-- Footer badge -->
                     <div class="px-5 py-3 border-t border-border bg-surface-2 flex items-center justify-between">
                         <span class="text-xs text-text-muted font-mono">handler lengkap dalam ~15 baris</span>
                         <span class="text-xs font-medium text-green-400 font-mono flex items-center gap-1.5">
@@ -221,14 +212,12 @@
                         </span>
                     </div>
                 </div>
-
             </div>
         </section>
 
         <!-- ─── FEATURES ───────────────────────────────────────────── -->
         <section id="features" class="py-24 px-4 sm:px-6 border-t border-border/50">
             <div class="max-w-6xl mx-auto">
-
                 <div class="text-center mb-16 space-y-3">
                     <p class="font-mono text-xs text-accent uppercase tracking-widest">Kenapa Sapi-rs</p>
                     <h2 class="font-display font-bold text-3xl sm:text-4xl text-text-primary">Semua yang kamu butuhkan,<br/>tanpa yang tidak kamu butuhkan.</h2>
@@ -236,8 +225,6 @@
                 </div>
 
                 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-
-                    <!-- Feature card -->
                     <div class="group rounded-2xl border border-border bg-surface hover:border-accent/40 transition-all p-6 space-y-4">
                         <div class="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent group-hover:bg-accent/20 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -250,7 +237,7 @@
 
                     <div class="group rounded-2xl border border-border bg-surface hover:border-amber/40 transition-all p-6 space-y-4">
                         <div class="w-10 h-10 rounded-xl bg-amber/10 flex items-center justify-center text-amber group-hover:bg-amber/20 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582 4-8 4"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
                         </div>
                         <div>
                             <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">SQLx MySQL Native</h3>
@@ -270,7 +257,7 @@
 
                     <div class="group rounded-2xl border border-border bg-surface hover:border-purple-500/40 transition-all p-6 space-y-4">
                         <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 group-hover:bg-purple-500/20 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4M6 16l-4-4 4-4"/></svg>
                         </div>
                         <div>
                             <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Server-Side HTML</h3>
@@ -297,7 +284,6 @@
                             <p class="text-text-muted text-sm leading-relaxed">Alias seperti <code class="font-mono text-xs text-cyan-400 bg-surface-2 px-1.5 py-0.5 rounded">Pool, Request, Response</code> membuat setiap handler terlihat seragam dan mudah dibaca tim.</p>
                         </div>
                     </div>
-
                 </div>
             </div>
         </section>
@@ -305,35 +291,19 @@
         <!-- ─── QUICK START ─────────────────────────────────────────── -->
         <section id="quickstart" class="py-24 px-4 sm:px-6 border-t border-border/50" x-data="{ tab: 'route' }">
             <div class="max-w-4xl mx-auto">
-
                 <div class="text-center mb-14 space-y-3">
                     <p class="font-mono text-xs text-accent uppercase tracking-widest">Quick Start</p>
                     <h2 class="font-display font-bold text-3xl sm:text-4xl text-text-primary">Halaman baru dalam 3 langkah.</h2>
                     <p class="text-text-muted text-sm">Route → Handler → HTML. Itu saja.</p>
                 </div>
 
-                <!-- Step tabs -->
                 <div class="flex items-center gap-1 p-1 bg-surface rounded-xl mb-8 border border-border">
-                    <button @click="tab = 'route'"
-                        :class="tab === 'route' ? 'bg-accent text-white shadow' : 'text-text-muted hover:text-text-primary'"
-                        class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all">
-                        1. Route
-                    </button>
-                    <button @click="tab = 'handler'"
-                        :class="tab === 'handler' ? 'bg-accent text-white shadow' : 'text-text-muted hover:text-text-primary'"
-                        class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all">
-                        2. Handler
-                    </button>
-                    <button @click="tab = 'html'"
-                        :class="tab === 'html' ? 'bg-accent text-white shadow' : 'text-text-muted hover:text-text-primary'"
-                        class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all">
-                        3. HTML
-                    </button>
+                    <button @click="tab = 'route'" :class="tab === 'route' ? 'bg-accent text-white shadow' : 'text-text-muted hover:text-text-primary'" class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all">1. Route</button>
+                    <button @click="tab = 'handler'" :class="tab === 'handler' ? 'bg-accent text-white shadow' : 'text-text-muted hover:text-text-primary'" class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all">2. Handler</button>
+                    <button @click="tab = 'html'" :class="tab === 'html' ? 'bg-accent text-white shadow' : 'text-text-muted hover:text-text-primary'" class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all">3. HTML</button>
                 </div>
 
-                <!-- Code panels -->
                 <div class="rounded-2xl border border-border overflow-hidden" style="box-shadow: 0 0 40px rgba(0,0,0,0.4);">
-                    <!-- Window bar -->
                     <div class="flex items-center gap-2 px-4 py-3 bg-surface-2 border-b border-border">
                         <span class="w-3 h-3 rounded-full bg-red-500/70"></span>
                         <span class="w-3 h-3 rounded-full bg-amber/70"></span>
@@ -341,7 +311,6 @@
                         <span class="ml-auto font-mono text-xs text-text-muted" x-text="tab === 'route' ? 'src/main.rs' : tab === 'handler' ? 'src/handler/profile.rs' : 'src/page/profile.html'"></span>
                     </div>
 
-                    <!-- Route -->
                     <div x-show="tab === 'route'" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-surface">
 <pre><span class="code-comment">// src/main.rs — daftarkan satu baris</span>
 <span class="code-fn">App</span>::<span class="code-fn">new</span>()
@@ -355,7 +324,6 @@
     )</pre>
                     </div>
 
-                    <!-- Handler -->
                     <div x-show="tab === 'handler'" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-surface">
 <pre><span class="code-comment">// src/handler/profile.rs</span>
 <span class="code-keyword">use</span> crate::web::{Pool, Request, Response};
@@ -379,7 +347,6 @@
 }</pre>
                     </div>
 
-                    <!-- HTML -->
                     <div x-show="tab === 'html'" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-surface">
 <pre><span class="code-comment">&lt;!-- src/page/profile.html --&gt;</span>
 <span class="code-attr">&lt;!DOCTYPE html&gt;</span>
@@ -412,71 +379,269 @@
                     <h2 class="font-display font-bold text-3xl sm:text-4xl text-text-primary">Dipilih, bukan dikumpulkan.</h2>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 reveal reveal-delay-2">
-                <!-- Rust -->
-                <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30
-                            hover:border-orange-800/40 hover:bg-zinc-900/60 transition-all duration-300">
-                    <svg class="w-8 h-8 text-zinc-400 group-hover:text-orange-400 transition-colors duration-300" viewBox="0 0 128 128" fill="currentColor">
-                        <path d="M117.5 33.5l.3-.2c-.6-1.1-1.5-2.1-2.4-2.6L67.1 2.9c-.8-.5-1.9-.7-3.1-.7-1.2 0-2.3.3-3.1.7l-48 27.9c-1.7 1-2.9 3.5-2.9 5.4v55.7c0 1.1.2 2.3.9 3.4l-.2.1c.5.8 1.2 1.5 1.9 1.9l48.2 27.9c.8.5 1.9.7 3.1.7 1.2 0 2.3-.3 3.1-.7l48-27.9c1.7-1 2.9-3.5 2.9-5.4V36.1c.1-.8 0-1.7-.4-2.6zm-53.5-4c9.3 0 18.6 1.5 27.4 4.4l-27.4 15.8L36.6 33.9c8.8-2.9 18.1-4.4 27.4-4.4zM24.5 42.2l27.5 15.9v31.5l-27.5-15.8V42.2zm79 31.6L76 89.6V58.1l27.5-15.9v31.6z"/>
-                    </svg>
-                    <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Rust</span>
-                </div>
-
-                <!-- Actix Web -->
-                <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30
-                            hover:border-emerald-800/40 hover:bg-zinc-900/60 transition-all duration-300">
-                    <div class="w-8 h-8 flex items-center justify-center">
-                        <svg class="w-7 h-7 text-zinc-400 group-hover:text-emerald-400 transition-colors duration-300" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-7.076-2.19l-.89 5.595C5.589 23.378 8.735 24 12.142 24c2.641 0 4.843-.624 6.327-1.813 1.655-1.275 2.504-3.176 2.504-5.584 0-4.128-2.524-5.851-6.997-7.453z"/>
-                        </svg>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                    <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30 hover:border-orange-800/40 hover:bg-zinc-900/60 transition-all duration-300">
+                        <svg class="w-8 h-8 text-zinc-400 group-hover:text-orange-400 transition-colors duration-300" viewBox="0 0 128 128" fill="currentColor"><path d="M117.5 33.5l.3-.2c-.6-1.1-1.5-2.1-2.4-2.6L67.1 2.9c-.8-.5-1.9-.7-3.1-.7-1.2 0-2.3.3-3.1.7l-48 27.9c-1.7 1-2.9 3.5-2.9 5.4v55.7c0 1.1.2 2.3.9 3.4l-.2.1c.5.8 1.2 1.5 1.9 1.9l48.2 27.9c.8.5 1.9.7 3.1.7 1.2 0 2.3-.3 3.1-.7l48-27.9c1.7-1 2.9-3.5 2.9-5.4V36.1c.1-.8 0-1.7-.4-2.6zm-53.5-4c9.3 0 18.6 1.5 27.4 4.4l-27.4 15.8L36.6 33.9c8.8-2.9 18.1-4.4 27.4-4.4zM24.5 42.2l27.5 15.9v31.5l-27.5-15.8V42.2zm79 31.6L76 89.6V58.1l27.5-15.9v31.6z"/></svg>
+                        <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Rust</span>
                     </div>
-                    <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Actix Web</span>
-                </div>
-
-                <!-- SQLx -->
-                <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30
-                            hover:border-cyan-800/40 hover:bg-zinc-900/60 transition-all duration-300">
-                    <div class="w-8 h-8 flex items-center justify-center">
-                        <svg class="w-7 h-7 text-zinc-400 group-hover:text-cyan-400 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
-                        </svg>
+                    <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30 hover:border-emerald-800/40 hover:bg-zinc-900/60 transition-all duration-300">
+                        <svg class="w-7 h-7 text-zinc-400 group-hover:text-emerald-400 transition-colors duration-300" viewBox="0 0 24 24" fill="currentColor"><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-7.076-2.19l-.89 5.595C5.589 23.378 8.735 24 12.142 24c2.641 0 4.843-.624 6.327-1.813 1.655-1.275 2.504-3.176 2.504-5.584 0-4.128-2.524-5.851-6.997-7.453z"/></svg>
+                        <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Actix Web</span>
                     </div>
-                    <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">SQLx</span>
-                </div>
-
-                <!-- Tailwind CSS -->
-                <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30
-                            hover:border-sky-800/40 hover:bg-zinc-900/60 transition-all duration-300">
-                    <div class="w-8 h-8 flex items-center justify-center">
-                        <svg class="w-7 h-7 text-zinc-400 group-hover:text-sky-400 transition-colors duration-300" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.337 6.182 14.976 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.337 13.382 8.976 12 6.001 12z"/>
-                        </svg>
+                    <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30 hover:border-cyan-800/40 hover:bg-zinc-900/60 transition-all duration-300">
+                        <svg class="w-7 h-7 text-zinc-400 group-hover:text-cyan-400 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+                        <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">SQLx</span>
                     </div>
-                    <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Tailwind CSS</span>
-                </div>
-
-                <!-- Alpine.js -->
-                <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30
-                            hover:border-teal-800/40 hover:bg-zinc-900/60 transition-all duration-300">
-                    <div class="w-8 h-8 flex items-center justify-center">
-                        <svg class="w-6 h-6 text-zinc-400 group-hover:text-teal-400 transition-colors duration-300" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641 0 12.017 0z"/>
-                        </svg>
+                    <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30 hover:border-sky-800/40 hover:bg-zinc-900/60 transition-all duration-300">
+                        <svg class="w-7 h-7 text-zinc-400 group-hover:text-sky-400 transition-colors duration-300" viewBox="0 0 24 24" fill="currentColor"><path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.337 6.182 14.976 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.337 13.382 8.976 12 6.001 12z"/></svg>
+                        <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Tailwind CSS</span>
                     </div>
-                    <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Alpine.js</span>
-                </div>
-
-                <!-- HTMX -->
-                <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30
-                            hover:border-rose-800/40 hover:bg-zinc-900/60 transition-all duration-300">
-                    <div class="w-8 h-8 flex items-center justify-center font-mono font-bold text-sm text-zinc-400 group-hover:text-rose-400 transition-colors duration-300">
-                        &lt;/&gt;
+                    <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30 hover:border-teal-800/40 hover:bg-zinc-900/60 transition-all duration-300">
+                        <svg class="w-6 h-6 text-zinc-400 group-hover:text-teal-400 transition-colors duration-300" viewBox="0 0 24 24" fill="currentColor"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641 0 12.017 0z"/></svg>
+                        <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Alpine.js</span>
                     </div>
-                    <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">HTMX</span>
+                    <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30 hover:border-rose-800/40 hover:bg-zinc-900/60 transition-all duration-300">
+                        <div class="w-8 h-8 flex items-center justify-center font-mono font-bold text-sm text-zinc-400 group-hover:text-rose-400 transition-colors duration-300">&lt;/&gt;</div>
+                        <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">HTMX</span>
+                    </div>
                 </div>
-            </div>
             </div>
         </section>
+
+        <!-- ─── PROMPT GENERATOR ────────────────────────────────────── -->
+<section id="prompt" class="py-24 px-4 sm:px-6 border-t border-border/50" x-data="promptGen()">
+    <div class="max-w-4xl mx-auto">
+
+        <div class="text-center mb-14 space-y-3">
+            <p class="font-mono text-xs text-accent uppercase tracking-widest">Prompt Generator</p>
+            <h2 class="font-display font-bold text-3xl sm:text-4xl text-text-primary">Isi spesifikasi,<br/>prompt siap di-paste.</h2>
+            <p class="text-text-muted text-sm max-w-lg mx-auto leading-relaxed">Bagian stack, alias, dan aturan sudah terisi otomatis. Kamu cukup isi spesifikasi halaman yang ingin dibuat.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+
+            <!-- Form spesifikasi -->
+            <div class="rounded-2xl border border-border bg-surface p-6 space-y-5">
+                <div class="flex items-center gap-2">
+                    <div class="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center">
+                        <div class="w-2 h-2 rounded-full bg-accent"></div>
+                    </div>
+                    <span class="text-sm font-medium text-text-primary">Spesifikasi Halaman</span>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-medium text-text-muted uppercase tracking-wide">Nama Halaman</label>
+                    <input x-model="nama" type="text" placeholder="contoh: Halaman Daftar Produk"
+                        class="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-sm placeholder-text-muted/50 focus:outline-none focus:border-accent/60 transition-colors" />
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-medium text-text-muted uppercase tracking-wide">URL</label>
+                    <input x-model="url" type="text" placeholder="contoh: /products atau /admin/users"
+                        class="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-sm placeholder-text-muted/50 focus:outline-none focus:border-accent/60 transition-colors font-mono" />
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-medium text-text-muted uppercase tracking-wide">Status Akses</label>
+                    <div class="flex gap-2">
+                        <button @click="status = 'Login Required'"
+                            :class="status === 'Login Required' ? 'bg-accent text-white border-accent' : 'bg-surface-2 text-text-muted border-border hover:border-accent/40'"
+                            class="flex-1 py-2 px-3 rounded-xl border text-xs font-medium transition-all">
+                            🔒 Login Required
+                        </button>
+                        <button @click="status = 'Public'"
+                            :class="status === 'Public' ? 'bg-green-600 text-white border-green-600' : 'bg-surface-2 text-text-muted border-border hover:border-green-500/40'"
+                            class="flex-1 py-2 px-3 rounded-xl border text-xs font-medium transition-all">
+                            🌐 Public
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-medium text-text-muted uppercase tracking-wide">Keterangan</label>
+                    <textarea x-model="keterangan" rows="5"
+                        placeholder="Jelaskan fungsi halaman ini. Contoh:&#10;- Menampilkan daftar produk dengan pagination&#10;- User bisa search berdasarkan nama&#10;- Ada tombol tambah, edit, hapus produk&#10;- Hanya admin yang bisa mengakses"
+                        class="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-sm placeholder-text-muted/50 focus:outline-none focus:border-accent/60 transition-colors resize-none leading-relaxed"></textarea>
+                    <p class="text-xs text-text-muted">Semakin detail keterangan, semakin akurat kode yang dihasilkan.</p>
+                </div>
+            </div>
+
+            <!-- Preview prompt -->
+            <div class="space-y-3">
+                <div class="rounded-2xl border border-border overflow-hidden" style="box-shadow: 0 0 30px rgba(0,0,0,0.3);">
+                    <div class="flex items-center gap-2 px-4 py-3 bg-surface-2 border-b border-border">
+                        <span class="w-3 h-3 rounded-full bg-red-500/70"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber/70"></span>
+                        <span class="w-3 h-3 rounded-full bg-green-500/70"></span>
+                        <span class="ml-3 font-mono text-xs text-text-muted">prompt.md</span>
+                        <div class="ml-auto flex items-center gap-2">
+                            <span x-show="hasSpec" class="text-xs text-green-400 font-mono flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span>
+                                spec ready
+                            </span>
+                            <span x-show="!hasSpec" class="text-xs text-text-muted font-mono flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-text-muted/50 inline-block"></span>
+                                isi form →
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="bg-surface p-4 h-screen overflow-y-auto">
+                        <pre class="prompt-pre" x-text="prompt"></pre>
+                    </div>
+
+                    <div class="px-4 py-3 border-t border-border bg-surface-2 flex items-center justify-between gap-3">
+                        <span class="text-xs text-text-muted">Paste langsung ke Claude, ChatGPT, atau AI lain</span>
+                        <button @click="copy()"
+                            :class="copied ? 'bg-green-600 border-green-600 text-white' : 'bg-accent hover:bg-accent/90 border-accent text-white'"
+                            class="flex items-center gap-2 px-4 py-1.5 rounded-lg border text-xs font-medium transition-all shrink-0">
+                            <svg x-show="!copied" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            <svg x-show="copied" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span x-text="copied ? 'Tersalin!' : 'Copy Prompt'"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+function promptGen() {
+    return {
+        nama: '',
+        url: '',
+        status: 'Login Required',
+        keterangan: '',
+        copied: false,
+
+        get hasSpec() {
+            return this.nama.trim() || this.url.trim() || this.keterangan.trim();
+        },
+
+        get prompt() {
+            const nama       = this.nama       || '[isi nama halaman]';
+            const url        = this.url        || '[isi URL, contoh: /dashboard]';
+            const status     = this.status;
+            const keterangan = this.keterangan || '[jelaskan fungsi halaman, data apa yang ditampilkan, aksi apa yang bisa dilakukan]';
+
+            return [
+                'Buatkan halaman baru untuk aplikasi Rust menggunakan Actix Web dengan struktur berikut:',
+                '',
+                '## Stack',
+                '- Framework: Actix Web',
+                '- Database: SQLx MySQL',
+                '- Session: actix-session',
+                '- Password Hash: bcrypt',
+                '- Routing dilakukan di main.rs menggunakan .route()',
+                '- Handler berada di folder src/handler/',
+                '- File HTML berada di folder src/page/',
+                '',
+                '## Alias yang WAJIB digunakan',
+                '```rust',
+                'use crate::web::{Pool, Request, Response, ApiResponse};',
+                'use crate::web::types::{Int, String, Date};',
+                'use crate::web::data::{Data, Path, Json, Form};',
+                'use actix_session::Session;',
+                '```',
+                '',
+                'Referensi tipe:',
+                '- `Pool`     = `Data<MySqlPool>`',
+                '- `Request`  = `HttpRequest`',
+                '- `Response` = `HttpResponse`',
+                '- `Int`      = `i32`',
+                '- `String`   = `std::string::String`',
+                '- `Date`     = `chrono::DateTime<Utc>`',
+                '',
+                '## Aturan Handler',
+                '- Return type wajib `Response`',
+                '- Gunakan `Pool` untuk query database',
+                '- Gunakan `Session` untuk autentikasi',
+                '- Gunakan `Json<T>` atau `Form<T>` untuk input body',
+                '- Gunakan `sqlx::query()` atau `sqlx::query_as::<_, T>()`',
+                '- Tangani semua error database — tidak boleh ada `.unwrap()` pada operasi fallible',
+                '- Boleh `.unwrap()` hanya pada nilai yang dijamin tidak None/Err (contoh: nilai literal)',
+                '- Dilarang menggunakan `anyhow`, `Box<dyn Error>`, atau `unwrap()` sembarangan',
+                '- Handler tidak boleh mengandung string HTML',
+                '',
+                'Format response error:',
+                '```rust',
+                'return Response::BadRequest().json(ApiResponse {',
+                '    success: false,',
+                '    message: "pesan_error".into(),',
+                '    data: None,',
+                '    meta: None,',
+                '});',
+                '```',
+                '',
+                'Format response sukses:',
+                '```rust',
+                'return Response::Ok().json(ApiResponse {',
+                '    success: true,',
+                '    message: "pesan_sukses".into(),',
+                '    data: Some(json!({ ... })),',
+                '    meta: None,',
+                '});',
+                '```',
+                '',
+                '## Aturan HTML',
+                '- Berada di `src/page/`',
+                '- Murni HTML — tidak ada kode Rust di dalamnya',
+                '- Tailwind CSS (utility-first, tanpa custom CSS kecuali benar-benar perlu)',
+                '- Alpine.js untuk state lokal: modal, dropdown, tab, toggle, sidebar, alert',
+                '- HTMX untuk komunikasi dengan backend',
+                '- Mobile friendly',
+                '',
+                'Pola HTMX untuk form:',
+                '```html',
+                '<form hx-post="/api/endpoint" hx-swap="none">',
+                '    ...',
+                '</form>',
+                '```',
+                '',
+                'Gunakan Alpine.js untuk state yang tidak perlu round-trip ke server:',
+                '```html',
+                '<div x-data="{ open: false }">',
+                '    ...',
+                '</div>',
+                '```',
+                '',
+                '## Desain',
+                '- Modern, minimalis, profesional',
+                '- Responsive (mobile-first)',
+                '- Tailwind utility-first',
+                '- Tidak ada framework CSS tambahan',
+                '',
+                '## Output yang harus dihasilkan',
+                '',
+                'Berikan output dalam urutan berikut:',
+                '1. **SQL** — struktur tabel jika diperlukan',
+                '2. **Route** — baris yang ditambahkan di main.rs',
+                '3. **Handler** — file lengkap di src/handler/nama.rs',
+                '4. **HTML** — file lengkap di src/page/nama.html',
+                '5. **Endpoint tambahan** — handler HTMX tambahan jika ada (misal: search, pagination, delete)',
+                '6. **Alur halaman** — penjelasan singkat alur dari request pertama hingga render',
+                '',
+                '---',
+                '',
+                '## Spesifikasi Halaman',
+                '',
+                '**Nama halaman:** ' + nama,
+                '**URL:** ' + url,
+                '**Status:** ' + status,
+                '**Keterangan:** ' + keterangan,
+            ].join('\n');
+        },
+
+        copy() {
+            navigator.clipboard.writeText(this.prompt).then(() => {
+                this.copied = true;
+                setTimeout(() => { this.copied = false; }, 2000);
+            });
+        }
+    };
+}
+</script>
 
         <!-- ─── CTA BOTTOM ─────────────────────────────────────────── -->
         <section class="py-24 px-4 sm:px-6 border-t border-border/50">
@@ -487,20 +652,13 @@
                 </h2>
                 <p class="text-text-muted text-base">Tambah halaman pertama kamu dalam hitungan menit, bukan jam.</p>
                 <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                    <a href="#quickstart" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-accent hover:bg-accent/90 text-white font-medium transition-all glow-blue">
+                    <a href="#prompt" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-accent hover:bg-accent/90 text-white font-medium transition-all glow-blue">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                        Mulai Sekarang
+                        Buat Halaman Sekarang
                     </a>
-                    <a href="#" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-border hover:border-accent/50 text-text-muted hover:text-text-primary font-medium transition-all text-sm">
-                        Baca Dokumentasi
+                    <a href="#quickstart" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-border hover:border-accent/50 text-text-muted hover:text-text-primary font-medium transition-all text-sm">
+                        Lihat Quick Start
                     </a>
-                </div>
-
-                <!-- Terminal snippet -->
-                <div class="inline-flex items-center gap-3 px-5 py-3 rounded-xl bg-surface border border-border font-mono text-sm text-text-muted mx-auto">
-                    <span class="text-accent">$</span>
-                    <span>cargo run</span>
-                    <span class="animate-blink text-accent">▌</span>
                 </div>
             </div>
         </section>
@@ -511,7 +669,7 @@
     <footer class="border-t border-border/50 py-8 px-4 sm:px-6">
         <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-text-muted">
             <div class="flex items-center gap-2 font-display font-medium">
-                <span class="inline-flex items-center justify-center w-6 h-6 rounded bg-accent text-white text-[10px] font-mono font-bold">RF</span>
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded bg-accent text-white text-[10px] font-mono font-bold">S</span>
                 Sapi-rs
             </div>
             <p class="font-mono text-xs">Built with Actix Web · SQLx · Tailwind CSS</p>

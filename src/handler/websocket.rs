@@ -13,7 +13,7 @@ use std::{
 };
 
 pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socketlist: Data<Usession>) {
-    println!("Connetted");
+    println!("Connected");
 
     let mut rng = rand::thread_rng();
 
@@ -76,7 +76,7 @@ pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socket
     * add delete socketlist here !
     */
 
-    println!("Disconnetted");
+    println!("Disconnected");
 }
 
 // Simple websocket

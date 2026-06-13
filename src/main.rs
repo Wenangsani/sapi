@@ -19,14 +19,14 @@ use actix_cors::Cors;
 #[actix_web::main]
 async fn main() -> Result<(), anyhow::Error> {
     
-    let pool = sqlx::MySqlPool::connect("mysql://root:mysql@127.0.0.1:3306/actixweb").await.unwrap();
+    let pool = sqlx::MySqlPool::connect("mysql://root:mysql@127.0.0.1:3306/actixweb").await?;
+
+    // Gunakan key tetap di production! Key::generate() berubah tiap restart
+    let secret_key = Key::generate();
 
     HttpServer::new(move || {
 
-        // Gunakan key tetap di production! Key::generate() berubah tiap restart
-        let secret_key = Key::generate();
-
-        let session_mw = SessionMiddleware::builder(CookieSessionStore::default(), secret_key)
+        let session_mw = SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
             .cookie_same_site(SameSite::None)   // Sesuaikan dengan kebutuhan aplikasi
             .cookie_http_only(true)             // JS tidak bisa akses cookie
             .cookie_secure(false)               // true jika HTTPS
@@ -51,7 +51,6 @@ async fn main() -> Result<(), anyhow::Error> {
                 scope("")
                     .route("/",              get().to(handler::home::home))
                     .route("/test",          get().to(handler::home::test))
-                    .route("/ws",            get().to(handler::websocket::ws))
                     .route("/auth/login",    post().to(handler::auth::login))
                     .route("/auth/register", post().to(handler::auth::register))
             )
@@ -61,6 +60,7 @@ async fn main() -> Result<(), anyhow::Error> {
                 scope("/api")
                     .wrap(middleware::session_guard::SessionGuard)
                     .route("/welcome/{name}", get().to(handler::home::welcome))
+                    .route("/ws",             get().to(handler::websocket::ws))
             )
 
             .default_service(route().to(handler::notfound::notfound))

@@ -5,15 +5,11 @@ use actix_session::Session;
 use bcrypt::{hash, verify, DEFAULT_COST};
 use serde_json::json;
 
-fn default_value() -> String {
-    String::from("")
-}
-
 #[derive(Deserialize)]
 pub struct Logindata {
-    #[serde(default = "default_value")]
+    #[serde(default)]
     pub username: String,
-    #[serde(default = "default_value")]
+    #[serde(default)]
     pub password: String,
 }
 
@@ -63,9 +59,8 @@ pub async fn login(pool: Pool, data: Json<Logindata>, session: Session) -> Respo
             meta: None,
         }),
     };
-
-    let password_match = verify(password, &user.password).unwrap_or(false);
-    if !password_match {
+    
+    if !verify(password, &user.password).unwrap_or(false) {
         return Response::Unauthorized().json(ApiResponse {
             success: false,
             message: "password_not_match".into(),
