@@ -13,16 +13,17 @@ Buatkan halaman baru untuk aplikasi Rust menggunakan Actix Web dengan struktur b
 ## Alias yang WAJIB digunakan
 
 ```rust
-use crate::web::{Pool, Request, Response, ApiResponse};
+use crate::web::{Pool, Session, Cookie, Request, Response, ApiResponse};
 use crate::web::types::{Int, String, Date};
 use crate::web::data::{Data, Path, Json, Form};
-use actix_session::Session;
 ```
 
 Referensi tipe:
 - `Pool`     = `Data<MySqlPool>`
 - `Request`  = `HttpRequest`
 - `Response` = `HttpResponse`
+- `Session`  = `actix_session::Session`
+- `Cookie`   = `actix_web::cookie::Cookie`
 - `Int`      = `i32`
 - `String`   = `std::string::String`
 - `Date`     = `chrono::DateTime<Utc>`
@@ -33,6 +34,7 @@ Referensi tipe:
 - Gunakan `Pool` untuk query database
 - Gunakan `Session` untuk autentikasi
 - Gunakan `Json<T>` atau `Form<T>` untuk input body
+- Gunakan `Path<T>` untuk url path
 - Gunakan `sqlx::query()` atau `sqlx::query_as::<_, T>()`
 - Tangani semua error database — tidak boleh ada `.unwrap()` pada operasi fallible
 - Boleh `.unwrap()` hanya pada nilai yang dijamin tidak None/Err (contoh: nilai literal)
@@ -58,6 +60,19 @@ return Response::Ok().json(ApiResponse {
     meta: None,
 });
 ```
+
+## Macro yang Tersedia
+
+Gunakan macro `auth!` untuk guard autentikasi pada halaman Login Required:
+
+```rust
+let user_id = auth!(session);
+```
+
+Macro ini akan otomatis return `401 Unauthorized` jika session tidak valid. Setelah baris ini, `user_id` bertipe `Int` dan dijamin terisi.
+
+Jangan gunakan `session.get::<Int>("user_id")` manual jika halaman berstatus Login Required — gunakan `auth!(session)`.
+
 
 ## Aturan HTML
 

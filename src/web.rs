@@ -3,6 +3,8 @@ pub use actix_web::HttpRequest as Request;
 pub use actix_web::HttpResponse as Response;
 pub use serde_json::Value;
 pub use uuid::Uuid;
+pub use actix_session::Session as Session;
+pub use actix_web::cookie::Cookie as Cookie;
 
 
 pub type Pool = actix_web::web::Data<sqlx::MySqlPool>;

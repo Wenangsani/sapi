@@ -1,7 +1,7 @@
 use crate::appstate::Appstate;
-use crate::web::{ Request, Response, data::{Data, Path} };
-use actix_session::Session;
-use actix_web::cookie::{ Cookie, time::Duration };
+use crate::web::{ Cookie, Session, Request, Response };
+use crate::web::data::{Data, Path};
+use actix_web::cookie::time::Duration;
 
 #[derive(Deserialize)]
 pub struct WelcomePath {
@@ -37,8 +37,8 @@ pub async fn _old(state: Data<Appstate>) -> Response {
 
 pub async fn welcome(path: Path<WelcomePath>, session: Session ) -> Response {
 
-    let user_id = session.get::<i64>("user_id");
-    let user_id = user_id.unwrap_or(None);
+    // auth guard — satu baris
+    let user_id = auth!(session);
 
     println!("User ID: {:?}", user_id);
 

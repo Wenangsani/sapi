@@ -4,11 +4,14 @@ extern crate serde;
 extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
+#[macro_use]
+mod macros;
 
-pub mod middleware;
-pub mod handler;
+
 pub mod web;
 pub mod appstate;
+pub mod middleware;
+pub mod handler;
 pub mod socketsession;
 
 use actix_web::{ web::{ get, post, route, scope, Data }, App, HttpServer, cookie::Key, cookie::SameSite };

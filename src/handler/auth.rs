@@ -1,7 +1,6 @@
-use crate::web::{Pool, Response, ApiResponse};
+use crate::web::{Pool, Session, Response, ApiResponse};
 use crate::web::types::{Int, String, Date};
 use crate::web::data::Json;
-use actix_session::Session;
 use bcrypt::{hash, verify, DEFAULT_COST};
 use serde_json::json;
 
@@ -37,9 +36,7 @@ pub async fn login(pool: Pool, data: Json<Logindata>, session: Session) -> Respo
 
     let conn = pool.get_ref();
 
-    let user = sqlx::query_as::<_, User>(
-        "SELECT * FROM users WHERE username = ? LIMIT 1"
-    )
+    let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE username = ? LIMIT 1")
     .bind(username)
     .fetch_optional(conn)
     .await;
@@ -105,9 +102,7 @@ pub async fn register(pool: Pool, data: Json<Logindata>, session: Session) -> Re
 
     let conn = pool.get_ref();
 
-    let existing = sqlx::query_as::<_, User>(
-        "SELECT * FROM users WHERE username = ? LIMIT 1"
-    )
+    let existing = sqlx::query_as::<_, User>("SELECT * FROM users WHERE username = ? LIMIT 1")
     .bind(username)
     .fetch_optional(conn)
     .await;
