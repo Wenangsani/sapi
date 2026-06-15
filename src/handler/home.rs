@@ -15,8 +15,8 @@ pub async fn home() -> Response {
         .body(include_str!("../page/home.html"))
 }
 
-// Test page
-pub async fn test(_state: Data<Appstate>) -> Response {
+// Test API page
+pub async fn testapi(_state: Data<Appstate>) -> Response {
     Response::Ok()
         .content_type("text/html; charset=utf-8")
         .body(include_str!("../page/test.html"))
@@ -27,6 +27,13 @@ pub async fn testsocket() -> Response {
     Response::Ok()
         .content_type("text/html; charset=utf-8")
         .body(include_str!("../page/testsocket.html"))
+}
+
+// Test SSE page
+pub async fn testsse(_req: Request) -> Response {
+    Response::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(include_str!("../page/testsse.html"))
 }
 
 // Cookie example

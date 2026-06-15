@@ -27,8 +27,6 @@ impl Usession {
         inner.sessions.push(session);
     }
 
-    // https://git.asonix.dog/asonix/actix-actorless-websockets/src/branch/main/examples/chat/src/main.rs
-
     pub async fn send(&self, msg: String) {
         let mut inner = match self.inner.lock() {
             Ok(inner) => inner,

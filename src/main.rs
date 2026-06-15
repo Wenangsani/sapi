@@ -13,9 +13,11 @@ pub mod appstate;
 pub mod middleware;
 pub mod handler;
 pub mod socketsession;
+pub mod ssesession;
 
 use actix_web::{ web::{ get, post, route, scope, Data }, App, HttpServer, cookie::Key, cookie::SameSite };
 use crate::socketsession::{ Usession, UsessionInner };
+use crate::ssesession::SseSession; 
 use actix_session::{ SessionMiddleware, storage::CookieSessionStore };
 use actix_cors::Cors;
 
@@ -26,6 +28,9 @@ async fn main() -> Result<(), anyhow::Error> {
 
     // Gunakan key tetap di production! Key::generate() berubah tiap restart
     let secret_key = Key::generate();
+
+    let socketlist = Usession::new();
+    let sselist    = SseSession::new(); 
 
     HttpServer::new(move || {
 
@@ -41,8 +46,6 @@ async fn main() -> Result<(), anyhow::Error> {
             .allow_any_header()
             .supports_credentials();     // wajib agar cookie dikirim cross-origin
 
-        let socketlist = Usession::new();
-
         App::new()
             .wrap(cors)
             .wrap(session_mw)
@@ -50,16 +53,20 @@ async fn main() -> Result<(), anyhow::Error> {
             .app_data(Data::new(pool.clone()))
             .app_data(Data::new(appstate::new()))
             .app_data(Data::new(socketlist.clone()))
+            .app_data(Data::new(sselist.clone()))
 
             // ── Public scope ─────────────────────────────
             .service(
                 scope("")
                     .route("/",              get().to(handler::home::home))
-                    .route("/test",          get().to(handler::home::test))
+                    .route("/testapi",       get().to(handler::home::testapi))
                     .route("/testsocket",    get().to(handler::home::testsocket))
+                    .route("/testsse",       get().to(handler::home::testsse))
                     .route("/auth/login",    post().to(handler::auth::login))
                     .route("/auth/register", post().to(handler::auth::register))
                     .route("/ws",            get().to(handler::websocket::ws))
+                    .route("/sse",           get().to(handler::sse::sse))
+                    .route("/sse/send",      post().to(handler::sse::sse_send))
             )
 
             // ── Protected scope ──────────────────────────

@@ -1,21 +1,14 @@
 use actix_web::{ middleware::Logger, web, App, Error, HttpRequest, HttpResponse, HttpServer };
 use actix_ws::{ Message, Session, MessageStream };
-// use futures_util::{ future::{ self, Either }, StreamExt as _ };
 
 use crate::web::from::Data;
 use crate::appstate::Appstate;
 use crate::socketsession::{ Usession, UsessionInner };
 use std::sync::{Arc, Mutex};
-use rand::Rng;
 use futures::stream::{FuturesUnordered, StreamExt};
-use std::{
-    time::{Duration, Instant},
-};
 
 pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socketlist: Data<Usession>) {
-    println!("Connected");
-
-    let mut rng = rand::thread_rng();
+    println!("Connetted");
 
     let close_reason = loop {
         match msg_stream.next().await {
@@ -25,17 +18,6 @@ pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socket
 
                 match msg {
                     Message::Text(text) => {
-
-                        /*
-                        let mut list = socketlist.get_session();
-
-                        for sc in list.iter_mut() {
-                            println!("{:?}", sc.id);
-                            sc.session.text("dsfsdf").await.unwrap();
-                        }
-                        */
-                        
-                        // session.text(text).await.unwrap();
                         socketlist.send(text.to_string()).await;
                     }
 
@@ -76,7 +58,7 @@ pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socket
     * add delete socketlist here !
     */
 
-    println!("Disconnected");
+    println!("Disconnetted");
 }
 
 // Simple websocket
@@ -85,8 +67,6 @@ pub async fn ws(req: HttpRequest, body: web::Payload, state: Data<Appstate>, soc
     let (response, mut session, mut msg_stream) = actix_ws::handle(&req, body)?;
 
     socketlist.insert(session.clone()).await;
-
-    let alive = Arc::new(Mutex::new(Instant::now()));
 
     // spawn websocket handler (and don't await it) so that the response is returned immediately
     actix_rt::spawn(echo_ws(session, msg_stream, socketlist));
