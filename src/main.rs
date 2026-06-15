@@ -41,21 +41,25 @@ async fn main() -> Result<(), anyhow::Error> {
             .allow_any_header()
             .supports_credentials();     // wajib agar cookie dikirim cross-origin
 
+        let socketlist = Usession::new();
+
         App::new()
             .wrap(cors)
             .wrap(session_mw)
 
             .app_data(Data::new(pool.clone()))
             .app_data(Data::new(appstate::new()))
-            .app_data(Data::new(Usession::new()))
+            .app_data(Data::new(socketlist.clone()))
 
             // ── Public scope ─────────────────────────────
             .service(
                 scope("")
                     .route("/",              get().to(handler::home::home))
                     .route("/test",          get().to(handler::home::test))
+                    .route("/testsocket",    get().to(handler::home::testsocket))
                     .route("/auth/login",    post().to(handler::auth::login))
                     .route("/auth/register", post().to(handler::auth::register))
+                    .route("/ws",            get().to(handler::websocket::ws))
             )
 
             // ── Protected scope ──────────────────────────
@@ -63,7 +67,6 @@ async fn main() -> Result<(), anyhow::Error> {
                 scope("/api")
                     .wrap(middleware::session_guard::SessionGuard)
                     .route("/welcome/{name}", get().to(handler::home::welcome))
-                    .route("/ws",             get().to(handler::websocket::ws))
             )
 
             .default_service(route().to(handler::notfound::notfound))

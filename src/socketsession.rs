@@ -42,7 +42,6 @@ impl Usession {
         let mut unordered = FuturesUnordered::new();
 
         for mut session in inner.sessions.drain(..) {
-            eprintln!("chat --- ");
             let msg = msg.clone();
             unordered.push(async move {
                 let res = session.text(msg).await;

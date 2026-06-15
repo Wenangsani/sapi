@@ -22,6 +22,13 @@ pub async fn test(_state: Data<Appstate>) -> Response {
         .body(include_str!("../page/test.html"))
 }
 
+// Test Socket page
+pub async fn testsocket() -> Response {
+    Response::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(include_str!("../page/testsocket.html"))
+}
+
 // Cookie example
 pub async fn _old(state: Data<Appstate>) -> Response {
     let cookie = Cookie::build("my_cookie", "naga")
