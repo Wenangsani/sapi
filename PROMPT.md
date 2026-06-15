@@ -78,7 +78,7 @@ Jangan gunakan `session.get::<Int>("user_id")` manual jika halaman berstatus Log
 - Berada di `src/page/`
 - HTML dan Petite-Vue, tidak ada kode Rust di dalamnya
 - Tailwind CSS (utility-first, tanpa custom CSS kecuali benar-benar perlu)
-- Petite-Vue untuk state lokal dan gunakan auto init
+- Petite-Vue untuk state lokal dan interaktivitas
 - Fetch API untuk komunikasi dengan backend
 - Mobile friendly
 
