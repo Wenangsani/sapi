@@ -20,6 +20,20 @@ pub struct UserRow {
     pub created_at: Date,
 }
 
+// Login page
+pub async fn loginpage() -> Response {
+    Response::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(include_str!("../page/login.html"))
+}
+
+// Register page
+pub async fn registerpage() -> Response {
+    Response::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(include_str!("../page/register.html"))
+}
+
 pub async fn login(pool: Pool, data: Json<LoginData>, session: Session) -> Response {
 
     let username = data.username.trim();
@@ -175,10 +189,5 @@ pub async fn register(pool: Pool, data: Json<LoginData>, session: Session) -> Re
 
 pub async fn logout(session: Session) -> Response {
     session.purge();
-    Response::Ok().json(ApiResponse {
-        success: true,
-        message: "logged_out".into(),
-        data: None,
-        meta: None,
-    })
+    Response::SeeOther().insert_header(("Location", "/")).finish()
 }
