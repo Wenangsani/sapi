@@ -1,10 +1,10 @@
 use crate::appstate::Appstate;
 use crate::web::{ Cookie, Session, Request, Response };
-use crate::web::data::{Data, Path};
+use crate::web::from::{Data, Path};
 use actix_web::cookie::time::Duration;
 
 #[derive(Deserialize)]
-pub struct WelcomePath {
+pub struct WelcomeData {
     pub name: String,
 }
 
@@ -35,7 +35,7 @@ pub async fn _old(state: Data<Appstate>) -> Response {
         .body("Hello World ".to_owned() + &state.appname)
 }
 
-pub async fn welcome(path: Path<WelcomePath>, session: Session ) -> Response {
+pub async fn welcome(path: Path<WelcomeData>, session: Session ) -> Response {
 
     // auth guard — satu baris
     let user_id = auth!(session);

@@ -19,14 +19,14 @@ pub struct ApiResponse {
     pub meta: Option<Value>,
 }
 
-pub mod data {
+pub mod from {
     pub use actix_web::web::Data;
     pub use actix_web::web::Form;
     pub use actix_web::web::Json;
     pub use actix_web::web::Path;
 }
 
-pub mod types {
+pub mod data {
     use chrono::{DateTime, Utc};
     pub use String;
     pub type Int = i32;

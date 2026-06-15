@@ -10,7 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Petite-Vue CDN (menggantikan Alpine.js) -->
+    <script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
 
     <script>
         tailwind.config = {
@@ -75,18 +76,25 @@
             line-height: 1.7;
             color: #94a3b8;
         }
-        .prompt-pre .ph { color: #60A5FA; font-style: italic; }
-        .prompt-pre .kw { color: #C792EA; }
-        .prompt-pre .hd { color: #E8F4FD; font-weight: 600; }
-        .prompt-pre .cm { color: #546E7A; }
-        .prompt-pre .val { color: #C3E88D; }
+        /* Transisi sederhana untuk mobile menu (menggantikan x-transition Alpine) */
+        [v-cloak] { display: none; }
+        .menu-enter { animation: fadeDown 0.2s ease forwards; }
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 
-<body class="text-text-primary antialiased" x-data="{ mobileMenuOpen: false }">
+<body class="text-text-primary antialiased">
 
     <!-- ─── NAVBAR ─────────────────────────────────────────────── -->
-    <header class="fixed top-0 inset-x-0 z-50 border-b border-border/50 bg-canvas/80 backdrop-blur-md">
+    <!-- Petite-Vue: v-scope menggantikan x-data, @click menggantikan @click (sama) -->
+    <header
+        id="navbar"
+        v-scope="NavBar()"
+        class="fixed top-0 inset-x-0 z-50 border-b border-border/50 bg-canvas/80 backdrop-blur-md"
+    >
         <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
             <a href="/" class="flex items-center gap-2 font-display font-700 text-lg">
                 <span class="inline-flex items-center justify-center w-7 h-7 rounded bg-accent text-white text-xs font-mono font-bold">S</span>
@@ -105,13 +113,18 @@
                     Get Started
                 </a>
                 <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-1.5 rounded text-text-muted hover:text-text-primary">
-                    <svg x-show="!mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                    <svg x-show="mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <!-- Petite-Vue: v-show menggantikan x-show -->
+                    <svg v-show="!mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    <svg v-show="mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
         </div>
 
-        <div x-show="mobileMenuOpen" x-transition class="md:hidden border-t border-border/50 bg-canvas px-4 py-4 flex flex-col gap-4 text-sm font-medium text-text-muted">
+        <!-- Mobile menu: v-show + class animasi CSS sederhana -->
+        <div
+            v-show="mobileMenuOpen"
+            class="md:hidden border-t border-border/50 bg-canvas px-4 py-4 flex flex-col gap-4 text-sm font-medium text-text-muted menu-enter"
+        >
             <a href="#features" @click="mobileMenuOpen=false" class="hover:text-text-primary transition-colors">Features</a>
             <a href="#quickstart" @click="mobileMenuOpen=false" class="hover:text-text-primary transition-colors">Quick Start</a>
             <a href="#stack" @click="mobileMenuOpen=false" class="hover:text-text-primary transition-colors">Stack</a>
@@ -187,7 +200,7 @@
     <span class="code-fn">session</span>: Session,
     <span class="code-fn">pool</span>: Pool,
 ) <span class="code-keyword">-></span> <span class="code-type">Response</span> {
-    <span class="code-comment">// auth guard — satu baris</span>
+    <span class="code-comment">// auth guard</span>
     <span class="code-keyword">let</span> user_id = <span class="code-fn">auth</span>!(<span class="code-fn">session</span>);
 
     <span class="code-keyword">let</span> data = <span class="code-macro">sqlx::query_as!</span>(
@@ -260,7 +273,7 @@
                         </div>
                         <div>
                             <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Server-Side HTML</h3>
-                            <p class="text-text-muted text-sm leading-relaxed">HTML murni di <code class="font-mono text-xs text-purple-400 bg-surface-2 px-1.5 py-0.5 rounded">src/page/</code>. Tidak ada template engine baru untuk dipelajari — gunakan Alpine.js untuk interaktivitas.</p>
+                            <p class="text-text-muted text-sm leading-relaxed">HTML murni di <code class="font-mono text-xs text-purple-400 bg-surface-2 px-1.5 py-0.5 rounded">src/page/</code>. Tidak ada template engine baru untuk dipelajari — gunakan Petite-Vue untuk interaktivitas.</p>
                         </div>
                     </div>
 
@@ -288,8 +301,15 @@
         </section>
 
         <!-- ─── QUICK START ─────────────────────────────────────────── -->
-        <section id="quickstart" class="py-24 px-4 sm:px-6 border-t border-border/50" x-data="{ tab: 'route' }">
-            <div class="max-w-4xl mx-auto">
+        <!--
+            Petite-Vue: v-scope menggantikan x-data
+            :class menggantikan :class (sama)
+            @click menggantikan @click (sama)
+            v-show menggantikan x-show
+            v-text menggantikan x-text
+        -->
+        <section id="quickstart" class="py-24 px-4 sm:px-6 border-t border-border/50">
+            <div id="quickstart-tabs" v-scope="QuickStartTabs()" class="max-w-4xl mx-auto">
                 <div class="text-center mb-14 space-y-3">
                     <p class="font-mono text-xs text-accent uppercase tracking-widest">Quick Start</p>
                     <h2 class="font-display font-bold text-3xl sm:text-4xl text-text-primary">Halaman baru dalam 3 langkah.</h2>
@@ -307,10 +327,10 @@
                         <span class="w-3 h-3 rounded-full bg-red-500/70"></span>
                         <span class="w-3 h-3 rounded-full bg-amber/70"></span>
                         <span class="w-3 h-3 rounded-full bg-green-500/70"></span>
-                        <span class="ml-auto font-mono text-xs text-text-muted" x-text="tab === 'route' ? 'src/main.rs' : tab === 'handler' ? 'src/handler/profile.rs' : 'src/page/profile.html'"></span>
+                        <span class="ml-auto font-mono text-xs text-text-muted" v-text="tab === 'route' ? 'src/main.rs' : tab === 'handler' ? 'src/handler/profile.rs' : 'src/page/profile.html'"></span>
                     </div>
 
-                    <div x-show="tab === 'route'" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-surface">
+                    <div v-show="tab === 'route'" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-surface">
 <pre><span class="code-comment">// src/main.rs — daftarkan satu baris</span>
 <span class="code-fn">App</span>::<span class="code-fn">new</span>()
     .<span class="code-fn">route</span>(
@@ -323,7 +343,7 @@
     )</pre>
                     </div>
 
-                    <div x-show="tab === 'handler'" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-surface">
+                    <div v-show="tab === 'handler'" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-surface">
 <pre><span class="code-comment">// src/handler/profile.rs</span>
 <span class="code-keyword">use</span> crate::web::{Pool, Request, Response};
 <span class="code-keyword">use</span> actix_session::Session;
@@ -346,7 +366,7 @@
 }</pre>
                     </div>
 
-                    <div x-show="tab === 'html'" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-surface">
+                    <div v-show="tab === 'html'" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-surface">
 <pre><span class="code-comment">&lt;!-- src/page/profile.html --&gt;</span>
 <span class="code-attr">&lt;!DOCTYPE html&gt;</span>
 <span class="code-keyword">&lt;html</span> <span class="code-fn">lang</span>=<span class="code-string">"id"</span><span class="code-keyword">&gt;</span>
@@ -395,240 +415,113 @@
                         <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Tailwind CSS</span>
                     </div>
                     <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30 hover:border-teal-800/40 hover:bg-zinc-900/60 transition-all duration-300">
-                        <svg class="w-6 h-6 text-zinc-400 group-hover:text-teal-400 transition-colors duration-300" viewBox="0 0 24 24" fill="currentColor"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641 0 12.017 0z"/></svg>
-                        <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Alpine.js</span>
+                        <!-- Petite-Vue logo (ikon Vue) -->
+                        <svg class="w-6 h-6 text-zinc-400 group-hover:text-teal-400 transition-colors duration-300" viewBox="0 0 24 24" fill="currentColor"><path d="M24 1.61h-9.94L12 5.16 9.94 1.61H0l12 20.78ZM12 14.08 5.16 2.23H9.59L12 6.41l2.41-4.18h4.43Z"/></svg>
+                        <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Petite-Vue</span>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- ─── PROMPT GENERATOR ────────────────────────────────────── -->
-<section id="prompt" class="py-24 px-4 sm:px-6 border-t border-border/50" x-data="promptGen()">
-    <div class="max-w-4xl mx-auto">
+        <section id="prompt" class="py-24 px-4 sm:px-6 border-t border-border/50">
+            <div id="prompt-gen" v-scope="PromptGen()" class="max-w-4xl mx-auto">
 
-        <div class="text-center mb-14 space-y-3">
-            <p class="font-mono text-xs text-accent uppercase tracking-widest">Prompt Generator</p>
-            <h2 class="font-display font-bold text-3xl sm:text-4xl text-text-primary">Isi spesifikasi,<br/>prompt siap di-paste.</h2>
-            <p class="text-text-muted text-sm max-w-lg mx-auto leading-relaxed">Bagian stack, alias, dan aturan sudah terisi otomatis. Kamu cukup isi spesifikasi halaman yang ingin dibuat.</p>
-        </div>
-
-        <div class="grid lg:grid-cols-2 gap-6">
-
-            <!-- Form spesifikasi -->
-            <div class="rounded-2xl border border-border bg-surface p-6 space-y-5">
-                <div class="flex items-center gap-2">
-                    <div class="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center">
-                        <div class="w-2 h-2 rounded-full bg-accent"></div>
-                    </div>
-                    <span class="text-sm font-medium text-text-primary">Spesifikasi Halaman</span>
+                <div class="text-center mb-14 space-y-3">
+                    <p class="font-mono text-xs text-accent uppercase tracking-widest">Prompt Generator</p>
+                    <h2 class="font-display font-bold text-3xl sm:text-4xl text-text-primary">Isi spesifikasi,<br/>prompt siap di-paste.</h2>
+                    <p class="text-text-muted text-sm max-w-lg mx-auto leading-relaxed">Bagian stack, alias, dan aturan sudah terisi otomatis. Kamu cukup isi spesifikasi halaman yang ingin dibuat.</p>
                 </div>
 
-                <div class="space-y-1.5">
-                    <label class="text-xs font-medium text-text-muted uppercase tracking-wide">Nama Halaman</label>
-                    <input x-model="nama" type="text" placeholder="contoh: Halaman Daftar Produk"
-                        class="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-sm placeholder-text-muted/50 focus:outline-none focus:border-accent/60 transition-colors" />
-                </div>
+                <div class="grid lg:grid-cols-2 gap-6">
 
-                <div class="space-y-1.5">
-                    <label class="text-xs font-medium text-text-muted uppercase tracking-wide">URL</label>
-                    <input x-model="url" type="text" placeholder="contoh: /products atau /admin/users"
-                        class="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-sm placeholder-text-muted/50 focus:outline-none focus:border-accent/60 transition-colors font-mono" />
-                </div>
+                    <!-- Form spesifikasi -->
+                    <div class="rounded-2xl border border-border bg-surface p-6 space-y-5">
+                        <div class="flex items-center gap-2">
+                            <div class="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center">
+                                <div class="w-2 h-2 rounded-full bg-accent"></div>
+                            </div>
+                            <span class="text-sm font-medium text-text-primary">Spesifikasi Halaman</span>
+                        </div>
 
-                <div class="space-y-1.5">
-                    <label class="text-xs font-medium text-text-muted uppercase tracking-wide">Status Akses</label>
-                    <div class="flex gap-2">
-                        <button @click="status = 'Login Required'"
-                            :class="status === 'Login Required' ? 'bg-accent text-white border-accent' : 'bg-surface-2 text-text-muted border-border hover:border-accent/40'"
-                            class="flex-1 py-2 px-3 rounded-xl border text-xs font-medium transition-all">
-                            🔒 Login Required
-                        </button>
-                        <button @click="status = 'Public'"
-                            :class="status === 'Public' ? 'bg-green-600 text-white border-green-600' : 'bg-surface-2 text-text-muted border-border hover:border-green-500/40'"
-                            class="flex-1 py-2 px-3 rounded-xl border text-xs font-medium transition-all">
-                            🌐 Public
-                        </button>
-                    </div>
-                </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-medium text-text-muted uppercase tracking-wide">Nama Halaman</label>
+                            <!-- Petite-Vue: v-model menggantikan x-model -->
+                            <input v-model="nama" type="text" placeholder="contoh: Halaman Daftar Produk"
+                                class="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-sm placeholder-text-muted/50 focus:outline-none focus:border-accent/60 transition-colors" />
+                        </div>
 
-                <div class="space-y-1.5">
-                    <label class="text-xs font-medium text-text-muted uppercase tracking-wide">Keterangan</label>
-                    <textarea x-model="keterangan" rows="5"
-                        placeholder="Jelaskan fungsi halaman ini. Contoh:&#10;- Menampilkan daftar produk dengan pagination&#10;- User bisa search berdasarkan nama&#10;- Ada tombol tambah, edit, hapus produk&#10;- Hanya admin yang bisa mengakses"
-                        class="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-sm placeholder-text-muted/50 focus:outline-none focus:border-accent/60 transition-colors resize-none leading-relaxed"></textarea>
-                    <p class="text-xs text-text-muted">Semakin detail keterangan, semakin akurat kode yang dihasilkan.</p>
-                </div>
-            </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-medium text-text-muted uppercase tracking-wide">URL</label>
+                            <input v-model="url" type="text" placeholder="contoh: /products atau /admin/users"
+                                class="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-sm placeholder-text-muted/50 focus:outline-none focus:border-accent/60 transition-colors font-mono" />
+                        </div>
 
-            <!-- Preview prompt -->
-            <div class="space-y-3">
-                <div class="rounded-2xl border border-border overflow-hidden" style="box-shadow: 0 0 30px rgba(0,0,0,0.3);">
-                    <div class="flex items-center gap-2 px-4 py-3 bg-surface-2 border-b border-border">
-                        <span class="w-3 h-3 rounded-full bg-red-500/70"></span>
-                        <span class="w-3 h-3 rounded-full bg-amber/70"></span>
-                        <span class="w-3 h-3 rounded-full bg-green-500/70"></span>
-                        <span class="ml-3 font-mono text-xs text-text-muted">prompt.md</span>
-                        <div class="ml-auto flex items-center gap-2">
-                            <span x-show="hasSpec" class="text-xs text-green-400 font-mono flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span>
-                                spec ready
-                            </span>
-                            <span x-show="!hasSpec" class="text-xs text-text-muted font-mono flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-text-muted/50 inline-block"></span>
-                                isi form →
-                            </span>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-medium text-text-muted uppercase tracking-wide">Status Akses</label>
+                            <div class="flex gap-2">
+                                <button @click="status = 'Login Required'"
+                                    :class="status === 'Login Required' ? 'bg-accent text-white border-accent' : 'bg-surface-2 text-text-muted border-border hover:border-accent/40'"
+                                    class="flex-1 py-2 px-3 rounded-xl border text-xs font-medium transition-all">
+                                    🔒 Login Required
+                                </button>
+                                <button @click="status = 'Public'"
+                                    :class="status === 'Public' ? 'bg-green-600 text-white border-green-600' : 'bg-surface-2 text-text-muted border-border hover:border-green-500/40'"
+                                    class="flex-1 py-2 px-3 rounded-xl border text-xs font-medium transition-all">
+                                    🌐 Public
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-medium text-text-muted uppercase tracking-wide">Keterangan</label>
+                            <textarea v-model="keterangan" rows="5"
+                                placeholder="Jelaskan fungsi halaman ini. Contoh:&#10;- Menampilkan daftar produk dengan pagination&#10;- User bisa search berdasarkan nama&#10;- Ada tombol tambah, edit, hapus produk&#10;- Hanya admin yang bisa mengakses"
+                                class="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-sm placeholder-text-muted/50 focus:outline-none focus:border-accent/60 transition-colors resize-none leading-relaxed"></textarea>
+                            <p class="text-xs text-text-muted">Semakin detail keterangan, semakin akurat kode yang dihasilkan.</p>
                         </div>
                     </div>
 
-                    <div class="bg-surface p-4 h-screen overflow-y-auto">
-                        <pre class="prompt-pre" x-text="prompt"></pre>
-                    </div>
+                    <!-- Preview prompt -->
+                    <div class="space-y-3">
+                        <div class="rounded-2xl border border-border overflow-hidden" style="box-shadow: 0 0 30px rgba(0,0,0,0.3);">
+                            <div class="flex items-center gap-2 px-4 py-3 bg-surface-2 border-b border-border">
+                                <span class="w-3 h-3 rounded-full bg-red-500/70"></span>
+                                <span class="w-3 h-3 rounded-full bg-amber/70"></span>
+                                <span class="w-3 h-3 rounded-full bg-green-500/70"></span>
+                                <span class="ml-3 font-mono text-xs text-text-muted">prompt.md</span>
+                                <div class="ml-auto flex items-center gap-2">
+                                    <span v-show="hasSpec" class="text-xs text-green-400 font-mono flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span>
+                                        spec ready
+                                    </span>
+                                    <span v-show="!hasSpec" class="text-xs text-text-muted font-mono flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-text-muted/50 inline-block"></span>
+                                        isi form →
+                                    </span>
+                                </div>
+                            </div>
 
-                    <div class="px-4 py-3 border-t border-border bg-surface-2 flex items-center justify-between gap-3">
-                        <span class="text-xs text-text-muted">Paste langsung ke Claude, ChatGPT, atau AI lain</span>
-                        <button @click="copy()"
-                            :class="copied ? 'bg-green-600 border-green-600 text-white' : 'bg-accent hover:bg-accent/90 border-accent text-white'"
-                            class="flex items-center gap-2 px-4 py-1.5 rounded-lg border text-xs font-medium transition-all shrink-0">
-                            <svg x-show="!copied" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                            <svg x-show="copied" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            <span x-text="copied ? 'Tersalin!' : 'Copy Prompt'"></span>
-                        </button>
+                            <div class="bg-surface p-4 h-screen overflow-y-auto">
+                                <!-- Petite-Vue: v-text menggantikan x-text -->
+                                <pre class="prompt-pre" v-text="prompt"></pre>
+                            </div>
+
+                            <div class="px-4 py-3 border-t border-border bg-surface-2 flex items-center justify-between gap-3">
+                                <span class="text-xs text-text-muted">Paste langsung ke Claude, ChatGPT, atau AI lain</span>
+                                <button @click="copy()"
+                                    :class="copied ? 'bg-green-600 border-green-600 text-white' : 'bg-accent hover:bg-accent/90 border-accent text-white'"
+                                    class="flex items-center gap-2 px-4 py-1.5 rounded-lg border text-xs font-medium transition-all shrink-0">
+                                    <svg v-show="!copied" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                    <svg v-show="copied" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    <span v-text="copied ? 'Tersalin!' : 'Copy Prompt'"></span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
-
-<script>
-function promptGen() {
-    return {
-        nama: '',
-        url: '',
-        status: 'Login Required',
-        keterangan: '',
-        copied: false,
-
-        get hasSpec() {
-            return this.nama.trim() || this.url.trim() || this.keterangan.trim();
-        },
-
-        get prompt() {
-            const nama       = this.nama       || '[isi nama halaman]';
-            const url        = this.url        || '[isi URL, contoh: /dashboard]';
-            const status     = this.status;
-            const keterangan = this.keterangan || '[jelaskan fungsi halaman, data apa yang ditampilkan, aksi apa yang bisa dilakukan]';
-
-            return [
-                'Buatkan halaman baru untuk aplikasi Rust menggunakan Actix Web dengan struktur berikut:',
-                '',
-                '## Stack',
-                '- Framework: Actix Web',
-                '- Database: SQLx MySQL',
-                '- Session: actix-session',
-                '- Password Hash: bcrypt',
-                '- Routing dilakukan di main.rs menggunakan .route()',
-                '- Handler berada di folder src/handler/',
-                '- File HTML berada di folder src/page/',
-                '',
-                '## Alias yang WAJIB digunakan',
-                '```rust',
-                'use crate::web::{Pool, Request, Response, ApiResponse};',
-                'use crate::web::types::{Int, String, Date};',
-                'use crate::web::data::{Data, Path, Json, Form};',
-                'use actix_session::Session;',
-                '```',
-                '',
-                'Referensi tipe:',
-                '- `Pool`     = `Data<MySqlPool>`',
-                '- `Request`  = `HttpRequest`',
-                '- `Response` = `HttpResponse`',
-                '- `Int`      = `i32`',
-                '- `String`   = `std::string::String`',
-                '- `Date`     = `chrono::DateTime<Utc>`',
-                '',
-                '## Aturan Handler',
-                '- Return type wajib `Response`',
-                '- Gunakan `Pool` untuk query database',
-                '- Gunakan `Session` untuk autentikasi',
-                '- Gunakan `Json<T>` atau `Form<T>` untuk input body',
-                '- Gunakan `sqlx::query()` atau `sqlx::query_as::<_, T>()`',
-                '- Tangani semua error database — tidak boleh ada `.unwrap()` pada operasi fallible',
-                '- Boleh `.unwrap()` hanya pada nilai yang dijamin tidak None/Err (contoh: nilai literal)',
-                '- Dilarang menggunakan `anyhow`, `Box<dyn Error>`, atau `unwrap()` sembarangan',
-                '- Handler tidak boleh mengandung string HTML',
-                '',
-                'Format response error:',
-                '```rust',
-                'return Response::BadRequest().json(ApiResponse {',
-                '    success: false,',
-                '    message: "pesan_error".into(),',
-                '    data: None,',
-                '    meta: None,',
-                '});',
-                '```',
-                '',
-                'Format response sukses:',
-                '```rust',
-                'return Response::Ok().json(ApiResponse {',
-                '    success: true,',
-                '    message: "pesan_sukses".into(),',
-                '    data: Some(json!({ ... })),',
-                '    meta: None,',
-                '});',
-                '```',
-                '',
-                '## Aturan HTML',
-                '- Berada di `src/page/`',
-                '- Murni HTML — tidak ada kode Rust di dalamnya',
-                '- Tailwind CSS (utility-first, tanpa custom CSS kecuali benar-benar perlu)',
-                '- Alpine.js untuk state lokal: modal, dropdown, tab, toggle, sidebar, alert',
-                '- Fetch API untuk komunikasi dengan backend',
-                '- Mobile friendly',
-                '',
-                'Gunakan Alpine.js untuk state yang tidak perlu round-trip ke server:',
-                '```html',
-                '<div x-data="{ open: false }">',
-                '    ...',
-                '</div>',
-                '```',
-                '',
-                '## Desain',
-                '- Modern, minimalis, profesional',
-                '- Responsive (mobile-first)',
-                '- Tailwind utility-first',
-                '- Tidak ada framework CSS tambahan',
-                '',
-                '## Output yang harus dihasilkan',
-                '',
-                'Berikan output dalam urutan berikut:',
-                '1. **SQL** — struktur tabel jika diperlukan',
-                '2. **Route** — baris yang ditambahkan di main.rs',
-                '3. **Handler** — file lengkap di src/handler/nama.rs',
-                '4. **HTML** — file lengkap di src/page/nama.html',
-                '5. **Endpoint tambahan** — handler tambahan jika ada (misal: search, pagination, delete)',
-                '6. **Alur halaman** — penjelasan singkat alur dari request pertama hingga render',
-                '',
-                '---',
-                '',
-                '## Spesifikasi Halaman',
-                '',
-                '**Nama halaman:** ' + nama,
-                '**URL:** ' + url,
-                '**Status:** ' + status,
-                '**Keterangan:** ' + keterangan,
-            ].join('\n');
-        },
-
-        copy() {
-            navigator.clipboard.writeText(this.prompt).then(() => {
-                this.copied = true;
-                setTimeout(() => { this.copied = false; }, 2000);
-            });
-        }
-    };
-}
-</script>
+        </section>
 
         <!-- ─── CTA BOTTOM ─────────────────────────────────────────── -->
         <section class="py-24 px-4 sm:px-6 border-t border-border/50">
@@ -663,6 +556,176 @@ function promptGen() {
             <p class="text-xs">© 2025 Sapi-rs. Prototype fast. Ship faster.</p>
         </div>
     </footer>
+
+    <!-- ─── PETITE-VUE COMPONENTS ──────────────────────────────── -->
+    <!--
+        Petite-Vue tidak menggunakan Alpine's global x-data auto-detection.
+        Setiap komponen didaftarkan lewat PetiteVue.createApp({ ... }).mount()
+        dengan fungsi factory sebagai komponen.
+    -->
+    <script>
+        /* ── 1. NavBar ── */
+        function NavBar() {
+            return {
+                mobileMenuOpen: false,
+            };
+        }
+
+        /* ── 2. QuickStart Tabs ── */
+        function QuickStartTabs() {
+            return {
+                tab: 'route',
+            };
+        }
+
+        /* ── 3. Prompt Generator ── */
+        function PromptGen() {
+            return {
+                nama: '',
+                url: '',
+                status: 'Login Required',
+                keterangan: '',
+                copied: false,
+
+                /* computed via getter — Petite-Vue mendukung getter di v-scope object */
+                get hasSpec() {
+                    return this.nama.trim() || this.url.trim() || this.keterangan.trim();
+                },
+
+                get prompt() {
+                    const nama       = this.nama       || '[isi nama halaman]';
+                    const url        = this.url        || '[isi URL, contoh: /dashboard]';
+                    const status     = this.status;
+                    const keterangan = this.keterangan || '[jelaskan fungsi halaman, data apa yang ditampilkan, aksi apa yang bisa dilakukan]';
+
+                    return [
+                        "Buatkan halaman baru untuk aplikasi Rust menggunakan Actix Web dengan struktur berikut:",
+                        "",
+                        "## Stack",
+                        "- Framework: Actix Web",
+                        "- Database: SQLx MySQL",
+                        "- Session: actix-session",
+                        "- Password Hash: bcrypt",
+                        "- Routing dilakukan di main.rs menggunakan .route()",
+                        "- Handler berada di folder src/handler/",
+                        "- File HTML berada di folder src/page/",
+                        "",
+                        "## Alias yang WAJIB digunakan",
+                        "",
+                        "```rust",
+                        "use crate::web::{Pool, Session, Cookie, Request, Response, ApiResponse};",
+                        "use crate::web::from::{Data, Path, Json, Form};",
+                        "use crate::web::data::{Int, String, Date};",
+                        "```",
+                        "",
+                        "Referensi tipe:",
+                        "- `Pool`     = `Data<MySqlPool>`",
+                        "- `Request`  = `HttpRequest`",
+                        "- `Response` = `HttpResponse`",
+                        "- `Session`  = `actix_session::Session`",
+                        "- `Cookie`   = `actix_web::cookie::Cookie`",
+                        "- `Int`      = `i32`",
+                        "- `String`   = `std::string::String`",
+                        "- `Date`     = `chrono::DateTime<Utc>`",
+                        "",
+                        "## Aturan Handler",
+                        "",
+                        "- Return type wajib `Response`",
+                        "- Gunakan `Pool` untuk query database",
+                        "- Gunakan `Session` untuk autentikasi",
+                        "- Gunakan `Json<T>` atau `Form<T>` untuk input body",
+                        "- Gunakan `Path<T>` untuk url path",
+                        "- Gunakan `sqlx::query()` atau `sqlx::query_as::<_, T>()`",
+                        "- Tangani semua error database — tidak boleh ada `.unwrap()` pada operasi fallible",
+                        "- Boleh `.unwrap()` hanya pada nilai yang dijamin tidak None/Err (contoh: nilai literal)",
+                        "- Dilarang menggunakan `anyhow`, `Box<dyn Error>`, atau `unwrap()` sembarangan",
+                        "- Handler tidak boleh mengandung string HTML",
+                        "",
+                        "Format response error:",
+                        "```rust",
+                        "return Response::BadRequest().json(ApiResponse {",
+                        "    success: false,",
+                        "    message: \"pesan_error\".into(),",
+                        "    data: None,",
+                        "    meta: None,",
+                        "});",
+                        "```",
+                        "",
+                        "Format response sukses:",
+                        "```rust",
+                        "return Response::Ok().json(ApiResponse {",
+                        "    success: true,",
+                        "    message: \"pesan_sukses\".into(),",
+                        "    data: Some(json!({ ... })),",
+                        "    meta: None,",
+                        "});",
+                        "```",
+                        "",
+                        "## Macro yang Tersedia",
+                        "",
+                        "Gunakan macro `auth!` untuk guard autentikasi pada halaman Login Required:",
+                        "",
+                        "```rust",
+                        "let user_id = auth!(session);",
+                        "```",
+                        "",
+                        "Macro ini akan otomatis return `401 Unauthorized` jika session tidak valid. Setelah baris ini, `user_id` bertipe `Int` dan dijamin terisi.",
+                        "Jangan gunakan `session.get::<Int>(\"user_id\")` manual jika halaman berstatus Login Required — gunakan `auth!(session)`.",
+                        "",
+                        "",
+                        "## Aturan HTML",
+                        "",
+                        "- Berada di `src/page/`",
+                        "- HTML dan Petite-Vue — tidak ada kode Rust di dalamnya",
+                        "- Tailwind CSS (utility-first, tanpa custom CSS kecuali benar-benar perlu)",
+                        "- Petite-Vue untuk state lokal: modal, dropdown, tab, toggle, sidebar, alert",
+                        "- Fetch API untuk komunikasi dengan backend",
+                        "- Mobile friendly",
+                        "",
+                        "## Desain",
+                        "",
+                        "- Modern, minimalis, profesional",
+                        "- Responsive (mobile-first)",
+                        "- Tailwind utility-first",
+                        "- Tidak ada framework CSS tambahan",
+                        "",
+                        "## Output yang harus dihasilkan",
+                        "",
+                        "Berikan output dalam urutan berikut:",
+                        "1. **SQL** — struktur tabel jika diperlukan",
+                        "2. **Route** — baris yang ditambahkan di main.rs",
+                        "3. **Handler** — file lengkap di src/handler/nama.rs",
+                        "4. **HTML** — file lengkap di src/page/nama.html",
+                        "5. **Endpoint tambahan** — handler tambahan jika ada (misal: search, pagination, delete)",
+                        "6. **Alur halaman** — penjelasan singkat alur dari request pertama hingga render",
+                        "",
+                        "---",
+                        "",
+                        "## Spesifikasi Halaman",
+                        "",
+                        "**Nama halaman:** [isi]",
+                        "**URL:** [isi]",
+                        "**Status:** Public / Login Required",
+                        "**Keterangan:** [isi — jelaskan fungsi halaman, data apa yang ditampilkan, aksi apa yang bisa dilakukan]",
+                    ].join('\n');
+                },
+
+                copy() {
+                    navigator.clipboard.writeText(this.prompt).then(() => {
+                        this.copied = true;
+                        setTimeout(() => { this.copied = false; }, 2000);
+                    });
+                }
+            };
+        }
+
+        /*
+         * Mount semua komponen ke elemen masing-masing.
+         * Petite-Vue: PetiteVue.createApp(components).mount(selector)
+         * Komponen didaftarkan sebagai fungsi factory dalam object yang di-pass ke createApp.
+         */
+        PetiteVue.createApp({ NavBar, QuickStartTabs, PromptGen }).mount();
+    </script>
 
 </body>
 </html>

@@ -2,7 +2,7 @@ use actix_web::{ middleware::Logger, web, App, Error, HttpRequest, HttpResponse,
 use actix_ws::{ Message, Session, MessageStream };
 // use futures_util::{ future::{ self, Either }, StreamExt as _ };
 
-use crate::web::data::Data;
+use crate::web::from::Data;
 use crate::appstate::Appstate;
 use crate::socketsession::{ Usession, UsessionInner };
 use std::sync::{Arc, Mutex};

@@ -6,7 +6,7 @@ use actix_session::SessionExt;
 use futures_util::future::{ ok, Ready, LocalBoxFuture };
 use std::rc::Rc;
 use crate::web::{ ApiResponse };
-use crate::web::types::Int;
+use crate::web::data::Int;
 
 // ── Transform (factory) ──────────────────────────────────────────────────────
 

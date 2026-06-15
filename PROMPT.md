@@ -14,8 +14,8 @@ Buatkan halaman baru untuk aplikasi Rust menggunakan Actix Web dengan struktur b
 
 ```rust
 use crate::web::{Pool, Session, Cookie, Request, Response, ApiResponse};
-use crate::web::types::{Int, String, Date};
-use crate::web::data::{Data, Path, Json, Form};
+use crate::web::from::{Data, Path, Json, Form};
+use crate::web::data::{Int, String, Date};
 ```
 
 Referensi tipe:
@@ -70,25 +70,17 @@ let user_id = auth!(session);
 ```
 
 Macro ini akan otomatis return `401 Unauthorized` jika session tidak valid. Setelah baris ini, `user_id` bertipe `Int` dan dijamin terisi.
-
 Jangan gunakan `session.get::<Int>("user_id")` manual jika halaman berstatus Login Required — gunakan `auth!(session)`.
 
 
 ## Aturan HTML
 
 - Berada di `src/page/`
-- Murni HTML — tidak ada kode Rust di dalamnya
+- HTML dan Petite-Vue — tidak ada kode Rust di dalamnya
 - Tailwind CSS (utility-first, tanpa custom CSS kecuali benar-benar perlu)
-- Alpine.js untuk state lokal: modal, dropdown, tab, toggle, sidebar, alert
+- Petite-Vue untuk state lokal: modal, dropdown, tab, toggle, sidebar, alert
 - Fetch API untuk komunikasi dengan backend
 - Mobile friendly
-
-Gunakan Alpine.js untuk state yang tidak perlu round-trip ke server:
-```html
-<div x-data="{ open: false }">
-    ...
-</div>
-```
 
 ## Desain
 
