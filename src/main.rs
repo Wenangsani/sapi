@@ -14,6 +14,7 @@ pub mod middleware;
 pub mod handler;
 pub mod socketsession;
 pub mod ssesession;
+pub mod module;
 
 use actix_web::{ web::{ get, post, route, scope, Data }, App, HttpServer, cookie::Key, cookie::SameSite };
 use crate::socketsession::{ Usession, UsessionInner };
@@ -55,18 +56,11 @@ async fn main() -> Result<(), anyhow::Error> {
             .app_data(Data::new(socketlist.clone()))
             .app_data(Data::new(sselist.clone()))
 
+            .configure(module::register_open_routes)
+
             // ── Public scope ─────────────────────────────
             .service(
                 scope("")
-                    .route("/",              get().to(handler::home::home))
-                    .route("/testapi",       get().to(handler::home::testapi))
-                    .route("/testsocket",    get().to(handler::home::testsocket))
-                    .route("/testsse",       get().to(handler::home::testsse))
-                    .route("/login",         get().to(handler::auth::loginpage))
-                    .route("/auth/login",    post().to(handler::auth::login))
-                    .route("/register",      get().to(handler::auth::registerpage))
-                    .route("/auth/register", post().to(handler::auth::register))
-                    .route("/logout",        get().to(handler::auth::logout))
                     .route("/ws",            get().to(handler::websocket::ws))
                     .route("/sse",           get().to(handler::sse::sse))
                     .route("/sse/send",      post().to(handler::sse::sse_send))
@@ -74,9 +68,9 @@ async fn main() -> Result<(), anyhow::Error> {
 
             // ── Protected scope ──────────────────────────
             .service(
-                scope("/api")
+                scope("/gate")
                     .wrap(middleware::session_guard::SessionGuard)
-                    .route("/welcome/{name}", get().to(handler::home::welcome))
+                    .configure(module::register_gate_routes)
             )
 
             .default_service(route().to(handler::notfound::notfound))
