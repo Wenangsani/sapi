@@ -29,7 +29,6 @@ pub async fn _old(state: Data<Appstate>) -> Response {
 }
 
 pub async fn welcome(path: Path<WelcomeData>, session: Session ) -> Response {
-
     // auth guard — satu baris
     let user_id = auth!(session);
 

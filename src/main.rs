@@ -64,14 +64,15 @@ async fn main() -> Result<(), anyhow::Error> {
                     .route("/sse/send",      post().to(handler::sse::sse_send))
             )
 
-            .configure(module::register_open_routes)
-
             // ── Protected scope ──────────────────────────
             .service(
                 scope("/gate")
                     .wrap(middleware::session_guard::SessionGuard)
                     .configure(module::register_gate_routes)
             )
+
+            // ── Public scope ─────────────────────────────
+            .configure(module::register_open_routes)
 
             .default_service(route().to(handler::notfound::notfound))
     })

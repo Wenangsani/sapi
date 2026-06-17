@@ -30,5 +30,6 @@ pub mod data {
     use chrono::{DateTime, Utc};
     pub use String;
     pub type Int = i32;
+    pub type UInt = u32;
     pub type Date = DateTime<Utc>;
 }

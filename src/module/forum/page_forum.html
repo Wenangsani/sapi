@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forum</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
+</head>
+<body class="bg-stone-50 text-stone-800 min-h-screen font-sans" v-scope>
+
+    <!-- Toast -->
+    <div v-if="toast.show"
+         :class="toast.type === 'error' ? 'bg-red-600' : 'bg-orange-500'"
+         class="fixed top-4 right-4 z-[100] text-white px-5 py-3 rounded-lg shadow-lg text-sm transition-all">
+        {{ toast.message }}
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-orange-500 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/>
+                    </svg>
+                </div>
+                <h1 class="text-xl font-bold text-stone-900">Forum</h1>
+            </div>
+            <button @click="openCreateModal()"
+                    class="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                </svg>
+                <span class="hidden sm:inline">Buat Thread</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-6">
+
+        <!-- Search & Filter -->
+        <div class="mb-6 space-y-4">
+            <!-- Search -->
+            <div class="relative">
+                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+                </svg>
+                <input v-model="search" @input.debounce.400ms="fetchThreads()"
+                       type="text" placeholder="Cari thread..."
+                       class="w-full pl-10 pr-4 py-2.5 bg-white border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400 transition">
+            </div>
+            <!-- Tags -->
+            <div class="flex flex-wrap gap-2">
+                <button @click="setTag('')"
+                        :class="activeTag === '' ? 'bg-orange-500 text-white ring-2 ring-orange-300' : 'bg-white text-stone-600 hover:bg-stone-100 border border-stone-200'"
+                        class="px-3 py-1.5 rounded-full text-xs font-medium transition-all">
+                    Semua
+                </button>
+                <button v-for="tag in tags" :key="tag.slug"
+                        @click="setTag(tag.slug)"
+                        :class="activeTag === tag.slug ? 'text-white ring-2 ring-offset-1' : 'bg-white text-stone-600 hover:opacity-90 border border-stone-200'"
+                        :style="activeTag === tag.slug ? 'background-color:' + tag.color + '; ring-color:' + tag.color + '44' : ''"
+                        class="px-3 py-1.5 rounded-full text-xs font-medium transition-all">
+                    {{ tag.name }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div v-if="loading" class="flex items-center justify-center py-20">
+            <div class="w-8 h-8 border-3 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
+        </div>
+
+        <!-- Empty State -->
+        <div v-else-if="threads.length === 0" class="text-center py-20">
+            <svg class="w-16 h-16 text-stone-300 mx-auto mb-4" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/>
+            </svg>
+            <p class="text-stone-400 text-sm">Belum ada thread</p>
+        </div>
+
+        <!-- Thread List -->
+        <div v-else class="space-y-3">
+            <a v-for="t in threads" :key="t.id"
+               :href="'/forum/thread/' + t.id"
+               class="block bg-white border border-stone-200 rounded-xl p-4 hover:border-orange-300 hover:shadow-md transition-all group">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                            <span v-if="t.tag_name"
+                                  class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold text-white"
+                                  :style="'background-color:' + (t.tag_color || '#f97316')">
+                                {{ t.tag_name }}
+                            </span>
+                            <span v-if="t.access_type === 'user'"
+                                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-blue-100 text-blue-700">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg>
+                                User
+                            </span>
+                            <span v-else-if="t.access_type === 'password'"
+                                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-amber-100 text-amber-700">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                                Password
+                            </span>
+                            <span v-else
+                                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-green-100 text-green-700">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                                Publik
+                            </span>
+                        </div>
+                        <h3 class="text-sm font-semibold text-stone-900 group-hover:text-orange-600 transition-colors truncate">
+                            {{ t.title }}
+                        </h3>
+                        <div class="flex items-center gap-3 mt-2 text-xs text-stone-400">
+                            <span>{{ t.author_name || 'Anonim' }}</span>
+                            <span>{{ timeAgo(t.created_at) }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-stone-400 shrink-0 pt-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"/>
+                        </svg>
+                        <span class="text-xs font-medium">{{ t.reply_count }}</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="meta.total_pages > 1" class="flex items-center justify-center gap-1.5 mt-8">
+            <button @click="goPage(meta.page - 1)" :disabled="meta.page <= 1"
+                    :class="meta.page <= 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-orange-50'"
+                    class="px-3 py-2 rounded-lg text-sm text-stone-600 border border-stone-200 transition">
+                Prev
+            </button>
+            <template v-for="p in visiblePages" :key="p">
+                <button v-if="p !== '...'"
+                        @click="goPage(p)"
+                        :class="p === meta.page ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-stone-600 hover:bg-orange-50 border-stone-200'"
+                        class="w-9 h-9 rounded-lg text-sm font-medium border transition">
+                    {{ p }}
+                </button>
+                <span v-else class="w-9 h-9 flex items-center justify-center text-stone-400 text-sm">...</span>
+            </template>
+            <button @click="goPage(meta.page + 1)" :disabled="meta.page >= meta.total_pages"
+                    :class="meta.page >= meta.total_pages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-orange-50'"
+                    class="px-3 py-2 rounded-lg text-sm text-stone-600 border border-stone-200 transition">
+                Next
+            </button>
+        </div>
+    </main>
+
+    <!-- Modal: Buat Thread -->
+    <div v-if="showCreate" class="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4"
+         @click.self="showCreate = false">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+        <div class="relative bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="sticky top-0 bg-orange-500 px-6 py-4 rounded-t-2xl flex items-center justify-between">
+                <h2 class="text-white font-bold text-lg">Buat Thread Baru</h2>
+                <button @click="showCreate = false" class="text-white/80 hover:text-white transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <!-- Modal Body -->
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-stone-700 mb-1.5">Judul</label>
+                    <input v-model="form.title" type="text" placeholder="Judul thread..."
+                           class="w-full px-3.5 py-2.5 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-stone-700 mb-1.5">Konten</label>
+                    <textarea v-model="form.content" rows="5" placeholder="Tulis konten thread..."
+                              class="w-full px-3.5 py-2.5 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400 resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-stone-700 mb-1.5">Tag</label>
+                    <select v-model="form.tag_id"
+                            class="w-full px-3.5 py-2.5 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400 bg-white">
+                        <option value="">Tanpa tag</option>
+                        <option v-for="tag in tags" :key="tag.id" :value="tag.id">{{ tag.name }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-stone-700 mb-1.5">Tipe Akses</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button v-for="opt in accessOptions" :key="opt.value"
+                                @click="form.access_type = opt.value"
+                                :class="form.access_type === opt.value ? 'border-orange-500 bg-orange-50 text-orange-700 ring-2 ring-orange-200' : 'border-stone-200 text-stone-600 hover:border-stone-300'"
+                                class="px-3 py-2.5 rounded-lg text-xs font-medium border transition text-center">
+                            {{ opt.label }}
+                        </button>
+                    </div>
+                </div>
+                <div v-if="form.access_type === 'password'">
+                    <label class="block text-sm font-medium text-stone-700 mb-1.5">Password</label>
+                    <input v-model="form.password" type="password" placeholder="Masukkan password..."
+                           class="w-full px-3.5 py-2.5 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400">
+                </div>
+            </div>
+            <!-- Modal Footer -->
+            <div class="sticky bottom-0 bg-white border-t border-stone-100 px-6 py-4 flex items-center justify-end gap-3 rounded-b-2xl">
+                <button @click="showCreate = false"
+                        class="px-4 py-2.5 text-sm font-medium text-stone-600 hover:bg-stone-100 rounded-lg transition">
+                    Batal
+                </button>
+                <button @click="submitCreate()" :disabled="submitting"
+                        :class="submitting ? 'opacity-60 cursor-not-allowed' : 'hover:bg-orange-600'"
+                        class="px-5 py-2.5 bg-orange-500 text-white text-sm font-medium rounded-lg transition flex items-center gap-2">
+                    <div v-if="submitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    {{ submitting ? 'Menyimpan...' : 'Buat Thread' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    PetiteVue.createApp({
+        threads: [],
+        tags: [],
+        loading: true,
+        search: '',
+        activeTag: '',
+        meta: { page: 1, per_page: 15, total: 0, total_pages: 0 },
+        showCreate: false,
+        submitting: false,
+        form: { title: '', content: '', tag_id: '', access_type: 'public', password: '' },
+        accessOptions: [
+            { value: 'public', label: 'Publik' },
+            { value: 'user', label: 'User' },
+            { value: 'password', label: 'Password' },
+        ],
+        toast: { show: false, message: '', type: 'success' },
+
+        async mounted() {
+            await this.fetchTags();
+            await this.fetchThreads();
+        },
+
+        async fetchTags() {
+            try {
+                const res = await fetch('/forum/api/tags');
+                const json = await res.json();
+                if (json.success) this.tags = json.data;
+            } catch (e) { /* silent */ }
+        },
+
+        async fetchThreads() {
+            this.loading = true;
+            try {
+                const params = new URLSearchParams();
+                params.set('page', this.meta.page);
+                params.set('per_page', this.meta.per_page);
+                if (this.activeTag) params.set('tag', this.activeTag);
+                if (this.search.trim()) params.set('search', this.search.trim());
+
+                const res = await fetch('/forum/api/threads?' + params.toString());
+                const json = await res.json();
+                if (json.success) {
+                    this.threads = json.data;
+                    if (json.meta) this.meta = json.meta;
+                }
+            } catch (e) {
+                this.showToast('Gagal memuat thread', 'error');
+            }
+            this.loading = false;
+        },
+
+        setTag(slug) {
+            this.activeTag = slug;
+            this.meta.page = 1;
+            this.fetchThreads();
+        },
+
+        goPage(p) {
+            if (p < 1 || p > this.meta.total_pages) return;
+            this.meta.page = p;
+            this.fetchThreads();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        get visiblePages() {
+            const total = this.meta.total_pages;
+            const current = this.meta.page;
+            if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+            const pages = [];
+            pages.push(1);
+            if (current > 3) pages.push('...');
+            for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+                pages.push(i);
+            }
+            if (current < total - 2) pages.push('...');
+            pages.push(total);
+            return pages;
+        },
+
+        openCreateModal() {
+            this.form = { title: '', content: '', tag_id: '', access_type: 'public', password: '' };
+            this.showCreate = true;
+        },
+
+        async submitCreate() {
+            if (!this.form.title.trim() || !this.form.content.trim()) {
+                this.showToast('Judul dan konten wajib diisi', 'error');
+                return;
+            }
+            if (this.form.access_type === 'password' && !this.form.password.trim()) {
+                this.showToast('Password wajib diisi untuk tipe password', 'error');
+                return;
+            }
+            this.submitting = true;
+            try {
+                const body = { ...this.form };
+                if (body.tag_id === '') body.tag_id = null;
+                const res = await fetch('/forum/api/threads', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body),
+                });
+                const json = await res.json();
+                if (json.success) {
+                    this.showCreate = false;
+                    this.showToast('Thread berhasil dibuat');
+                    this.meta.page = 1;
+                    await this.fetchThreads();
+                } else {
+                    this.showToast(json.message, 'error');
+                }
+            } catch (e) {
+                this.showToast('Gagal membuat thread', 'error');
+            }
+            this.submitting = false;
+        },
+
+        timeAgo(dateStr) {
+            const now = new Date();
+            const date = new Date(dateStr);
+            const s = Math.floor((now - date) / 1000);
+            if (s < 60) return 'baru saja';
+            const m = Math.floor(s / 60);
+            if (m < 60) return m + ' menit lalu';
+            const h = Math.floor(m / 60);
+            if (h < 24) return h + ' jam lalu';
+            const d = Math.floor(h / 24);
+            if (d < 30) return d + ' hari lalu';
+            const mo = Math.floor(d / 30);
+            if (mo < 12) return mo + ' bulan lalu';
+            return Math.floor(mo / 12) + ' tahun lalu';
+        },
+
+        showToast(message, type = 'success') {
+            this.toast = { show: true, message, type };
+            setTimeout(() => { this.toast.show = false; }, 3000);
+        },
+    }).mount('[v-scope]');
+    </script>
+</body>
+</html>

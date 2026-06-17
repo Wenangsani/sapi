@@ -1,21 +1,21 @@
 Buatkan halaman baru untuk aplikasi Rust menggunakan Actix Web dengan struktur berikut:
 
 ## Stack
-
 - Framework: Actix Web
 - Database: SQLx MySQL
 - Session: actix-session
 - Password Hash: bcrypt
 - Routing dilakukan di main.rs menggunakan .route()
-- Handler berada di folder src/handler/
-- File HTML berada di folder src/page/
+- Menggunakan sistem modular
+- Router berada di src/module/{NamaModule}/mod.rs 
+- Handler berada di src/module/{NamaModule}/handler.rs
+- HTML berada di src/module/{NamaModule}/page_{NamaHalaman}.html
 
 ## Alias yang WAJIB digunakan
-
 ```rust
 use crate::web::{Pool, Session, Cookie, Request, Response, ApiResponse};
 use crate::web::from::{Data, Path, Json, Form};
-use crate::web::data::{Int, String, Date};
+use crate::web::data::{Int, UInt, String, Date};
 ```
 
 Referensi tipe:
@@ -25,11 +25,11 @@ Referensi tipe:
 - `Session`  = `actix_session::Session`
 - `Cookie`   = `actix_web::cookie::Cookie`
 - `Int`      = `i32`
+- `UInt`     = `u32`
 - `String`   = `std::string::String`
 - `Date`     = `chrono::DateTime<Utc>`
 
 ## Aturan Handler
-
 - Return type wajib `Response`
 - Gunakan `Pool` untuk query database
 - Gunakan `Session` untuk autentikasi
@@ -62,48 +62,53 @@ return Response::Ok().json(ApiResponse {
 ```
 
 ## Macro yang Tersedia
-
 Gunakan macro `auth!` untuk guard autentikasi pada halaman Login Required:
-
 ```rust
 let user_id = auth!(session);
 ```
-
 Macro ini akan otomatis return `401 Unauthorized` jika session tidak valid. Setelah baris ini, `user_id` bertipe `Int` dan dijamin terisi.
 Jangan gunakan `session.get::<Int>("user_id")` manual jika halaman berstatus Login Required — gunakan `auth!(session)`.
 
 
-## Aturan HTML
+## Aturan Router
+- Terdapat `pub mod handler;`
+- Tambahkan fungsi `open_routes(cfg: &mut ServiceConfig)` untuk daftar route tanpa auth
+- Tambahkan fungsi `gate_routes(cfg: &mut ServiceConfig)` untuk daftar route dengan auth
+- Gate routes memiliki prefix atau scope `/gate`, jadi di akses harus memiliki awalan `/gate`
+- Gunakan `cfg.service()` dan `scope("/url_utama"))` untuk menambahkan route
+- Jangan tambahkan route diluar url_utama
 
-- Berada di `src/page/`
+
+## Aturan HTML
 - HTML dan Petite-Vue, tidak ada kode Rust di dalamnya
 - Tailwind CSS (utility-first, tanpa custom CSS)
-- Petite-Vue untuk state lokal dan interaktivitas, kosongkan v-scope dan logika di createApp()
+- Petite-Vue untuk state lokal dan interaktivitas, kosongkan v-scope, taruh logika di createApp()
 - Fetch API untuk komunikasi dengan backend
 - Mobile friendly
 
-## Desain
 
+## Desain
 - Modern, minimalis, profesional
 - Responsive (mobile-first)
 - Tailwind utility-first
 - Tidak ada framework CSS tambahan
 
-## Output yang harus dihasilkan
 
+## Output yang harus dihasilkan
 Berikan output dalam urutan berikut:
 1. **SQL** — struktur tabel jika diperlukan
-2. **Route** — baris yang ditambahkan di main.rs
-3. **Handler** — file lengkap di src/handler/nama.rs
-4. **HTML** — file lengkap di src/page/nama.html
+2. **Route** — file lengkap mod.rs
+3. **Handler** — file lengkap handler.rs
+4. **HTML** — file lengkap nama.html
 5. **Endpoint tambahan** — handler tambahan jika ada (misal: search, pagination, delete)
 6. **Alur halaman** — penjelasan singkat alur dari request pertama hingga render
 
 ---
 
-## Spesifikasi Halaman
-
-**Nama halaman:** [isi]
-**URL:** [isi]
+## Spesifikasi Module / Halaman
+**Buatkan:** Module / Halaman
+**Nama Module/Halaman:** [isi]
+**URL Utama:** [isi]
 **Status:** Public / Login Required
-**Keterangan:** [isi — jelaskan fungsi halaman, data apa yang ditampilkan, aksi apa yang bisa dilakukan]
+**Warna Dominan:** [isi]
+**Keterangan:** [isi — jelaskan fungsi modul atau halaman, data apa yang ditampilkan, aksi apa yang bisa dilakukan]

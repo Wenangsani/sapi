@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Petite-Vue CDN (menggantikan Alpine.js) -->
     <script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
 
     <script>
@@ -76,7 +75,6 @@
             line-height: 1.7;
             color: #94a3b8;
         }
-        /* Transisi sederhana untuk mobile menu (menggantikan x-transition Alpine) */
         [v-cloak] { display: none; }
         .menu-enter { animation: fadeDown 0.2s ease forwards; }
         @keyframes fadeDown {
@@ -89,7 +87,6 @@
 <body class="text-text-primary antialiased">
 
     <!-- ─── NAVBAR ─────────────────────────────────────────────── -->
-    <!-- Petite-Vue: v-scope menggantikan x-data, @click menggantikan @click (sama) -->
     <header
         id="navbar"
         v-scope="NavBar()"
@@ -113,14 +110,12 @@
                     Get Started
                 </a>
                 <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-1.5 rounded text-text-muted hover:text-text-primary">
-                    <!-- Petite-Vue: v-show menggantikan x-show -->
                     <svg v-show="!mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     <svg v-show="mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
         </div>
 
-        <!-- Mobile menu: v-show + class animasi CSS sederhana -->
         <div
             v-show="mobileMenuOpen"
             class="md:hidden border-t border-border/50 bg-canvas px-4 py-4 flex flex-col gap-4 text-sm font-medium text-text-muted menu-enter"
@@ -155,7 +150,7 @@
                     </h1>
 
                     <p class="text-text-muted text-base sm:text-lg max-w-md leading-relaxed">
-                        Sapi-rs adalah opinionated web framework layer di atas Actix Web — simple untuk prototyping cepat, kencang untuk production. Dilengkapi prompt generator bawaan agar setiap halaman baru bisa dibuat dalam hitungan detik.
+                        Sapi-rs adalah opinionated web framework layer di atas Actix Web — simple untuk prototyping cepat, kencang untuk production. Dilengkapi prompt generator bawaan agar setiap module baru bisa dibuat dalam hitungan detik.
                     </p>
 
                     <div class="flex flex-col sm:flex-row gap-3 pt-1">
@@ -181,8 +176,8 @@
                         </div>
                         <div class="w-px bg-border"></div>
                         <div>
-                            <div class="font-display font-bold text-2xl text-amber">1 file</div>
-                            <div class="text-xs text-text-muted mt-0.5">to add a page</div>
+                            <div class="font-display font-bold text-2xl text-amber">1 module</div>
+                            <div class="text-xs text-text-muted mt-0.5">per fitur</div>
                         </div>
                     </div>
                 </div>
@@ -192,11 +187,10 @@
                         <span class="w-3 h-3 rounded-full bg-red-500/70"></span>
                         <span class="w-3 h-3 rounded-full bg-amber/70"></span>
                         <span class="w-3 h-3 rounded-full bg-green-500/70"></span>
-                        <span class="ml-auto font-mono text-xs text-text-muted">src/handler/dashboard.rs</span>
+                        <span class="ml-auto font-mono text-xs text-text-muted">src/module/dashboard/handler.rs</span>
                     </div>
                     <div class="p-5 font-mono text-[13px] leading-relaxed overflow-x-auto">
-                        <pre><span class="code-attr">#[get("/dashboard")]</span>
-<span class="code-keyword">pub async fn</span> <span class="code-fn">dashboard</span>(
+                        <pre><span class="code-keyword">pub async fn</span> <span class="code-fn">index</span>(
     <span class="code-fn">session</span>: Session,
     <span class="code-fn">pool</span>: Pool,
 ) <span class="code-keyword">-></span> <span class="code-type">Response</span> {
@@ -210,10 +204,10 @@
     )
     .<span class="code-fn">fetch_one</span>(&*pool).<span class="code-keyword">await</span>?;
 
-    <span class="code-comment">// render server-side HTML</span>
-    <span class="code-fn">render</span>!(<span class="code-string">"page/dashboard.html"</span>, {
-        <span class="code-string">"user"</span> <span class="code-keyword">=></span> data
-    })
+    <span class="code-keyword">let</span> html = <span class="code-macro">include_str!</span>(<span class="code-string">"page_dashboard.html"</span>);
+    <span class="code-type">Response</span>::<span class="code-fn">Ok</span>()
+        .<span class="code-fn">content_type</span>(<span class="code-string">"text/html; charset=utf-8"</span>)
+        .<span class="code-fn">body</span>(html)
 }<span class="animate-blink text-accent">▌</span></pre>
                     </div>
                     <div class="px-5 py-3 border-t border-border bg-surface-2 flex items-center justify-between">
@@ -239,11 +233,11 @@
                 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     <div class="group rounded-2xl border border-border bg-surface hover:border-accent/40 transition-all p-6 space-y-4">
                         <div class="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent group-hover:bg-accent/20 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16"/></svg>
                         </div>
                         <div>
-                            <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Zero-boilerplate Routing</h3>
-                            <p class="text-text-muted text-sm leading-relaxed">Daftarkan route di <code class="font-mono text-xs text-accent-glow bg-surface-2 px-1.5 py-0.5 rounded">main.rs</code> dan handler siap dipanggil. Tidak ada magic, tidak ada macro tersembunyi.</p>
+                            <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Modular Routing</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">Setiap fitur punya folder <code class="font-mono text-xs text-accent-glow bg-surface-2 px-1.5 py-0.5 rounded">src/module/{NamaModule}/</code> sendiri. Route terdaftar lewat <code class="font-mono text-xs text-accent-glow bg-surface-2 px-1.5 py-0.5 rounded">open_routes</code> dan <code class="font-mono text-xs text-accent-glow bg-surface-2 px-1.5 py-0.5 rounded">gate_routes</code>.</p>
                         </div>
                     </div>
 
@@ -263,7 +257,7 @@
                         </div>
                         <div>
                             <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Session Auth Bawaan</h3>
-                            <p class="text-text-muted text-sm leading-relaxed">Autentikasi berbasis <code class="font-mono text-xs text-green-400 bg-surface-2 px-1.5 py-0.5 rounded">actix-session</code> sudah terintegrasi. Guard, login, logout — tinggal pakai.</p>
+                            <p class="text-text-muted text-sm leading-relaxed">Autentikasi berbasis <code class="font-mono text-xs text-green-400 bg-surface-2 px-1.5 py-0.5 rounded">actix-session</code> sudah terintegrasi. Guard lewat macro <code class="font-mono text-xs text-green-400 bg-surface-2 px-1.5 py-0.5 rounded">auth!</code> — satu baris, dijamin terisi.</p>
                         </div>
                     </div>
 
@@ -273,7 +267,7 @@
                         </div>
                         <div>
                             <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Server-Side HTML</h3>
-                            <p class="text-text-muted text-sm leading-relaxed">HTML murni di <code class="font-mono text-xs text-purple-400 bg-surface-2 px-1.5 py-0.5 rounded">src/page/</code>. Tidak ada template engine baru untuk dipelajari — gunakan Petite-Vue untuk interaktivitas.</p>
+                            <p class="text-text-muted text-sm leading-relaxed">HTML murni di dalam folder module masing-masing. Tidak ada template engine baru — gunakan Petite-Vue untuk interaktivitas ringan.</p>
                         </div>
                     </div>
 
@@ -301,24 +295,17 @@
         </section>
 
         <!-- ─── QUICK START ─────────────────────────────────────────── -->
-        <!--
-            Petite-Vue: v-scope menggantikan x-data
-            :class menggantikan :class (sama)
-            @click menggantikan @click (sama)
-            v-show menggantikan x-show
-            v-text menggantikan x-text
-        -->
         <section id="quickstart" class="py-24 px-4 sm:px-6 border-t border-border/50">
             <div id="quickstart-tabs" v-scope="QuickStartTabs()" class="max-w-4xl mx-auto">
                 <div class="text-center mb-14 space-y-3">
                     <p class="font-mono text-xs text-accent uppercase tracking-widest">Quick Start</p>
-                    <h2 class="font-display font-bold text-3xl sm:text-4xl text-text-primary">Halaman baru dalam 3 langkah.</h2>
-                    <p class="text-text-muted text-sm">Route → Handler → HTML. Itu saja.</p>
+                    <h2 class="font-display font-bold text-3xl sm:text-4xl text-text-primary">Module baru dalam 3 langkah.</h2>
+                    <p class="text-text-muted text-sm">mod.rs → handler.rs → HTML. Itu saja.</p>
                 </div>
 
                 <div class="flex items-center gap-1 p-1 bg-surface rounded-xl mb-8 border border-border">
-                    <button @click="tab = 'route'" :class="tab === 'route' ? 'bg-accent text-white shadow' : 'text-text-muted hover:text-text-primary'" class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all">1. Route</button>
-                    <button @click="tab = 'handler'" :class="tab === 'handler' ? 'bg-accent text-white shadow' : 'text-text-muted hover:text-text-primary'" class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all">2. Handler</button>
+                    <button @click="tab = 'route'" :class="tab === 'route' ? 'bg-accent text-white shadow' : 'text-text-muted hover:text-text-primary'" class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all">1. mod.rs</button>
+                    <button @click="tab = 'handler'" :class="tab === 'handler' ? 'bg-accent text-white shadow' : 'text-text-muted hover:text-text-primary'" class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all">2. handler.rs</button>
                     <button @click="tab = 'html'" :class="tab === 'html' ? 'bg-accent text-white shadow' : 'text-text-muted hover:text-text-primary'" class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all">3. HTML</button>
                 </div>
 
@@ -327,59 +314,83 @@
                         <span class="w-3 h-3 rounded-full bg-red-500/70"></span>
                         <span class="w-3 h-3 rounded-full bg-amber/70"></span>
                         <span class="w-3 h-3 rounded-full bg-green-500/70"></span>
-                        <span class="ml-auto font-mono text-xs text-text-muted" v-text="tab === 'route' ? 'src/main.rs' : tab === 'handler' ? 'src/handler/profile.rs' : 'src/page/profile.html'"></span>
+                        <span class="ml-auto font-mono text-xs text-text-muted" v-text="tab === 'route' ? 'src/module/profile/mod.rs' : tab === 'handler' ? 'src/module/profile/handler.rs' : 'src/module/profile/page_profile.html'"></span>
                     </div>
 
                     <div v-show="tab === 'route'" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-surface">
-<pre><span class="code-comment">// src/main.rs — daftarkan satu baris</span>
-<span class="code-fn">App</span>::<span class="code-fn">new</span>()
-    .<span class="code-fn">route</span>(
-        <span class="code-string">"/profile"</span>,
-        <span class="code-fn">web</span>::<span class="code-fn">get</span>().<span class="code-fn">to</span>(handler::profile::<span class="code-fn">index</span>)
-    )
-    .<span class="code-fn">route</span>(
-        <span class="code-string">"/profile/update"</span>,
-        <span class="code-fn">web</span>::<span class="code-fn">post</span>().<span class="code-fn">to</span>(handler::profile::<span class="code-fn">update</span>)
-    )</pre>
+<pre><span class="code-comment">// src/module/profile/mod.rs</span>
+<span class="code-keyword">pub mod</span> handler;
+
+<span class="code-keyword">use</span> actix_web::<span class="code-fn">web</span>::ServiceConfig;
+
+<span class="code-comment">// Route tanpa auth — bisa diakses publik</span>
+<span class="code-keyword">pub fn</span> <span class="code-fn">open_routes</span>(cfg: &<span class="code-keyword">mut</span> ServiceConfig) {
+    <span class="code-comment">// kosong jika semua route butuh auth</span>
+}
+
+<span class="code-comment">// Route dengan auth — wajib login</span>
+<span class="code-keyword">pub fn</span> <span class="code-fn">gate_routes</span>(cfg: &<span class="code-keyword">mut</span> ServiceConfig) {
+    cfg.<span class="code-fn">service</span>(
+        actix_web::<span class="code-fn">web</span>::<span class="code-fn">resource</span>(<span class="code-string">"/profile"</span>)
+            .<span class="code-fn">route</span>(actix_web::<span class="code-fn">web</span>::<span class="code-fn">get</span>().<span class="code-fn">to</span>(handler::<span class="code-fn">index</span>))
+    );
+    cfg.<span class="code-fn">service</span>(
+        actix_web::<span class="code-fn">web</span>::<span class="code-fn">resource</span>(<span class="code-string">"/profile/update"</span>)
+            .<span class="code-fn">route</span>(actix_web::<span class="code-fn">web</span>::<span class="code-fn">post</span>().<span class="code-fn">to</span>(handler::<span class="code-fn">update</span>))
+    );
+}</pre>
                     </div>
 
                     <div v-show="tab === 'handler'" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-surface">
-<pre><span class="code-comment">// src/handler/profile.rs</span>
-<span class="code-keyword">use</span> crate::web::{Pool, Request, Response};
-<span class="code-keyword">use</span> actix_session::Session;
+<pre><span class="code-comment">// src/module/profile/handler.rs</span>
+<span class="code-keyword">use</span> crate::web::{Pool, Session, Response, ApiResponse};
 
 <span class="code-keyword">pub async fn</span> <span class="code-fn">index</span>(
     <span class="code-fn">session</span>: Session,
     <span class="code-fn">pool</span>: Pool,
 ) <span class="code-keyword">-></span> <span class="code-type">Response</span> {
-    <span class="code-keyword">let</span> user_id: i32 = <span class="code-keyword">match</span> <span class="code-fn">session</span>.<span class="code-fn">get</span>::&lt;i32&gt;(<span class="code-string">"user_id"</span>) {
-        <span class="code-fn">Ok</span>(<span class="code-fn">Some</span>(id)) <span class="code-keyword">=></span> id,
-        _ <span class="code-keyword">=></span> <span class="code-keyword">return</span> <span class="code-type">Response</span>::<span class="code-fn">Found</span>()
-              .<span class="code-fn">insert_header</span>((<span class="code-string">"Location"</span>, <span class="code-string">"/login"</span>))
-              .<span class="code-fn">finish</span>(),
-    };
+    <span class="code-keyword">let</span> user_id = <span class="code-fn">auth</span>!(<span class="code-fn">session</span>);
 
-    <span class="code-keyword">let</span> html = <span class="code-macro">include_str!</span>(<span class="code-string">"../page/profile.html"</span>);
+    <span class="code-keyword">let</span> html = <span class="code-macro">include_str!</span>(<span class="code-string">"page_profile.html"</span>);
     <span class="code-type">Response</span>::<span class="code-fn">Ok</span>()
         .<span class="code-fn">content_type</span>(<span class="code-string">"text/html; charset=utf-8"</span>)
         .<span class="code-fn">body</span>(html)
+}
+
+<span class="code-keyword">pub async fn</span> <span class="code-fn">update</span>(
+    <span class="code-fn">session</span>: Session,
+    <span class="code-fn">pool</span>: Pool,
+) <span class="code-keyword">-></span> <span class="code-type">Response</span> {
+    <span class="code-keyword">let</span> user_id = <span class="code-fn">auth</span>!(<span class="code-fn">session</span>);
+    <span class="code-comment">// ... proses update</span>
+    <span class="code-type">Response</span>::<span class="code-fn">Ok</span>().<span class="code-fn">json</span>(ApiResponse {
+        success: <span class="code-keyword">true</span>,
+        message: <span class="code-string">"Profil diperbarui"</span>.<span class="code-fn">into</span>(),
+        data: <span class="code-type">None</span>,
+        meta: <span class="code-type">None</span>,
+    })
 }</pre>
                     </div>
 
                     <div v-show="tab === 'html'" class="p-6 font-mono text-sm leading-relaxed overflow-x-auto bg-surface">
-<pre><span class="code-comment">&lt;!-- src/page/profile.html --&gt;</span>
+<pre><span class="code-comment">&lt;!-- src/module/profile/page_profile.html --&gt;</span>
 <span class="code-attr">&lt;!DOCTYPE html&gt;</span>
 <span class="code-keyword">&lt;html</span> <span class="code-fn">lang</span>=<span class="code-string">"id"</span><span class="code-keyword">&gt;</span>
 <span class="code-keyword">&lt;head&gt;</span>
   <span class="code-keyword">&lt;script</span> <span class="code-fn">src</span>=<span class="code-string">"https://cdn.tailwindcss.com"</span><span class="code-keyword">&gt;&lt;/script&gt;</span>
+  <span class="code-keyword">&lt;script</span> <span class="code-fn">src</span>=<span class="code-string">"https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"</span><span class="code-keyword">&gt;&lt;/script&gt;</span>
 <span class="code-keyword">&lt;/head&gt;</span>
 <span class="code-keyword">&lt;body&gt;</span>
-  <span class="code-keyword">&lt;form</span>
-    <span class="code-fn">hx-post</span>=<span class="code-string">"/profile/update"</span>
-    <span class="code-fn">hx-swap</span>=<span class="code-string">"none"</span><span class="code-keyword">&gt;</span>
-    <span class="code-keyword">&lt;input</span> <span class="code-fn">name</span>=<span class="code-string">"name"</span> <span class="code-fn">type</span>=<span class="code-string">"text"</span> <span class="code-keyword">/&gt;</span>
-    <span class="code-keyword">&lt;button</span> <span class="code-fn">type</span>=<span class="code-string">"submit"</span><span class="code-keyword">&gt;</span>Simpan<span class="code-keyword">&lt;/button&gt;</span>
-  <span class="code-keyword">&lt;/form&gt;</span>
+  <span class="code-keyword">&lt;div</span> <span class="code-fn">id</span>=<span class="code-string">"app"</span> <span class="code-fn">v-scope</span><span class="code-keyword">&gt;</span>
+    <span class="code-keyword">&lt;button</span> <span class="code-fn">@click</span>=<span class="code-string">"simpan()"</span><span class="code-keyword">&gt;</span>Simpan<span class="code-keyword">&lt;/button&gt;</span>
+  <span class="code-keyword">&lt;/div&gt;</span>
+  <span class="code-keyword">&lt;script&gt;</span>
+    PetiteVue.<span class="code-fn">createApp</span>({
+      <span class="code-fn">simpan</span>() {
+        <span class="code-comment">// fetch ke /profile/update</span>
+      }
+    }).<span class="code-fn">mount</span>(<span class="code-string">'#app'</span>);
+  <span class="code-keyword">&lt;/script&gt;</span>
 <span class="code-keyword">&lt;/body&gt;</span>
 <span class="code-keyword">&lt;/html&gt;</span></pre>
                     </div>
@@ -415,7 +426,6 @@
                         <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Tailwind CSS</span>
                     </div>
                     <div class="group flex flex-col items-center gap-3 p-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/30 hover:border-teal-800/40 hover:bg-zinc-900/60 transition-all duration-300">
-                        <!-- Petite-Vue logo (ikon Vue) -->
                         <svg class="w-6 h-6 text-zinc-400 group-hover:text-teal-400 transition-colors duration-300" viewBox="0 0 24 24" fill="currentColor"><path d="M24 1.61h-9.94L12 5.16 9.94 1.61H0l12 20.78ZM12 14.08 5.16 2.23H9.59L12 6.41l2.41-4.18h4.43Z"/></svg>
                         <span class="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors">Petite-Vue</span>
                     </div>
@@ -430,7 +440,7 @@
                 <div class="text-center mb-14 space-y-3">
                     <p class="font-mono text-xs text-accent uppercase tracking-widest">Prompt Generator</p>
                     <h2 class="font-display font-bold text-3xl sm:text-4xl text-text-primary">Isi spesifikasi,<br/>prompt siap di-paste.</h2>
-                    <p class="text-text-muted text-sm max-w-lg mx-auto leading-relaxed">Bagian stack, alias, dan aturan sudah terisi otomatis. Kamu cukup isi spesifikasi halaman yang ingin dibuat.</p>
+                    <p class="text-text-muted text-sm max-w-lg mx-auto leading-relaxed">Bagian stack, alias, dan aturan sudah terisi otomatis. Kamu cukup isi spesifikasi module yang ingin dibuat.</p>
                 </div>
 
                 <div class="grid lg:grid-cols-2 gap-6">
@@ -441,19 +451,35 @@
                             <div class="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center">
                                 <div class="w-2 h-2 rounded-full bg-accent"></div>
                             </div>
-                            <span class="text-sm font-medium text-text-primary">Spesifikasi Halaman</span>
+                            <span class="text-sm font-medium text-text-primary">Spesifikasi Module / Halaman</span>
                         </div>
 
                         <div class="space-y-1.5">
-                            <label class="text-xs font-medium text-text-muted uppercase tracking-wide">Nama Halaman</label>
-                            <!-- Petite-Vue: v-model menggantikan x-model -->
-                            <input v-model="nama" type="text" placeholder="contoh: Halaman Daftar Produk"
-                                class="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-sm placeholder-text-muted/50 focus:outline-none focus:border-accent/60 transition-colors" />
+                            <label class="text-xs font-medium text-text-muted uppercase tracking-wide">Buatkan</label>
+                            <div class="flex gap-2">
+                                <button @click="buatkan = 'Module'"
+                                    :class="buatkan === 'Module' ? 'bg-accent text-white border-accent' : 'bg-surface-2 text-text-muted border-border hover:border-accent/40'"
+                                    class="flex-1 py-2 px-3 rounded-xl border text-xs font-medium transition-all">
+                                    📦 Module
+                                </button>
+                                <button @click="buatkan = 'Halaman'"
+                                    :class="buatkan === 'Halaman' ? 'bg-accent text-white border-accent' : 'bg-surface-2 text-text-muted border-border hover:border-accent/40'"
+                                    class="flex-1 py-2 px-3 rounded-xl border text-xs font-medium transition-all">
+                                    📄 Halaman
+                                </button>
+                            </div>
                         </div>
 
                         <div class="space-y-1.5">
-                            <label class="text-xs font-medium text-text-muted uppercase tracking-wide">URL</label>
-                            <input v-model="url" type="text" placeholder="contoh: /products atau /admin/users"
+                            <label class="text-xs font-medium text-text-muted uppercase tracking-wide">Nama Module / Halaman</label>
+                            <input v-model="namaModuleHalaman" type="text" placeholder="contoh: Product, OrderHistory, AdminUser"
+                                class="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-sm placeholder-text-muted/50 focus:outline-none focus:border-accent/60 transition-colors font-mono" />
+                            <p class="text-xs text-text-muted">PascalCase — dipakai sebagai nama folder <code class="font-mono">src/module/{NamaModule}/</code></p>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-medium text-text-muted uppercase tracking-wide">URL Utama</label>
+                            <input v-model="urlUtama" type="text" placeholder="contoh: /products atau /admin/users"
                                 class="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-sm placeholder-text-muted/50 focus:outline-none focus:border-accent/60 transition-colors font-mono" />
                         </div>
 
@@ -474,9 +500,16 @@
                         </div>
 
                         <div class="space-y-1.5">
+                            <label class="text-xs font-medium text-text-muted uppercase tracking-wide">Warna Dominan</label>
+                            <input v-model="warnaDominan" type="text" placeholder="contoh: biru, hijau tua, atau #3B82F6"
+                                class="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-sm placeholder-text-muted/50 focus:outline-none focus:border-accent/60 transition-colors" />
+                            <p class="text-xs text-text-muted">Dipakai AI untuk menentukan palet warna halaman HTML.</p>
+                        </div>
+
+                        <div class="space-y-1.5">
                             <label class="text-xs font-medium text-text-muted uppercase tracking-wide">Keterangan</label>
-                            <textarea v-model="keterangan" rows="5"
-                                placeholder="Jelaskan fungsi halaman ini. Contoh:&#10;- Menampilkan daftar produk dengan pagination&#10;- User bisa search berdasarkan nama&#10;- Ada tombol tambah, edit, hapus produk&#10;- Hanya admin yang bisa mengakses"
+                            <textarea v-model="keterangan" rows="4"
+                                placeholder="Jelaskan fungsi modul/halaman ini. Contoh:&#10;- Menampilkan daftar produk dengan pagination&#10;- User bisa search berdasarkan nama&#10;- Ada tombol tambah, edit, hapus produk&#10;- Hanya admin yang bisa mengakses"
                                 class="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-sm placeholder-text-muted/50 focus:outline-none focus:border-accent/60 transition-colors resize-none leading-relaxed"></textarea>
                             <p class="text-xs text-text-muted">Semakin detail keterangan, semakin akurat kode yang dihasilkan.</p>
                         </div>
@@ -503,7 +536,6 @@
                             </div>
 
                             <div class="bg-surface p-4 h-screen overflow-y-auto">
-                                <!-- Petite-Vue: v-text menggantikan x-text -->
                                 <pre class="prompt-pre" v-text="prompt"></pre>
                             </div>
 
@@ -530,11 +562,11 @@
                     Siap build sesuatu yang<br/>
                     <span class="gradient-text">benar-benar cepat?</span>
                 </h2>
-                <p class="text-text-muted text-base">Tambah halaman pertama kamu dalam hitungan menit, bukan jam.</p>
+                <p class="text-text-muted text-base">Tambah module pertama kamu dalam hitungan menit, bukan jam.</p>
                 <div class="flex flex-col sm:flex-row gap-3 justify-center">
                     <a href="#prompt" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-accent hover:bg-accent/90 text-white font-medium transition-all glow-blue">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                        Buat Halaman Sekarang
+                        Buat Module Sekarang
                     </a>
                     <a href="#quickstart" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-border hover:border-accent/50 text-text-muted hover:text-text-primary font-medium transition-all text-sm">
                         Lihat Quick Start
@@ -558,11 +590,6 @@
     </footer>
 
     <!-- ─── PETITE-VUE COMPONENTS ──────────────────────────────── -->
-    <!--
-        Petite-Vue tidak menggunakan Alpine's global x-data auto-detection.
-        Setiap komponen didaftarkan lewat PetiteVue.createApp({ ... }).mount()
-        dengan fungsi factory sebagai komponen.
-    -->
     <script>
         /* ── 1. NavBar ── */
         function NavBar() {
@@ -581,22 +608,25 @@
         /* ── 3. Prompt Generator ── */
         function PromptGen() {
             return {
-                nama: '',
-                url: '',
+                buatkan: 'Module',
+                namaModuleHalaman: '',
+                urlUtama: '',
                 status: 'Login Required',
+                warnaDominan: '',
                 keterangan: '',
                 copied: false,
 
-                /* computed via getter — Petite-Vue mendukung getter di v-scope object */
                 get hasSpec() {
-                    return this.nama.trim() || this.url.trim() || this.keterangan.trim();
+                    return this.namaModuleHalaman.trim() || this.urlUtama.trim() || this.keterangan.trim();
                 },
 
                 get prompt() {
-                    const nama       = this.nama       || '[isi nama halaman]';
-                    const url        = this.url        || '[isi URL, contoh: /dashboard]';
-                    const status     = this.status;
-                    const keterangan = this.keterangan || '[jelaskan fungsi halaman, data apa yang ditampilkan, aksi apa yang bisa dilakukan]';
+                    const buatkan          = this.buatkan;
+                    const namaModuleHalaman = this.namaModuleHalaman || '[isi nama module/halaman, contoh: Product]';
+                    const urlUtama         = this.urlUtama         || '[isi URL utama, contoh: /products]';
+                    const status           = this.status;
+                    const warnaDominan     = this.warnaDominan     || '[isi warna dominan, contoh: biru, hijau, atau hex #3B82F6]';
+                    const keterangan       = this.keterangan       || '[jelaskan fungsi modul atau halaman, data apa yang ditampilkan, aksi apa yang bisa dilakukan]';
 
                     return [
                         "Buatkan halaman baru untuk aplikasi Rust menggunakan Actix Web dengan struktur berikut:",
@@ -607,15 +637,17 @@
                         "- Session: actix-session",
                         "- Password Hash: bcrypt",
                         "- Routing dilakukan di main.rs menggunakan .route()",
-                        "- Handler berada di folder src/handler/",
-                        "- File HTML berada di folder src/page/",
+                        "- Menggunakan sistem modular",
+                        "- Router berada di src/module/{NamaModule}/mod.rs",
+                        "- Handler berada di src/module/{NamaModule}/handler.rs",
+                        "- HTML berada di src/module/{NamaModule}/page_{NamaHalaman}.html",
                         "",
                         "## Alias yang WAJIB digunakan",
                         "",
                         "```rust",
                         "use crate::web::{Pool, Session, Cookie, Request, Response, ApiResponse};",
                         "use crate::web::from::{Data, Path, Json, Form};",
-                        "use crate::web::data::{Int, String, Date};",
+                        "use crate::web::data::{Int, UInt, String, Date};",
                         "```",
                         "",
                         "Referensi tipe:",
@@ -625,6 +657,7 @@
                         "- `Session`  = `actix_session::Session`",
                         "- `Cookie`   = `actix_web::cookie::Cookie`",
                         "- `Int`      = `i32`",
+                        "- `UInt`     = `u32`",
                         "- `String`   = `std::string::String`",
                         "- `Date`     = `chrono::DateTime<Utc>`",
                         "",
@@ -673,12 +706,21 @@
                         "Jangan gunakan `session.get::<Int>(\"user_id\")` manual jika halaman berstatus Login Required — gunakan `auth!(session)`.",
                         "",
                         "",
+                        "## Aturan Router",
+                        "",
+                        "- Terdapat `pub mod handler;`",
+                        "- Tambahkan fungsi `open_routes(cfg: &mut ServiceConfig)` untuk daftar route tanpa auth",
+                        "- Tambahkan fungsi `gate_routes(cfg: &mut ServiceConfig)` untuk daftar route dengan auth",
+                        "- Gate routes memiliki prefix atau scope `/gate`, jadi di akses harus memiliki awalan `/gate`",
+                        "- Gunakan `cfg.service()` dan `scope(\"/url_utama\"))` untuk menambahkan route",
+                        "- Jangan tambahkan route diluar url_utama",
+                        "",
+                        "",
                         "## Aturan HTML",
                         "",
-                        "- Berada di `src/page/`",
                         "- HTML dan Petite-Vue, tidak ada kode Rust di dalamnya",
                         "- Tailwind CSS (utility-first, tanpa custom CSS)",
-                        "- Petite-Vue untuk state lokal dan interaktivitas, kosongkan v-scope dan logika di createApp()",
+                        "- Petite-Vue untuk state lokal dan interaktivitas, kosongkan v-scope, taruh logika di createApp()",
                         "- Fetch API untuk komunikasi dengan backend",
                         "- Mobile friendly",
                         "",
@@ -693,20 +735,22 @@
                         "",
                         "Berikan output dalam urutan berikut:",
                         "1. **SQL** — struktur tabel jika diperlukan",
-                        "2. **Route** — baris yang ditambahkan di main.rs",
-                        "3. **Handler** — file lengkap di src/handler/nama.rs",
-                        "4. **HTML** — file lengkap di src/page/nama.html",
+                        "2. **Route** — file lengkap mod.rs",
+                        "3. **Handler** — file lengkap handler.rs",
+                        "4. **HTML** — file lengkap nama.html",
                         "5. **Endpoint tambahan** — handler tambahan jika ada (misal: search, pagination, delete)",
                         "6. **Alur halaman** — penjelasan singkat alur dari request pertama hingga render",
                         "",
                         "---",
                         "",
-                        "## Spesifikasi Halaman",
+                        "## Spesifikasi Module / Halaman",
                         "",
-                        "**Nama halaman:** [isi]",
-                        "**URL:** [isi]",
-                        "**Status:** Public / Login Required",
-                        "**Keterangan:** [isi — jelaskan fungsi halaman, data apa yang ditampilkan, aksi apa yang bisa dilakukan]",
+                        `**Buatkan:** ${buatkan}`,
+                        `**Nama Module/Halaman:** ${namaModuleHalaman}`,
+                        `**URL Utama:** ${urlUtama}`,
+                        `**Status:** ${status}`,
+                        `**Warna Dominan:** ${warnaDominan}`,
+                        `**Keterangan:** ${keterangan}`,
                     ].join('\n');
                 },
 
@@ -719,11 +763,6 @@
             };
         }
 
-        /*
-         * Mount semua komponen ke elemen masing-masing.
-         * Petite-Vue: PetiteVue.createApp(components).mount(selector)
-         * Komponen didaftarkan sebagai fungsi factory dalam object yang di-pass ke createApp.
-         */
         PetiteVue.createApp({ NavBar, QuickStartTabs, PromptGen }).mount();
     </script>
 

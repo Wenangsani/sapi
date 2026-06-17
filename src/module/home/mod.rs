@@ -11,7 +11,7 @@ pub fn open_routes(cfg: &mut ServiceConfig) {
 
 pub fn gate_routes(cfg: &mut ServiceConfig) {
     cfg.service(
-        scope("/api")
+        scope("/home")
             .route("/welcome/{name}", get().to(handler::welcome))
     );
 }
