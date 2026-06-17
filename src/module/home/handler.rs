@@ -12,28 +12,7 @@ pub struct WelcomeData {
 pub async fn home() -> Response {
     Response::Ok()
         .content_type("text/html; charset=utf-8")
-        .body(include_str!("home.html"))
-}
-
-// Test API page
-pub async fn testapi(_state: Data<Appstate>) -> Response {
-    Response::Ok()
-        .content_type("text/html; charset=utf-8")
-        .body(include_str!("../../page/test.html"))
-}
-
-// Test Socket page
-pub async fn testsocket() -> Response {
-    Response::Ok()
-        .content_type("text/html; charset=utf-8")
-        .body(include_str!("../../page/testsocket.html"))
-}
-
-// Test SSE page
-pub async fn testsse(_req: Request) -> Response {
-    Response::Ok()
-        .content_type("text/html; charset=utf-8")
-        .body(include_str!("../../page/testsse.html"))
+        .body(include_str!("page_home.html"))
 }
 
 // Cookie example

@@ -24,14 +24,14 @@ pub struct UserRow {
 pub async fn loginpage() -> Response {
     Response::Ok()
         .content_type("text/html; charset=utf-8")
-        .body(include_str!("login.html"))
+        .body(include_str!("page_login.html"))
 }
 
 // Register page
 pub async fn registerpage() -> Response {
     Response::Ok()
         .content_type("text/html; charset=utf-8")
-        .body(include_str!("register.html"))
+        .body(include_str!("page_register.html"))
 }
 
 pub async fn login(pool: Pool, data: Json<LoginData>, session: Session) -> Response {

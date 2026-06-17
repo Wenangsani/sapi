@@ -54,10 +54,6 @@ pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socket
     // attempt to close connection gracefully
     let _ = session.close(close_reason).await;
 
-    /**
-    * add delete socketlist here !
-    */
-
     println!("Disconnetted");
 }
 

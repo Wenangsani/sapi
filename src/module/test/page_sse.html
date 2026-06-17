@@ -386,7 +386,7 @@ function connectSSE() {
     if (es) es.close();
     setStatus('connecting');
 
-    es = new EventSource('/sse', { withCredentials: true });
+    es = new EventSource('/conn/sse', { withCredentials: true });
 
     es.onopen = () => setStatus('online');
 
@@ -467,7 +467,7 @@ async function sendMessage() {
     inputBox.style.height = 'auto';
 
     try {
-        const res = await fetch('/sse/send', {
+        const res = await fetch('/conn/sse/send', {
             method:      'POST',
             credentials: 'include',
             headers:     { 'Content-Type': 'application/json' },

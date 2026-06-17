@@ -56,15 +56,15 @@ async fn main() -> Result<(), anyhow::Error> {
             .app_data(Data::new(socketlist.clone()))
             .app_data(Data::new(sselist.clone()))
 
-            .configure(module::register_open_routes)
-
             // ── Public scope ─────────────────────────────
             .service(
-                scope("")
+                scope("/conn")
                     .route("/ws",            get().to(handler::websocket::ws))
                     .route("/sse",           get().to(handler::sse::sse))
                     .route("/sse/send",      post().to(handler::sse::sse_send))
             )
+
+            .configure(module::register_open_routes)
 
             // ── Protected scope ──────────────────────────
             .service(
