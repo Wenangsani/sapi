@@ -174,7 +174,7 @@ pub async fn list_threads(pool: Pool, query: actix_web::web::Query<ListThreadsQu
                 th.view_count,
                 th.reply_count,
                 th.created_at,
-                u.name AS author_name,
+                u.fullname AS author_name,
                 (
                     SELECT GROUP_CONCAT(t2.name SEPARATOR ',')
                     FROM forum_thread_tags tt2
@@ -206,7 +206,7 @@ pub async fn list_threads(pool: Pool, query: actix_web::web::Query<ListThreadsQu
                 th.view_count,
                 th.reply_count,
                 th.created_at,
-                u.name AS author_name,
+                u.fullname AS author_name,
                 (
                     SELECT GROUP_CONCAT(t2.name SEPARATOR ',')
                     FROM forum_thread_tags tt2
@@ -423,7 +423,7 @@ pub async fn get_thread_detail(
             th.view_count,
             th.reply_count,
             th.created_at,
-            u.name AS author_name
+            u.fullname AS author_name
         FROM forum_threads th
         JOIN users u ON u.id = th.user_id
         WHERE th.id = ?
@@ -661,7 +661,7 @@ pub async fn list_replies(
             r.user_id,
             r.content,
             r.created_at,
-            u.name AS author_name
+            u.fullname AS author_name
         FROM forum_replies r
         JOIN users u ON u.id = r.user_id
         WHERE r.thread_id = ?
