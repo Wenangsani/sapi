@@ -108,7 +108,7 @@ pub async fn register(pool: Pool, data: Json<LoginData>, session: Session) -> Re
     let username = data.username.trim();
     let password = data.password.clone();
 
-    if username.is_empty() || password.is_empty() {
+    if username.is_empty() || fullname.is_empty() || password.is_empty() {
         return Response::Forbidden().json(ApiResponse {
             success: false,
             message: "blank_input".into(),

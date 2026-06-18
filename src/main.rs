@@ -7,7 +7,7 @@ extern crate serde_derive;
 #[macro_use]
 mod macros;
 
-
+// Modules
 pub mod web;
 pub mod appstate;
 pub mod middleware;
@@ -16,31 +16,46 @@ pub mod socketsession;
 pub mod ssesession;
 pub mod module;
 
+// Imports
 use actix_web::{ web::{ get, post, route, scope, Data }, App, HttpServer, cookie::Key, cookie::SameSite };
 use crate::socketsession::{ Usession, UsessionInner };
 use crate::ssesession::SseSession; 
 use actix_session::{ SessionMiddleware, storage::CookieSessionStore };
 use actix_cors::Cors;
+use dotenvy::dotenv;
+use std::env;
 
 #[actix_web::main]
 async fn main() -> Result<(), anyhow::Error> {
-    
-    let pool = sqlx::MySqlPool::connect("mysql://root:mysql@127.0.0.1:3306/actixweb").await?;
 
-    // Gunakan key tetap di production! Key::generate() berubah tiap restart
-    let secret_key = Key::generate();
+    // Load the .env file
+    dotenv().ok();
 
+    // Read environment variables
+    let host = env::var("HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
+    let port: u16 = env::var("PORT").unwrap_or_else(|_| "8080".to_string()).parse().unwrap();
+    let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "mysql://dbuser:dbpassword@127.0.0.1:3306/dbname".into());
+    let secret_str = env::var("KEY").unwrap_or_else(|_| "secret-key-default-at-least-64-bytes-long-abcdefghijklmnopqrstuvwxyz1234567890".to_string());
+
+    // DataBase connection pool
+    let pool = sqlx::MySqlPool::connect(&database_url).await?;
+
+    // Socket and SSE session management
     let socketlist = Usession::new();
-    let sselist    = SseSession::new(); 
+    let sselist    = SseSession::new();
+
+    let secret_key = Key::from(secret_str.as_bytes());
 
     HttpServer::new(move || {
 
+        // Session middleware configuration
         let session_mw = SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
             .cookie_same_site(SameSite::Lax)    // Sesuaikan dengan kebutuhan aplikasi
             .cookie_http_only(true)             // JS tidak bisa akses cookie
             .cookie_secure(false)               // true jika HTTPS
             .build();
 
+        // CORS configuration
         let cors = Cors::default()
             .allowed_origin("http://localhost:8080")
             .allowed_methods(vec!["GET", "POST"])
@@ -76,7 +91,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
             .default_service(route().to(handler::notfound::notfound))
     })
-    .bind("127.0.0.1:8080")?
+    .bind((host, port))?
     .run().await?;
 
     Ok(())
