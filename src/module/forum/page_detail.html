@@ -3,148 +3,267 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Detail Thread - Forum</title>
+<title>Detail Diskusi - Forum</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          brand: {
-            50: '#fff7ed',
-            100: '#ffedd5',
-            200: '#fed7aa',
-            300: '#fdba74',
-            400: '#fb923c',
-            500: '#f97316',
-            600: '#ea580c',
-            700: '#c2410c',
-            800: '#9a3412',
-            900: '#7c2d12',
-          }
-        }
-      }
-    }
-  }
-</script>
+<style>
+  /* Hanya scrollbar utility untuk tampilan yang lebih bersih */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+</style>
 </head>
-<body class="bg-orange-50 min-h-screen text-slate-800">
+<body class="bg-slate-50 min-h-screen text-slate-800 font-sans selection:bg-blue-100 selection:text-blue-900">
 
 <div v-scope>
 
   <!-- Header -->
-  <header class="sticky top-0 z-20 bg-white border-b border-orange-100 shadow-sm">
-    <div class="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
-      <a href="/forum" class="text-slate-400 hover:text-brand-500 text-lg">←</a>
-      <div class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center text-white font-bold text-sm">F</div>
-      <h1 class="text-base font-bold text-slate-900 tracking-tight">Forum Diskusi</h1>
+  <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <button onclick="history.back()" class="p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-500 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+          <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd" />
+        </svg>
+      </button>
+      
+      <div class="flex items-center gap-2.5">
+        <div class="bg-gradient-to-br from-blue-600 to-indigo-600 p-1.5 rounded-lg text-white shadow-lg shadow-blue-500/20">
+           <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32">
+            <path d="M0 0h32v32H0z" fill="none" />
+            <path fill="currentColor" d="M28 6H8c-1.2 0-2 .8-2 2v14c0 1.2.8 2 2 2h8v-2H8V8h20v14h-7.2L16 28.8l1.6 1.2l4.2-6H28c1.2 0 2-.8 2-2V8c0-1.2-.8-2-2-2" />
+            <path fill="currentColor" d="M4 18H2V5c0-1.7 1.3-3 3-3h13v2H5c-.6 0-1 .4-1 1z" />
+           </svg>
+        </div>
+        <h1 class="text-base font-bold text-slate-900 tracking-tight hidden sm:block">ForumDiskusi</h1>
+      </div>
+
+      <div class="w-8 h-8"></div> <!-- Spacer for center balance -->
     </div>
   </header>
 
-  <main class="max-w-3xl mx-auto px-4 py-6">
+  <main class="max-w-4xl mx-auto px-4 py-6 sm:py-8">
 
     <!-- Loading -->
-    <div v-if="loading" class="text-center text-slate-400 py-16 text-sm">
-      Memuat thread...
+    <div v-if="loading" class="flex flex-col items-center justify-center py-24 text-slate-400">
+      <svg class="animate-spin h-10 w-10 text-blue-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span class="text-sm font-medium">Memuat diskusi...</span>
     </div>
 
-    <!-- Not found -->
-    <div v-else-if="errorState === 'not_found'" class="text-center bg-white rounded-xl border border-orange-100 py-16">
-      <p class="text-3xl mb-2">🔍</p>
-      <p class="text-slate-500 text-sm">Thread tidak ditemukan.</p>
-      <a href="/forum" class="inline-block mt-4 text-brand-600 font-semibold text-sm">Kembali ke Forum</a>
+    <!-- Not Found -->
+    <div v-else-if="errorState === 'not_found'" class="flex flex-col items-center justify-center text-center bg-white rounded-2xl border border-slate-200 shadow-sm py-20 px-6">
+      <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-10 h-10 text-slate-300">
+          <path fill-rule="evenodd" d="M8 10a.75.75 0 01-.75.75H3.5a.75.75 0 010-1.5h3.75A.75.75 0 018 10zM4.474 5.937a.75.75 0 01-.807.087l-2.25-1.25a.75.75 0 11.732-1.31l2.25 1.25a.75.75 0 01.075 1.223zM2.417 14.063a.75.75 0 01.075 1.223l-2.25 1.25a.75.75 0 11-.732-1.31l2.25-1.25a.75.75 0 01.657.087zM10 4a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V4.75A.75.75 0 0110 4zM10 15.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V16a.75.75 0 01.75-.75zM16.526 5.937a.75.75 0 01.075-1.223l2.25-1.25a.75.75 0 11.732 1.31l-2.25 1.25a.75.75 0 01-.807-.087zM17.583 14.063a.75.75 0 01.657-.087l2.25 1.25a.75.75 0 11-.732 1.31l-2.25-1.25a.75.75 0 01.075-1.223zM12 10a.75.75 0 01.75.75h3.75a.75.75 0 010 1.5h-3.75A.75.75 0 0112 10z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-slate-900">Thread Tidak Ditemukan</h3>
+      <p class="text-slate-500 text-sm mt-1 mb-6">Maaf, halaman yang Anda cari mungkin telah dihapus atau dipindahkan.</p>
+      <a href="/forum" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors shadow-md shadow-blue-500/20">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+          <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7a1 1 0 010 1.414l-7 7a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+        Kembali ke Forum
+      </a>
     </div>
 
-    <!-- Perlu login -->
-    <div v-else-if="errorState === 'need_login'" class="text-center bg-white rounded-xl border border-orange-100 py-16">
-      <p class="text-3xl mb-2">👤</p>
-      <p class="text-slate-700 font-medium text-sm">Thread ini hanya untuk anggota yang sudah login.</p>
-      <a href="/auth/login" class="inline-block mt-4 bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm px-4 py-2 rounded-lg">Login Sekarang</a>
+    <!-- Need Login -->
+    <div v-else-if="errorState === 'need_login'" class="flex flex-col items-center justify-center text-center bg-white rounded-2xl border border-slate-200 shadow-sm py-20 px-6">
+      <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-10 h-10 text-blue-500">
+          <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-slate-900">Akses Terbatas</h3>
+      <p class="text-slate-500 text-sm mt-1 mb-6">Anda harus login untuk melihat konten diskusi ini.</p>
+      <a href="/auth/login" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors shadow-md shadow-blue-500/20">
+        Login Sekarang
+      </a>
     </div>
 
-    <!-- Perlu password -->
-    <div v-else-if="errorState === 'need_password' || errorState === 'need_login_for_password'" class="text-center bg-white rounded-xl border border-orange-100 py-16 px-6">
-      <p class="text-3xl mb-2">🔒</p>
-      <p class="text-slate-700 font-medium text-sm mb-4">Thread ini dilindungi password.</p>
+    <!-- Need Password -->
+    <div v-else-if="errorState === 'need_password' || errorState === 'need_login_for_password'" class="flex flex-col items-center justify-center text-center bg-white rounded-2xl border border-slate-200 shadow-sm py-16 px-6">
+      <div class="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-10 h-10 text-amber-500">
+          <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-slate-900">Thread Terkunci</h3>
+      <p class="text-slate-500 text-sm mt-1 mb-6">Thread ini dilindungi oleh password. Masukkan password untuk melanjutkan.</p>
 
-      <div v-if="errorState === 'need_login_for_password'">
-        <a href="/auth/login" class="inline-block bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm px-4 py-2 rounded-lg">Login untuk Membuka</a>
+      <div v-if="errorState === 'need_login_for_password'" class="w-full max-w-xs">
+        <a href="/auth/login" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors">
+          Login untuk Membuka
+        </a>
       </div>
 
-      <div v-else class="max-w-xs mx-auto">
-        <input
-          v-model="unlockPassword"
-          @keyup.enter="submitUnlock()"
-          type="password"
-          placeholder="Masukkan password thread"
-          class="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-brand-400 mb-2">
-        <p v-if="unlockError" class="text-red-500 text-xs mb-2">{{ unlockError }}</p>
+      <div v-else class="w-full max-w-xs space-y-3">
+        <div class="relative">
+          <input
+            v-model="unlockPassword"
+            @keyup.enter="submitUnlock()"
+            type="password"
+            placeholder="Masukkan password..."
+            class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-center placeholder:text-slate-400">
+        </div>
         <button
           @click="submitUnlock()"
           :disabled="unlocking"
-          class="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white font-semibold text-sm py-2 rounded-lg">
-          {{ unlocking ? 'Memeriksa...' : 'Buka Thread' }}
+          class="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-70 disabled:cursor-not-allowed text-white font-semibold text-sm py-3 rounded-xl transition-colors shadow-md shadow-blue-500/20 flex items-center justify-center gap-2">
+          <svg v-if="unlocking" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>{{ unlocking ? 'Membuka...' : 'Buka Thread' }}</span>
         </button>
+        <p v-if="unlockError" class="text-red-500 text-xs font-medium bg-red-50 px-3 py-2 rounded-lg flex items-center justify-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+          {{ unlockError }}
+        </p>
       </div>
     </div>
 
-    <!-- Konten Thread -->
-    <div v-else-if="thread">
-      <div class="bg-white rounded-xl border border-orange-100 p-5 mb-4">
-        <span class="text-xs font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
-          {{ accessIcon(thread.access_type) }} {{ accessLabel(thread.access_type) }}
-        </span>
-        <h1 class="text-xl font-bold text-slate-900 mt-2">{{ thread.title }}</h1>
-        <p class="text-xs text-slate-500 mt-1">
-          oleh <span class="font-medium text-slate-700">{{ thread.author_name }}</span> · {{ formatDate(thread.created_at) }}
-        </p>
-        <p class="text-sm text-slate-700 mt-4 whitespace-pre-wrap leading-relaxed">{{ thread.content }}</p>
+    <!-- Konten Thread Utama -->
+    <div v-else-if="thread" class="animate-fade-in">
+      
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 mb-6 relative overflow-hidden">
+        <!-- Background Decor -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-50/50 to-transparent rounded-bl-full -mr-16 -mt-16 pointer-events-none"></div>
 
-        <div class="flex items-center gap-4 mt-5 pt-4 border-t border-orange-100 text-xs text-slate-400">
-          <span>👁️ {{ thread.view_count }} dilihat</span>
-          <span>💬 {{ thread.reply_count }} balasan</span>
+        <!-- Access Badge -->
+        <div class="flex items-center gap-2 mb-4 relative z-10">
+           <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide"
+             :class="{
+               'bg-emerald-50 text-emerald-700': thread.access_type === 'public',
+               'bg-blue-50 text-blue-700': thread.access_type === 'user',
+               'bg-amber-50 text-amber-700': thread.access_type === 'password'
+             }">
+             <span v-html="accessIcon(thread.access_type)" class="w-3.5 h-3.5"></span>
+             {{ accessLabel(thread.access_type) }}
+           </span>
+           <div class="h-1 w-1 bg-slate-300 rounded-full"></div>
+           <span class="text-xs text-slate-400 font-medium">{{ formatDate(thread.created_at) }}</span>
+        </div>
+
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight mb-6 relative z-10">{{ thread.title }}</h1>
+
+        <!-- Author Info -->
+        <div class="flex items-center gap-3 mb-6 relative z-10">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
+            {{ thread.author_name.charAt(0).toUpperCase() }}
+          </div>
+          <div>
+            <p class="text-sm font-bold text-slate-900">{{ thread.author_name }}</p>
+            <p class="text-xs text-slate-500">Pembuat Thread</p>
+          </div>
+        </div>
+
+        <!-- Thread Content -->
+        <div class="prose prose-slate max-w-none text-slate-700 leading-relaxed relative z-10">
+          {{ thread.content }}
+        </div>
+
+        <!-- Meta Stats -->
+        <div class="flex items-center gap-6 mt-8 pt-6 border-t border-slate-100 text-sm font-medium text-slate-500">
+          <span class="flex items-center gap-2 hover:text-blue-600 transition-colors cursor-default">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+              <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
+              <path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+            </svg>
+            {{ thread.view_count }} Dilihat
+          </span>
+          <span class="flex items-center gap-2 hover:text-blue-600 transition-colors cursor-default">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+              <path fill-rule="evenodd" d="M3.43 2.524A41.29 41.29 0 0110 2c2.236 0 4.43.18 6.57.524 1.144.228 1.93 1.242 1.93 2.414v9.124a2.5 2.5 0 01-1.93 2.414A41.202 41.202 0 0110 18c-2.236 0-4.43-.18-6.57-.524C2.144 17.248 1.357 16.234 1.357 15.062V5.938c0-1.172.787-2.186 1.93-2.414zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            {{ thread.reply_count }} Balasan
+          </span>
         </div>
       </div>
 
       <!-- Daftar Reply -->
-      <div class="mb-4">
-        <h2 class="text-sm font-bold text-slate-900 mb-3">Balasan ({{ replies.length }})</h2>
+      <div class="mb-6">
+        <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-blue-500">
+            <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 013.5 2h9A1.5 1.5 0 0114 3.5v11a1.5 1.5 0 01-1.29 1.486l-4.5-1.125-4.5 1.125A1.5 1.5 0 012 14.5v-11zM13.5 3.5h-9v11l4.5-1.125 4.5 1.125v-11z" clip-rule="evenodd" />
+          </svg>
+          Komentar ({{ replies.length }})
+        </h2>
 
-        <div v-if="repliesLoading" class="text-center text-slate-400 py-8 text-sm">
-          Memuat balasan...
+        <div v-if="repliesLoading" class="text-center py-10">
+           <div class="inline-flex items-center gap-2 text-slate-400 text-sm">
+             <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+             </svg>
+             Memuat balasan...
+           </div>
         </div>
 
-        <div v-else-if="replies.length === 0" class="text-center bg-white rounded-xl border border-orange-100 py-10">
-          <p class="text-slate-400 text-sm">Belum ada balasan. Jadilah yang pertama membalas!</p>
+        <div v-else-if="replies.length === 0" class="text-center bg-white/50 rounded-2xl border border-dashed border-slate-300 py-12 px-6">
+          <p class="text-slate-500 text-sm font-medium">Belum ada balasan.</p>
+          <p class="text-slate-400 text-xs mt-1">Jadilah yang pertama memberikan pendapat!</p>
         </div>
 
-        <div v-else class="space-y-3">
-          <div v-for="reply in replies" :key="reply.id" class="bg-white rounded-xl border border-orange-100 p-4">
-            <div class="flex items-center justify-between">
-              <span class="font-semibold text-sm text-slate-800">{{ reply.author_name }}</span>
-              <span class="text-xs text-slate-400">{{ formatDate(reply.created_at) }}</span>
+        <div v-else class="space-y-4">
+          <div v-for="reply in replies" :key="reply.id" class="bg-white rounded-xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start gap-4">
+              <!-- Avatar -->
+              <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-sm shrink-0 border border-slate-200">
+                {{ reply.author_name.charAt(0).toUpperCase() }}
+              </div>
+              
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="font-bold text-sm text-slate-900">{{ reply.author_name }}</span>
+                  <span class="text-xs text-slate-400 whitespace-nowrap ml-2">{{ formatDate(reply.created_at) }}</span>
+                </div>
+                <p class="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">{{ reply.content }}</p>
+              </div>
             </div>
-            <p class="text-sm text-slate-700 mt-2 whitespace-pre-wrap leading-relaxed">{{ reply.content }}</p>
           </div>
         </div>
       </div>
 
       <!-- Form Reply -->
-      <div class="bg-white rounded-xl border border-orange-100 p-4">
-        <h2 class="text-sm font-bold text-slate-900 mb-2">Tulis Balasan</h2>
-        <p v-if="replyError" class="text-red-500 text-xs mb-2">{{ replyError }}</p>
-        <textarea
-          v-model="replyContent"
-          rows="3"
-          placeholder="Tulis balasan Anda..."
-          class="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 mb-2"></textarea>
-        <button
-          @click="submitReply()"
-          :disabled="submittingReply"
-          class="bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white font-semibold text-sm px-4 py-2 rounded-lg">
-          {{ submittingReply ? 'Mengirim...' : 'Kirim Balasan' }}
-        </button>
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sticky bottom-4">
+        <h2 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-blue-600">
+             <path d="M3.196 12.87l-.825.483a.75.75 0 000 1.294l.825.484A5.471 5.471 0 0012 20.364a5.471 5.471 0 009.629-5.233l.825-.484a.75.75 0 000-1.294l-.825-.483A5.471 5.471 0 0012 3.636a5.471 5.471 0 00-8.804 9.234z" />
+           </svg>
+           Tulis Balasan
+        </h2>
+        
+        <div v-if="replyError" class="mb-3 bg-red-50 text-red-600 text-xs font-medium px-3 py-2 rounded-lg flex items-center gap-2">
+           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 shrink-0">
+             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+           </svg>
+           {{ replyError }}
+        </div>
+
+        <div class="relative">
+          <textarea
+            v-model="replyContent"
+            rows="3"
+            placeholder="Bagikan pendapat Anda..."
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-none transition-all placeholder:text-slate-400"></textarea>
+          
+          <button
+            @click="submitReply()"
+            :disabled="submittingReply"
+            class="absolute bottom-3 right-3 flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs px-4 py-2 rounded-lg transition-all shadow-md shadow-blue-500/20">
+             <svg v-if="submittingReply" class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+             </svg>
+             <span>{{ submittingReply ? 'Mengirim...' : 'Kirim' }}</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -166,7 +285,7 @@
     replies: [],
     loading: true,
     repliesLoading: true,
-    errorState: '', // '', 'not_found', 'need_login', 'need_password', 'need_login_for_password'
+    errorState: '', 
     unlockPassword: '',
     unlockError: '',
     unlocking: false,
@@ -177,14 +296,17 @@
     accessLabel(type) {
       if (type === 'public') return 'Publik';
       if (type === 'user') return 'Khusus Anggota';
-      if (type === 'password') return 'Terkunci';
+      if (type === 'password') return 'Privat';
       return type;
     },
 
     accessIcon(type) {
-      if (type === 'user') return '👤';
-      if (type === 'password') return '🔒';
-      return '🌐';
+      const icons = {
+        user: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" /></svg>',
+        password: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd" /></svg>',
+        public: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" /></svg>'
+      };
+      return icons[type] || '';
     },
 
     formatDate(iso) {
@@ -235,10 +357,10 @@
           this.unlockPassword = '';
           this.loadThread();
         } else {
-          this.unlockError = json.message === 'password_salah' ? 'Password salah.' : json.message;
+          this.unlockError = json.message === 'password_salah' ? 'Password yang Anda masukkan salah.' : json.message;
         }
       } catch (e) {
-        this.unlockError = 'Terjadi kesalahan, silakan coba lagi.';
+        this.unlockError = 'Terjadi kesalahan koneksi.';
       }
       this.unlocking = false;
     },

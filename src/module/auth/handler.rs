@@ -7,6 +7,8 @@ use serde_json::json;
 #[derive(Deserialize)]
 pub struct LoginData {
     #[serde(default)]
+    pub fullname: String,
+    #[serde(default)]
     pub username: String,
     #[serde(default)]
     pub password: String,
@@ -102,8 +104,9 @@ pub async fn login(pool: Pool, data: Json<LoginData>, session: Session) -> Respo
 
 pub async fn register(pool: Pool, data: Json<LoginData>, session: Session) -> Response {
 
+    let fullname = data.fullname.trim();
     let username = data.username.trim();
-    let password = &data.password;
+    let password = data.password.clone();
 
     if username.is_empty() || password.is_empty() {
         return Response::Forbidden().json(ApiResponse {
@@ -148,8 +151,9 @@ pub async fn register(pool: Pool, data: Json<LoginData>, session: Session) -> Re
     };
 
     let inserted = sqlx::query(
-        "INSERT INTO users (username, password) VALUES (?, ?)"
+        "INSERT INTO users (fullname, username, password) VALUES (?, ?, ?)"
     )
+    .bind(fullname)
     .bind(username)
     .bind(&hashed)
     .execute(conn)

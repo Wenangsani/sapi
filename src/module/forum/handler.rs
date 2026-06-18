@@ -2,15 +2,13 @@ use crate::web::{Pool, Session, Cookie, Request, Response, ApiResponse};
 use crate::web::from::{Data, Path, Json, Form};
 use crate::web::data::{Int, UInt, String, Date};
 
-use serde::{Deserialize, Serialize};
 use serde_json::json;
-use sqlx::FromRow;
 
 // =========================================================
 // STRUCTS
 // =========================================================
 
-#[derive(Debug, FromRow, Serialize)]
+#[derive(FromRow, Serialize)]
 pub struct ThreadListItem {
     pub id: UInt,
     pub title: String,
@@ -22,7 +20,7 @@ pub struct ThreadListItem {
     pub tags: Option<String>, // hasil GROUP_CONCAT, dipecah saat serialisasi response
 }
 
-#[derive(Debug, FromRow, Serialize)]
+#[derive(FromRow, Serialize)]
 pub struct TagItem {
     pub id: UInt,
     pub name: String,
@@ -30,7 +28,7 @@ pub struct TagItem {
     pub thread_count: Int,
 }
 
-#[derive(Debug, FromRow, Serialize)]
+#[derive(FromRow, Serialize)]
 pub struct ThreadDetail {
     pub id: UInt,
     pub user_id: UInt,
@@ -43,7 +41,7 @@ pub struct ThreadDetail {
     pub author_name: String,
 }
 
-#[derive(Debug, FromRow, Serialize)]
+#[derive(FromRow, Serialize)]
 pub struct ReplyItem {
     pub id: UInt,
     pub user_id: UInt,
@@ -52,7 +50,7 @@ pub struct ReplyItem {
     pub author_name: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct ListThreadsQuery {
     pub tag: Option<String>,
     pub search: Option<String>,
@@ -60,7 +58,7 @@ pub struct ListThreadsQuery {
     pub limit: Option<UInt>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct CreateThreadBody {
     pub title: String,
     pub content: String,
@@ -69,17 +67,17 @@ pub struct CreateThreadBody {
     pub tags: Option<Vec<String>>, // nama tag, akan dibuat otomatis jika belum ada
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct UnlockThreadBody {
     pub password: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct CreateReplyBody {
     pub content: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct ListRepliesQuery {
     pub page: Option<UInt>,
     pub limit: Option<UInt>,

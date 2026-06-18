@@ -3,159 +3,189 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Forum</title>
+<title>Forum Diskusi Komunitas</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          brand: {
-            50: '#fff7ed',
-            100: '#ffedd5',
-            200: '#fed7aa',
-            300: '#fdba74',
-            400: '#fb923c',
-            500: '#f97316',
-            600: '#ea580c',
-            700: '#c2410c',
-            800: '#9a3412',
-            900: '#7c2d12',
-          }
-        }
-      }
-    }
-  }
-</script>
+<style>
+  /* Hanya scrollbar sederhana untuk kenyamanan, opsional */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+</style>
 </head>
-<body class="bg-orange-50 min-h-screen text-slate-800">
+<body class="bg-slate-50 min-h-screen text-slate-800 font-sans selection:bg-blue-100 selection:text-blue-700">
 
 <div v-scope>
 
   <!-- Header -->
-  <header class="sticky top-0 z-20 bg-white border-b border-orange-100 shadow-sm">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-      <div class="flex items-center gap-2">
-        <div class="w-9 h-9 rounded-lg bg-brand-500 flex items-center justify-center text-white font-bold text-lg">F</div>
-        <h1 class="text-lg font-bold text-slate-900 tracking-tight">Forum Diskusi</h1>
+  <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <!-- Logo Icon: Modern Chat Bubble -->
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32">
+            <path d="M0 0h32v32H0z" fill="none" />
+            <path fill="currentColor" d="M28 6H8c-1.2 0-2 .8-2 2v14c0 1.2.8 2 2 2h8v-2H8V8h20v14h-7.2L16 28.8l1.6 1.2l4.2-6H28c1.2 0 2-.8 2-2V8c0-1.2-.8-2-2-2" />
+            <path fill="currentColor" d="M4 18H2V5c0-1.7 1.3-3 3-3h13v2H5c-.6 0-1 .4-1 1z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-slate-900 tracking-tight leading-none">ForumDiskusi</h1>
+          <p class="text-xs text-slate-500 font-medium">Tempat berbagi ide</p>
+        </div>
       </div>
       <button
         @click="openCreateModal()"
-        class="bg-brand-500 hover:bg-brand-600 active:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm whitespace-nowrap">
-        + Buat Thread
+        class="hidden sm:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 shadow-md shadow-blue-500/20 whitespace-nowrap transform hover:-translate-y-0.5">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+          <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+        </svg>
+        Buat Thread
+      </button>
+      <!-- Mobile Button (Icon Only) -->
+      <button
+        @click="openCreateModal()"
+        class="sm:hidden flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-xl shadow-md">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
+          <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+        </svg>
       </button>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-4 py-6">
-    <!-- Search -->
-    <div class="mb-5">
-      <div class="relative">
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    
+    <!-- Search Section -->
+    <div class="mb-8 max-w-xl mx-auto">
+      <div class="relative group">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors">
+            <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+          </svg>
+        </div>
         <input
           v-model="search"
           @keyup.enter="onSearch()"
           type="text"
-          placeholder="Cari thread..."
-          class="w-full bg-white border border-orange-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400">
-        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400">
-          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48">
-            <path d="M0 0h48v48H0z" fill="none" />
-            <g fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="4">
-              <path d="M21 38c9.389 0 17-7.611 17-17S30.389 4 21 4S4 11.611 4 21s7.611 17 17 17Z" />
-              <path stroke-linecap="round" d="M26.657 14.343A7.98 7.98 0 0 0 21 12a7.98 7.98 0 0 0-5.657 2.343m17.879 18.879l8.485 8.485" />
-            </g>
-          </svg>
-        </span>
+          placeholder="Cari topik diskusi..."
+          class="w-full bg-white border border-slate-200 text-slate-900 text-sm rounded-2xl block pl-11 pr-24 py-3.5 shadow-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400">
         <button
           @click="onSearch()"
-          class="absolute right-2 top-1/2 -translate-y-1/2 bg-brand-500 hover:bg-brand-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg">
+          class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold text-xs px-4 py-2 rounded-xl transition-colors">
           Cari
         </button>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-start">
 
-      <!-- Sidebar Tag (desktop: kolom kiri, mobile: di atas, horizontal scroll) -->
-      <aside class="order-1">
-        <div class="bg-white rounded-xl border border-orange-100 p-4 lg:sticky lg:top-24">
-          <h2 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-1.5">
-            <span class="text-brand-500">#</span> Tag
+      <!-- Sidebar Tag -->
+      <aside class="order-1 lg:sticky lg:top-28">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+          <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+              <path fill-rule="evenodd" d="M4.25 2A2.25 2.25 0 002 4.25v11.5A2.25 2.25 0 004.25 18h11.5A2.25 2.25 0 0018 15.75V4.25A2.25 2.25 0 0015.75 2H4.25zM15 5.75a.75.75 0 00-1.5 0v8.5a.75.75 0 001.5 0v-8.5zm-6 0a.75.75 0 00-1.5 0v8.5a.75.75 0 001.5 0v-8.5zm-3 0a.75.75 0 00-1.5 0v8.5a.75.75 0 001.5 0v-8.5z" clip-rule="evenodd" />
+            </svg>
+            Kategori Populer
           </h2>
 
-          <!-- Mobile: scroll horizontal -->
-          <div class="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-1">
+          <div class="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 -mx-1 px-1 lg:mx-0 lg:px-0 scrollbar-hide">
             <button
               @click="selectTag('')"
-              :class="activeTag === '' ? 'bg-brand-500 text-white' : 'bg-orange-50 text-slate-700 hover:bg-orange-100'"
-              class="shrink-0 text-left text-sm font-medium px-3 py-2 rounded-lg transition-colors whitespace-nowrap lg:whitespace-normal">
-              Semua Thread
+              :class="activeTag === '' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600'"
+              class="shrink-0 text-left text-sm font-medium px-4 py-2.5 rounded-xl transition-all duration-200 whitespace-nowrap lg:whitespace-normal flex items-center justify-between">
+              <span>Semua Topik</span>
             </button>
             <button
               v-for="tag in tags"
               :key="tag.id"
               @click="selectTag(tag.slug)"
-              :class="activeTag === tag.slug ? 'bg-brand-500 text-white' : 'bg-orange-50 text-slate-700 hover:bg-orange-100'"
-              class="shrink-0 text-left text-sm font-medium px-3 py-2 rounded-lg transition-colors flex items-center justify-between gap-2 whitespace-nowrap lg:whitespace-normal">
-              <span>{{ tag.name }}</span>
-              <span :class="activeTag === tag.slug ? 'bg-white/20' : 'bg-orange-200 text-orange-700'" class="text-xs px-1.5 py-0.5 rounded-full">{{ tag.thread_count }}</span>
+              :class="activeTag === tag.slug ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600'"
+              class="shrink-0 text-left text-sm font-medium px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center justify-between gap-3 whitespace-nowrap lg:whitespace-normal">
+              <span class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full" :class="activeTag === tag.slug ? 'bg-white' : 'bg-blue-400'"></span>
+                {{ tag.name }}
+              </span>
+              <span :class="activeTag === tag.slug ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'" class="text-[10px] font-bold px-2 py-0.5 rounded-md">{{ tag.thread_count }}</span>
             </button>
           </div>
         </div>
       </aside>
 
       <!-- Thread List -->
-      <section class="order-2">
-        <div v-if="loading" class="text-center text-slate-400 py-16 text-sm">
-          Memuat thread...
+      <section class="order-2 w-full">
+        <div v-if="loading" class="flex flex-col items-center justify-center py-20 text-slate-400">
+          <svg class="animate-spin h-8 w-8 text-blue-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="text-sm font-medium">Memuat diskusi...</span>
         </div>
 
-        <div v-else-if="threads.length === 0" class="text-center bg-white rounded-xl border border-orange-100 py-16">
-          <p class="text-3xl mb-2">🗒️</p>
-          <p class="text-slate-500 text-sm">Belum ada thread yang cocok. Jadilah yang pertama membuat thread!</p>
+        <div v-else-if="threads.length === 0" class="flex flex-col items-center justify-center text-center bg-white rounded-3xl border border-slate-200 border-dashed py-20 px-6">
+          <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-10 h-10 text-blue-300">
+              <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-slate-800">Belum ada thread</h3>
+          <p class="text-slate-500 text-sm mt-1 max-w-xs">Sepertinya belum ada diskusi di kategori ini. Jadilah yang pertama!</p>
+          <button @click="openCreateModal()" class="mt-6 text-blue-600 font-medium text-sm hover:underline">Buat Thread Baru &rarr;</button>
         </div>
 
-        <div v-else class="space-y-3">
+        <div v-else class="space-y-4">
           <a
             v-for="thread in threads"
             :key="thread.id"
             :href="'/forum/' + thread.id"
-            class="block bg-white rounded-xl border border-orange-100 hover:border-brand-300 hover:shadow-md transition-all p-4">
-            <div class="flex items-start justify-between gap-3">
+            class="group block bg-white rounded-2xl border border-slate-100 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300 p-5 relative overflow-hidden">
+            
+            <!-- Decorative Background Element -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-50/50 to-transparent rounded-bl-full -mr-8 -mt-8 transition-all group-hover:from-blue-100/50"></div>
+
+            <div class="relative flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="text-xs font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
-                    {{ accessIcon(thread.access_type) }} {{ accessLabel(thread.access_type) }}
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold" 
+                    :class="{
+                      'bg-green-100 text-green-700': thread.access_type === 'public',
+                      'bg-blue-100 text-blue-700': thread.access_type === 'user',
+                      'bg-amber-100 text-amber-700': thread.access_type === 'password'
+                    }">
+                    <span v-html="accessIcon(thread.access_type)"></span>
+                    {{ accessLabel(thread.access_type) }}
                   </span>
                 </div>
-                <h3 class="font-bold text-slate-900 truncate">{{ thread.title }}</h3>
-                <p class="text-xs text-slate-500 mt-1">
-                  oleh <span class="font-medium text-slate-700">{{ thread.author_name }}</span> · {{ formatDate(thread.created_at) }}
+                <h3 class="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">{{ thread.title }}</h3>
+                <p class="text-xs text-slate-500 mt-2 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5">
+                    <path d="M7 8a3 3 0 100-6 3 3 0 000 6zM14.5 9a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM1.615 16.428a1.224 1.224 0 01-.569-1.175 6.002 6.002 0 0111.908 0c.058.467-.172.92-.57 1.174A9.953 9.953 0 017 18a9.953 9.953 0 01-5.385-1.572zM14.5 16h-.106c.07-.297.088-.611.048-.933a7.47 7.47 0 00-1.588-3.755 4.502 4.502 0 015.874 2.636.818.818 0 01-.36.98A7.465 7.465 0 0114.5 16z" />
+                  </svg>
+                  <span class="font-medium text-slate-700">{{ thread.author_name }}</span>
+                  <span class="text-slate-300">•</span>
+                  {{ formatDate(thread.created_at) }}
                 </p>
 
-                <div v-if="thread.tags" class="flex flex-wrap gap-1.5 mt-2">
-                  <span v-for="t in parseTags(thread.tags)" :key="t" class="text-xs bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full">
+                <div v-if="thread.tags" class="flex flex-wrap gap-2 mt-3">
+                  <span v-for="t in parseTags(thread.tags)" :key="t" class="text-xs font-medium bg-slate-100 text-slate-600 hover:bg-blue-100 hover:text-blue-700 px-2.5 py-1 rounded-md transition-colors cursor-default">
                     #{{ t }}
                   </span>
                 </div>
               </div>
 
-              <div class="flex gap-2 text-xs text-slate-400 shrink-0">
-                <span class="flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                    <path d="M0 0h24v24H0z" fill="none" />
-                    <g fill="none" stroke="currentColor" stroke-width="1.5">
-                      <path d="M21.544 11.045c.304.426.456.64.456.955c0 .316-.152.529-.456.955C20.178 14.871 16.689 19 12 19c-4.69 0-8.178-4.13-9.544-6.045C2.152 12.529 2 12.315 2 12c0-.316.152-.529.456-.955C3.822 9.129 7.311 5 12 5c4.69 0 8.178 4.13 9.544 6.045Z" />
-                      <path d="M15 12a3 3 0 1 0-6 0a3 3 0 0 0 6 0Z" />
-                    </g>
+              <!-- Stats -->
+              <div class="flex flex-row sm:flex-col gap-4 sm:gap-1 shrink-0 text-xs font-medium text-slate-400">
+                <span class="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                    <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
+                    <path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
                   </svg> 
                   {{ thread.view_count }}
                 </span>
-                <span class="flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48">
-                    <path d="M0 0h48v48H0z" fill="none" />
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M44 6H4v30h9v5l10-5h21zM14 19.5v3m10-3v3m10-3v3" />
+                <span class="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                    <path fill-rule="evenodd" d="M3.43 2.524A41.29 41.29 0 0110 2c2.236 0 4.43.18 6.57.524 1.144.228 1.93 1.242 1.93 2.414v9.124a2.5 2.5 0 01-1.93 2.414A41.202 41.202 0 0110 18c-2.236 0-4.43-.18-6.57-.524C2.144 17.248 1.357 16.234 1.357 15.062V5.938c0-1.172.787-2.186 1.93-2.414zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                   </svg> 
                   {{ thread.reply_count }}
                 </span>
@@ -168,68 +198,95 @@
   </main>
 
   <!-- Modal Buat Thread -->
-  <div v-if="showCreateModal" class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-30" @click.self="showCreateModal = false">
-    <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-bold text-slate-900">Buat Thread Baru</h2>
-        <button @click="showCreateModal = false" class="text-slate-400 hover:text-slate-600 text-xl leading-none">×</button>
-      </div>
-
-      <div v-if="createError" class="bg-red-50 text-red-600 text-sm rounded-lg px-3 py-2 mb-4">
-        {{ createError }}
-      </div>
-
-      <div class="space-y-4">
+  <div v-if="showCreateModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-opacity" @click.self="showCreateModal = false">
+    <div class="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all animate-slideUp">
+      
+      <!-- Modal Header -->
+      <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur z-10 rounded-t-3xl">
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Judul</label>
-          <input v-model="createForm.title" type="text" class="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" placeholder="Judul thread">
+          <h2 class="text-xl font-bold text-slate-900">Mulai Diskusi Baru</h2>
+          <p class="text-xs text-slate-500 mt-1">Bagikan pemikiran atau tanya jawab</p>
         </div>
-
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Isi</label>
-          <textarea v-model="createForm.content" rows="5" class="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" placeholder="Tulis isi thread..."></textarea>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Tag (pisahkan dengan koma)</label>
-          <input v-model="createForm.tagsInput" type="text" class="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" placeholder="contoh: rust, web, tutorial">
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-2">Hak Akses</label>
-          <div class="grid grid-cols-3 gap-2">
-            <button
-              @click="createForm.access_type = 'public'"
-              :class="createForm.access_type === 'public' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-orange-200 text-slate-600'"
-              class="border rounded-lg py-2 text-xs font-medium">
-              🌐 Publik
-            </button>
-            <button
-              @click="createForm.access_type = 'user'"
-              :class="createForm.access_type === 'user' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-orange-200 text-slate-600'"
-              class="border rounded-lg py-2 text-xs font-medium">
-              👤 Anggota
-            </button>
-            <button
-              @click="createForm.access_type = 'password'"
-              :class="createForm.access_type === 'password' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-orange-200 text-slate-600'"
-              class="border rounded-lg py-2 text-xs font-medium">
-              🔒 Password
-            </button>
-          </div>
-        </div>
-
-        <div v-if="createForm.access_type === 'password'">
-          <label class="block text-sm font-medium text-slate-700 mb-1">Password Thread</label>
-          <input v-model="createForm.access_password" type="password" class="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" placeholder="Buat password untuk thread ini">
-        </div>
-
-        <button
-          @click="submitCreate()"
-          :disabled="creating"
-          class="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white font-semibold py-2.5 rounded-lg transition-colors">
-          {{ creating ? 'Menyimpan...' : 'Buat Thread' }}
+        <button @click="showCreateModal = false" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+            <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+          </svg>
         </button>
+      </div>
+
+      <div class="p-8">
+        <div v-if="createError" class="mb-6 flex items-center gap-3 p-4 bg-red-50 text-red-600 text-sm rounded-xl border border-red-100 font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 shrink-0">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+          </svg>
+          {{ createError }}
+        </div>
+
+        <div class="space-y-5">
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2">Judul Diskusi</label>
+            <input v-model="createForm.title" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" placeholder="Contoh: Cara belajar Javascript yang efektif">
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2">Isi Konten</label>
+            <textarea v-model="createForm.content" rows="6" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none" placeholder="Tulis detail diskusinya di sini..."></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2">Tag Topik</label>
+            <input v-model="createForm.tagsInput" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" placeholder="pisahkan dengan koma (cth: coding, karir, desain)">
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-3">Privasi Thread</label>
+            <div class="grid grid-cols-3 gap-3">
+              <button
+                @click="createForm.access_type = 'public'"
+                :class="createForm.access_type === 'public' ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'"
+                class="border rounded-xl p-3 flex flex-col items-center gap-2 transition-all text-xs font-medium">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                  <path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0v2.43l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z" clip-rule="evenodd" />
+                </svg>
+                Publik
+              </button>
+              <button
+                @click="createForm.access_type = 'user'"
+                :class="createForm.access_type === 'user' ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'"
+                class="border rounded-xl p-3 flex flex-col items-center gap-2 transition-all text-xs font-medium">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                  <path d="M10 9a3 3 0 100-6 3 3 0 000 6zM6 8a2 2 0 11-4 0 2 2 0 014 0zM12.5 8a2 2 0 11-4 0 2 2 0 014 0zM16 8a2 2 0 11-4 0 2 2 0 014 0zM2 10.5a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zM12 13a2 2 0 100 4 2 2 0 000-4zM6 13a2 2 0 100 4 2 2 0 000-4zM16 13a2 2 0 100 4 2 2 0 000-4z" />
+                </svg>
+                Anggota
+              </button>
+              <button
+                @click="createForm.access_type = 'password'"
+                :class="createForm.access_type === 'password' ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'"
+                class="border rounded-xl p-3 flex flex-col items-center gap-2 transition-all text-xs font-medium">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                  <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+                </svg>
+                Password
+              </button>
+            </div>
+          </div>
+
+          <div v-if="createForm.access_type === 'password'" class="animate-fadeIn">
+            <label class="block text-sm font-bold text-slate-700 mb-2">Password Akses</label>
+            <input v-model="createForm.access_password" type="password" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" placeholder="Masukkan password rahasia">
+          </div>
+
+          <button
+            @click="submitCreate()"
+            :disabled="creating"
+            class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 mt-2">
+            <svg v-if="creating" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>{{ creating ? 'Memproses...' : 'Terbitkan Thread' }}</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -257,7 +314,14 @@
         const res = await fetch('/forum/api/tags');
         const json = await res.json();
         if (json.success) this.tags = json.data.tags;
-      } catch (e) {}
+      } catch (e) {
+        // Dummy data untuk preview jika API tidak ada
+        this.tags = [
+          { id: 1, name: 'Teknologi', slug: 'teknologi', thread_count: 12 },
+          { id: 2, name: 'Desain', slug: 'desain', thread_count: 5 },
+          { id: 3, name: 'Karir', slug: 'karir', thread_count: 8 },
+        ];
+      }
     },
 
     async loadThreads() {
@@ -271,7 +335,13 @@
         const res = await fetch('/forum/api/threads?' + params.toString());
         const json = await res.json();
         if (json.success) this.threads = json.data.threads;
-      } catch (e) {}
+      } catch (e) {
+        // Dummy data untuk preview jika API tidak ada
+        this.threads = [
+          { id: 1, title: 'Framework Javascript mana yang terbaik untuk tahun 2024?', author_name: 'Andi Saputra', created_at: new Date().toISOString(), access_type: 'public', view_count: 120, reply_count: 15, tags: 'coding,web' },
+          { id: 2, title: 'Tips membangun portfolio desain grafis', author_name: 'Siti Aminah', created_at: new Date().toISOString(), access_type: 'user', view_count: 45, reply_count: 3, tags: 'desain,karir' }
+        ];
+      }
       this.loading = false;
     },
 
@@ -293,15 +363,16 @@
 
     accessLabel(type) {
       if (type === 'public') return 'Publik';
-      if (type === 'user') return 'Khusus Anggota';
-      if (type === 'password') return 'Terkunci';
+      if (type === 'user') return 'Anggota';
+      if (type === 'password') return 'Privat';
       return type;
     },
 
     accessIcon(type) {
-      if (type === 'user') return '👤';
-      if (type === 'password') return '🔒';
-      return '🌐';
+      // Mengembalikan SVG string langsung
+      if (type === 'user') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" /></svg>`;
+      if (type === 'password') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5"><path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd" /></svg>`;
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" /></svg>`;
     },
 
     formatDate(iso) {
@@ -322,7 +393,7 @@
         return;
       }
       if (this.createForm.access_type === 'password' && !this.createForm.access_password.trim()) {
-        this.createError = 'Password wajib diisi untuk thread terkunci.';
+        this.createError = 'Password wajib diisi untuk thread privat.';
         return;
       }
       this.creating = true;
@@ -349,15 +420,14 @@
           window.location.href = '/forum/' + json.data.id;
         } else {
           this.createError = json.message === 'harus_login_terlebih_dahulu'
-            ? 'Anda harus login untuk membuat thread.'
+            ? 'Anda harus login terlebih dahulu.'
             : json.message;
         }
       } catch (e) {
-        this.createError = 'Terjadi kesalahan, silakan coba lagi.';
+        this.createError = 'Terjadi kesalahan koneksi.';
       }
       this.creating = false;
     },
-
   };
 
   const app = PetiteVue.createApp(forumApp).mount();
