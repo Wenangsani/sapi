@@ -36,7 +36,7 @@ async fn main() -> Result<(), anyhow::Error> {
     HttpServer::new(move || {
 
         let session_mw = SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
-            .cookie_same_site(SameSite::None)   // Sesuaikan dengan kebutuhan aplikasi
+            .cookie_same_site(SameSite::Lax)    // Sesuaikan dengan kebutuhan aplikasi
             .cookie_http_only(true)             // JS tidak bisa akses cookie
             .cookie_secure(false)               // true jika HTTPS
             .build();

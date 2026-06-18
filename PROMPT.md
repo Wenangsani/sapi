@@ -7,9 +7,9 @@ Buatkan halaman baru untuk aplikasi Rust menggunakan Actix Web dengan struktur b
 - Password Hash: bcrypt
 - Routing dilakukan di main.rs menggunakan .route()
 - Menggunakan sistem modular
-- Router berada di src/module/{NamaModule}/mod.rs 
-- Handler berada di src/module/{NamaModule}/handler.rs
-- HTML berada di src/module/{NamaModule}/page_{NamaHalaman}.html
+- Router berada di src/module/{nama_module}/mod.rs 
+- Handler berada di src/module/{nama_module}/handler.rs
+- HTML berada di src/module/{nama_module}/page_{nama_halaman}.html
 
 ## Alias yang WAJIB digunakan
 ```rust
@@ -39,7 +39,9 @@ Referensi tipe:
 - Tangani semua error database — tidak boleh ada `.unwrap()` pada operasi fallible
 - Boleh `.unwrap()` hanya pada nilai yang dijamin tidak None/Err (contoh: nilai literal)
 - Dilarang menggunakan `anyhow`, `Box<dyn Error>`, atau `unwrap()` sembarangan
+- Gunakan `pub struct` untuk membuat struct baru
 - Handler tidak boleh mengandung string HTML
+- Jika ada halaman yang membutuhkan auth, redirect ke `/auth/login`
 
 Format response error:
 ```rust
@@ -66,15 +68,15 @@ Gunakan macro `auth!` untuk guard autentikasi pada halaman Login Required:
 ```rust
 let user_id = auth!(session);
 ```
-Macro ini akan otomatis return `401 Unauthorized` jika session tidak valid. Setelah baris ini, `user_id` bertipe `Int` dan dijamin terisi.
-Jangan gunakan `session.get::<Int>("user_id")` manual jika halaman berstatus Login Required — gunakan `auth!(session)`.
+Macro ini akan me-return `user_id` bertipe `UInt` jika user atau `None` jika bukan user.
+Jangan gunakan `session.get::<UInt>("user_id")` manual jika halaman berstatus Login Required — gunakan `auth!(session)`.
 
 
 ## Aturan Router
 - Terdapat `pub mod handler;`
 - Tambahkan fungsi `open_routes(cfg: &mut ServiceConfig)` untuk daftar route tanpa auth
-- Tambahkan fungsi `gate_routes(cfg: &mut ServiceConfig)` untuk daftar route dengan auth
-- Gate routes memiliki prefix atau scope `/gate`, jadi di akses harus memiliki awalan `/gate`
+- Tambahkan fungsi `gate_routes(cfg: &mut ServiceConfig)` untuk daftar route dengan auth, gunakan hanya untuk API, jangan gunakan untuk halaman
+- Gate routes sudah memiliki prefix atau scope `/gate` di main.rs, setiap diakses harus memiliki awalan `/gate`
 - Gunakan `cfg.service()` dan `scope("/url_utama"))` untuk menambahkan route
 - Jangan tambahkan route diluar url_utama
 
@@ -85,6 +87,11 @@ Jangan gunakan `session.get::<Int>("user_id")` manual jika halaman berstatus Log
 - Petite-Vue untuk state lokal dan interaktivitas, kosongkan v-scope, taruh logika di createApp()
 - Fetch API untuk komunikasi dengan backend
 - Mobile friendly
+
+
+## Aturan Database
+- Untuk id gunakan UNSIGNED INTEGER
+- Gunakan struktur yang efisien dan cepat untuk penggunaan data besar
 
 
 ## Desain

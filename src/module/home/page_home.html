@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sapi-rs — Prototype at Warp Speed</title>
+    <title>CONGOK-rs — Prototype at Warp Speed</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -94,8 +94,8 @@
     >
         <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
             <a href="/" class="flex items-center gap-2 font-display font-700 text-lg">
-                <span class="inline-flex items-center justify-center w-7 h-7 rounded bg-accent text-white text-xs font-mono font-bold">S</span>
-                <span class="text-text-primary">Sapi<span class="text-accent">-rs</span></span>
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded bg-accent text-white text-xs font-mono font-bold">C</span>
+                <span class="text-text-primary">CONGOK<span class="text-accent">-rs</span></span>
             </a>
 
             <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-text-muted">
@@ -150,7 +150,7 @@
                     </h1>
 
                     <p class="text-text-muted text-base sm:text-lg max-w-md leading-relaxed">
-                        Sapi-rs adalah opinionated web framework layer di atas Actix Web — simple untuk prototyping cepat, kencang untuk production. Dilengkapi prompt generator bawaan agar setiap module baru bisa dibuat dalam hitungan detik.
+                        CONGOK-rs adalah opinionated web framework di atas Actix Web yang dirancang untuk pengembangan cepat dan siap untuk production. Dilengkapi prompt generator bawaan, module baru dapat dibuat dalam hitungan detik dengan struktur yang konsisten.
                     </p>
 
                     <div class="flex flex-col sm:flex-row gap-3 pt-1">
@@ -225,7 +225,7 @@
         <section id="features" class="py-24 px-4 sm:px-6 border-t border-border/50">
             <div class="max-w-6xl mx-auto">
                 <div class="text-center mb-16 space-y-3">
-                    <p class="font-mono text-xs text-accent uppercase tracking-widest">Kenapa Sapi-rs</p>
+                    <p class="font-mono text-xs text-accent uppercase tracking-widest">Kenapa CONGOK-rs</p>
                     <h2 class="font-display font-bold text-3xl sm:text-4xl text-text-primary">Semua yang kamu butuhkan,<br/>tanpa yang tidak kamu butuhkan.</h2>
                     <p class="text-text-muted max-w-xl mx-auto text-sm leading-relaxed">Setiap layer dipilih dengan satu prinsip: tulis sedikit, jalankan cepat, ubah mudah.</p>
                 </div>
@@ -237,7 +237,7 @@
                         </div>
                         <div>
                             <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Modular Routing</h3>
-                            <p class="text-text-muted text-sm leading-relaxed">Setiap fitur punya folder <code class="font-mono text-xs text-accent-glow bg-surface-2 px-1.5 py-0.5 rounded">src/module/{NamaModule}/</code> sendiri. Route terdaftar lewat <code class="font-mono text-xs text-accent-glow bg-surface-2 px-1.5 py-0.5 rounded">open_routes</code> dan <code class="font-mono text-xs text-accent-glow bg-surface-2 px-1.5 py-0.5 rounded">gate_routes</code>.</p>
+                            <p class="text-text-muted text-sm leading-relaxed">Setiap fitur punya folder <code class="font-mono text-xs text-accent-glow bg-surface-2 px-1.5 py-0.5 rounded">src/module/{nama_module}/</code> sendiri. Route terdaftar lewat <code class="font-mono text-xs text-accent-glow bg-surface-2 px-1.5 py-0.5 rounded">open_routes</code> dan <code class="font-mono text-xs text-accent-glow bg-surface-2 px-1.5 py-0.5 rounded">gate_routes</code>.</p>
                         </div>
                     </div>
 
@@ -267,7 +267,7 @@
                         </div>
                         <div>
                             <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Server-Side HTML</h3>
-                            <p class="text-text-muted text-sm leading-relaxed">HTML murni di dalam folder module masing-masing. Tidak ada template engine baru — gunakan Petite-Vue untuk interaktivitas ringan.</p>
+                            <p class="text-text-muted text-sm leading-relaxed">HTML murni di dalam folder module masing-masing. Tidak ada template engine baru atau gunakan Petite-Vue untuk interaktivitas ringan.</p>
                         </div>
                     </div>
 
@@ -277,7 +277,7 @@
                         </div>
                         <div>
                             <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">bcrypt Password Hash</h3>
-                            <p class="text-text-muted text-sm leading-relaxed">Password hashing dengan bcrypt sudah tersedia out-of-the-box. Tidak ada setup tambahan — keamanan default yang benar.</p>
+                            <p class="text-text-muted text-sm leading-relaxed">Password hashing dengan bcrypt sudah tersedia out-of-the-box. Tidak ada setup tambahan yang perlu dilakukan.</p>
                         </div>
                     </div>
 
@@ -474,7 +474,7 @@
                             <label class="text-xs font-medium text-text-muted uppercase tracking-wide">Nama Module / Halaman</label>
                             <input v-model="namaModuleHalaman" type="text" placeholder="contoh: Product, OrderHistory, AdminUser"
                                 class="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-text-primary text-sm placeholder-text-muted/50 focus:outline-none focus:border-accent/60 transition-colors font-mono" />
-                            <p class="text-xs text-text-muted">PascalCase — dipakai sebagai nama folder <code class="font-mono">src/module/{NamaModule}/</code></p>
+                            <p class="text-xs text-text-muted">snake_case — dipakai sebagai nama folder <code class="font-mono">src/module/{nama_module}/</code></p>
                         </div>
 
                         <div class="space-y-1.5">
@@ -581,11 +581,11 @@
     <footer class="border-t border-border/50 py-8 px-4 sm:px-6">
         <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-text-muted">
             <div class="flex items-center gap-2 font-display font-medium">
-                <span class="inline-flex items-center justify-center w-6 h-6 rounded bg-accent text-white text-[10px] font-mono font-bold">S</span>
-                Sapi-rs
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded bg-accent text-white text-[10px] font-mono font-bold">C</span>
+                CONGOK-rs
             </div>
             <p class="font-mono text-xs">Built with Actix Web · SQLx · Tailwind CSS</p>
-            <p class="text-xs">© 2025 Sapi-rs. Prototype fast. Ship faster.</p>
+            <p class="text-xs">© 2025 CONGOK-rs. Prototype fast. Ship faster.</p>
         </div>
     </footer>
 
@@ -638,12 +638,11 @@
                         "- Password Hash: bcrypt",
                         "- Routing dilakukan di main.rs menggunakan .route()",
                         "- Menggunakan sistem modular",
-                        "- Router berada di src/module/{NamaModule}/mod.rs",
-                        "- Handler berada di src/module/{NamaModule}/handler.rs",
-                        "- HTML berada di src/module/{NamaModule}/page_{NamaHalaman}.html",
+                        "- Router berada di src/module/{nama_module}/mod.rs",
+                        "- Handler berada di src/module/{nama_module}/handler.rs",
+                        "- HTML berada di src/module/{nama_module}/page_{nama_halaman}.html",
                         "",
                         "## Alias yang WAJIB digunakan",
-                        "",
                         "```rust",
                         "use crate::web::{Pool, Session, Cookie, Request, Response, ApiResponse};",
                         "use crate::web::from::{Data, Path, Json, Form};",
@@ -662,7 +661,6 @@
                         "- `Date`     = `chrono::DateTime<Utc>`",
                         "",
                         "## Aturan Handler",
-                        "",
                         "- Return type wajib `Response`",
                         "- Gunakan `Pool` untuk query database",
                         "- Gunakan `Session` untuk autentikasi",
@@ -672,7 +670,9 @@
                         "- Tangani semua error database — tidak boleh ada `.unwrap()` pada operasi fallible",
                         "- Boleh `.unwrap()` hanya pada nilai yang dijamin tidak None/Err (contoh: nilai literal)",
                         "- Dilarang menggunakan `anyhow`, `Box<dyn Error>`, atau `unwrap()` sembarangan",
+                        "- Gunakan `pub struct` untuk membuat struct baru",
                         "- Handler tidak boleh mengandung string HTML",
+                        "- Jika ada halaman yang membutuhkan auth, redirect ke `/auth/login`",
                         "",
                         "Format response error:",
                         "```rust",
@@ -695,44 +695,44 @@
                         "```",
                         "",
                         "## Macro yang Tersedia",
-                        "",
                         "Gunakan macro `auth!` untuk guard autentikasi pada halaman Login Required:",
-                        "",
                         "```rust",
                         "let user_id = auth!(session);",
                         "```",
-                        "",
-                        "Macro ini akan otomatis return `401 Unauthorized` jika session tidak valid. Setelah baris ini, `user_id` bertipe `Int` dan dijamin terisi.",
-                        "Jangan gunakan `session.get::<Int>(\"user_id\")` manual jika halaman berstatus Login Required — gunakan `auth!(session)`.",
+                        "Macro ini akan me-return `user_id` bertipe `UInt` jika user atau `None` jika bukan user.",
+                        "Jangan gunakan `session.get::<UInt>(\"user_id\")` manual jika halaman berstatus Login Required — gunakan `auth!(session)`.",
                         "",
                         "",
                         "## Aturan Router",
-                        "",
                         "- Terdapat `pub mod handler;`",
                         "- Tambahkan fungsi `open_routes(cfg: &mut ServiceConfig)` untuk daftar route tanpa auth",
-                        "- Tambahkan fungsi `gate_routes(cfg: &mut ServiceConfig)` untuk daftar route dengan auth",
-                        "- Gate routes memiliki prefix atau scope `/gate`, jadi di akses harus memiliki awalan `/gate`",
+                        "- Tambahkan fungsi `gate_routes(cfg: &mut ServiceConfig)` untuk daftar route dengan auth, gunakan hanya untuk API, jangan gunakan untuk halaman",
+                        "- Gate routes sudah memiliki prefix atau scope `/gate` di main.rs, setiap diakses harus memiliki awalan `/gate`",
                         "- Gunakan `cfg.service()` dan `scope(\"/url_utama\"))` untuk menambahkan route",
                         "- Jangan tambahkan route diluar url_utama",
                         "",
                         "",
                         "## Aturan HTML",
-                        "",
                         "- HTML dan Petite-Vue, tidak ada kode Rust di dalamnya",
                         "- Tailwind CSS (utility-first, tanpa custom CSS)",
                         "- Petite-Vue untuk state lokal dan interaktivitas, kosongkan v-scope, taruh logika di createApp()",
                         "- Fetch API untuk komunikasi dengan backend",
                         "- Mobile friendly",
                         "",
-                        "## Desain",
                         "",
+                        "## Aturan Database",
+                        "- Untuk id gunakan UNSIGNED INTEGER",
+                        "- Gunakan struktur yang efisien dan cepat untuk penggunaan data besar",
+                        "",
+                        "",
+                        "## Desain",
                         "- Modern, minimalis, profesional",
                         "- Responsive (mobile-first)",
                         "- Tailwind utility-first",
                         "- Tidak ada framework CSS tambahan",
                         "",
-                        "## Output yang harus dihasilkan",
                         "",
+                        "## Output yang harus dihasilkan",
                         "Berikan output dalam urutan berikut:",
                         "1. **SQL** — struktur tabel jika diperlukan",
                         "2. **Route** — file lengkap mod.rs",

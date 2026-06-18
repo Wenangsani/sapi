@@ -1,5 +1,5 @@
 use crate::web::{Pool, Session, Response, ApiResponse};
-use crate::web::data::{Int, String, Date};
+use crate::web::data::{UInt, String, Date};
 use crate::web::from::Json;
 use bcrypt::{hash, verify, DEFAULT_COST};
 use serde_json::json;
@@ -14,7 +14,7 @@ pub struct LoginData {
 
 #[derive(Serialize, FromRow)]
 pub struct UserRow {
-    pub id: Int,
+    pub id: UInt,
     pub username: String,
     pub password: String,
     pub created_at: Date,
@@ -165,7 +165,7 @@ pub async fn register(pool: Pool, data: Json<LoginData>, session: Session) -> Re
         }),
     };
 
-    let new_id = inserted.last_insert_id() as Int;
+    let new_id = inserted.last_insert_id() as UInt;
 
     if session.insert("user_id", new_id).is_err() {
         return Response::InternalServerError().json(ApiResponse {

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detail Thread - Forum</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: {
+            50: '#fff7ed',
+            100: '#ffedd5',
+            200: '#fed7aa',
+            300: '#fdba74',
+            400: '#fb923c',
+            500: '#f97316',
+            600: '#ea580c',
+            700: '#c2410c',
+            800: '#9a3412',
+            900: '#7c2d12',
+          }
+        }
+      }
+    }
+  }
+</script>
+</head>
+<body class="bg-orange-50 min-h-screen text-slate-800">
+
+<div v-scope>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-20 bg-white border-b border-orange-100 shadow-sm">
+    <div class="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
+      <a href="/forum" class="text-slate-400 hover:text-brand-500 text-lg">←</a>
+      <div class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center text-white font-bold text-sm">F</div>
+      <h1 class="text-base font-bold text-slate-900 tracking-tight">Forum Diskusi</h1>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 py-6">
+
+    <!-- Loading -->
+    <div v-if="loading" class="text-center text-slate-400 py-16 text-sm">
+      Memuat thread...
+    </div>
+
+    <!-- Not found -->
+    <div v-else-if="errorState === 'not_found'" class="text-center bg-white rounded-xl border border-orange-100 py-16">
+      <p class="text-3xl mb-2">🔍</p>
+      <p class="text-slate-500 text-sm">Thread tidak ditemukan.</p>
+      <a href="/forum" class="inline-block mt-4 text-brand-600 font-semibold text-sm">Kembali ke Forum</a>
+    </div>
+
+    <!-- Perlu login -->
+    <div v-else-if="errorState === 'need_login'" class="text-center bg-white rounded-xl border border-orange-100 py-16">
+      <p class="text-3xl mb-2">👤</p>
+      <p class="text-slate-700 font-medium text-sm">Thread ini hanya untuk anggota yang sudah login.</p>
+      <a href="/auth/login" class="inline-block mt-4 bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm px-4 py-2 rounded-lg">Login Sekarang</a>
+    </div>
+
+    <!-- Perlu password -->
+    <div v-else-if="errorState === 'need_password' || errorState === 'need_login_for_password'" class="text-center bg-white rounded-xl border border-orange-100 py-16 px-6">
+      <p class="text-3xl mb-2">🔒</p>
+      <p class="text-slate-700 font-medium text-sm mb-4">Thread ini dilindungi password.</p>
+
+      <div v-if="errorState === 'need_login_for_password'">
+        <a href="/auth/login" class="inline-block bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm px-4 py-2 rounded-lg">Login untuk Membuka</a>
+      </div>
+
+      <div v-else class="max-w-xs mx-auto">
+        <input
+          v-model="unlockPassword"
+          @keyup.enter="submitUnlock()"
+          type="password"
+          placeholder="Masukkan password thread"
+          class="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-brand-400 mb-2">
+        <p v-if="unlockError" class="text-red-500 text-xs mb-2">{{ unlockError }}</p>
+        <button
+          @click="submitUnlock()"
+          :disabled="unlocking"
+          class="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white font-semibold text-sm py-2 rounded-lg">
+          {{ unlocking ? 'Memeriksa...' : 'Buka Thread' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Konten Thread -->
+    <div v-else-if="thread">
+      <div class="bg-white rounded-xl border border-orange-100 p-5 mb-4">
+        <span class="text-xs font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
+          {{ accessIcon(thread.access_type) }} {{ accessLabel(thread.access_type) }}
+        </span>
+        <h1 class="text-xl font-bold text-slate-900 mt-2">{{ thread.title }}</h1>
+        <p class="text-xs text-slate-500 mt-1">
+          oleh <span class="font-medium text-slate-700">{{ thread.author_name }}</span> · {{ formatDate(thread.created_at) }}
+        </p>
+        <p class="text-sm text-slate-700 mt-4 whitespace-pre-wrap leading-relaxed">{{ thread.content }}</p>
+
+        <div class="flex items-center gap-4 mt-5 pt-4 border-t border-orange-100 text-xs text-slate-400">
+          <span>👁️ {{ thread.view_count }} dilihat</span>
+          <span>💬 {{ thread.reply_count }} balasan</span>
+        </div>
+      </div>
+
+      <!-- Daftar Reply -->
+      <div class="mb-4">
+        <h2 class="text-sm font-bold text-slate-900 mb-3">Balasan ({{ replies.length }})</h2>
+
+        <div v-if="repliesLoading" class="text-center text-slate-400 py-8 text-sm">
+          Memuat balasan...
+        </div>
+
+        <div v-else-if="replies.length === 0" class="text-center bg-white rounded-xl border border-orange-100 py-10">
+          <p class="text-slate-400 text-sm">Belum ada balasan. Jadilah yang pertama membalas!</p>
+        </div>
+
+        <div v-else class="space-y-3">
+          <div v-for="reply in replies" :key="reply.id" class="bg-white rounded-xl border border-orange-100 p-4">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-sm text-slate-800">{{ reply.author_name }}</span>
+              <span class="text-xs text-slate-400">{{ formatDate(reply.created_at) }}</span>
+            </div>
+            <p class="text-sm text-slate-700 mt-2 whitespace-pre-wrap leading-relaxed">{{ reply.content }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Reply -->
+      <div class="bg-white rounded-xl border border-orange-100 p-4">
+        <h2 class="text-sm font-bold text-slate-900 mb-2">Tulis Balasan</h2>
+        <p v-if="replyError" class="text-red-500 text-xs mb-2">{{ replyError }}</p>
+        <textarea
+          v-model="replyContent"
+          rows="3"
+          placeholder="Tulis balasan Anda..."
+          class="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 mb-2"></textarea>
+        <button
+          @click="submitReply()"
+          :disabled="submittingReply"
+          class="bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white font-semibold text-sm px-4 py-2 rounded-lg">
+          {{ submittingReply ? 'Mengirim...' : 'Kirim Balasan' }}
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+  const { createApp } = PetiteVue;
+
+  function getThreadIdFromUrl() {
+    const parts = window.location.pathname.split('/').filter(Boolean);
+    return parts[parts.length - 1];
+  }
+
+  const threadApp = {
+    threadId: getThreadIdFromUrl(),
+    thread: null,
+    replies: [],
+    loading: true,
+    repliesLoading: true,
+    errorState: '', // '', 'not_found', 'need_login', 'need_password', 'need_login_for_password'
+    unlockPassword: '',
+    unlockError: '',
+    unlocking: false,
+    replyContent: '',
+    replyError: '',
+    submittingReply: false,
+
+    accessLabel(type) {
+      if (type === 'public') return 'Publik';
+      if (type === 'user') return 'Khusus Anggota';
+      if (type === 'password') return 'Terkunci';
+      return type;
+    },
+
+    accessIcon(type) {
+      if (type === 'user') return '👤';
+      if (type === 'password') return '🔒';
+      return '🌐';
+    },
+
+    formatDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    },
+
+    async loadThread() {
+      this.loading = true;
+      try {
+        const res = await fetch('/forum/api/threads/' + this.threadId);
+        const json = await res.json();
+
+        if (json.success) {
+          this.thread = json.data.thread;
+          this.errorState = '';
+          this.loadReplies();
+        } else if (json.message === 'thread_tidak_ditemukan') {
+          this.errorState = 'not_found';
+        } else if (json.message === 'thread_ini_hanya_untuk_user_login') {
+          this.errorState = 'need_login';
+        } else if (json.message === 'thread_ini_dilindungi_password') {
+          this.errorState = res.status === 401 ? 'need_login_for_password' : 'need_password';
+        } else {
+          this.errorState = 'not_found';
+        }
+      } catch (e) {
+        this.errorState = 'not_found';
+      }
+      this.loading = false;
+    },
+
+    async submitUnlock() {
+      this.unlockError = '';
+      if (!this.unlockPassword.trim()) {
+        this.unlockError = 'Password wajib diisi.';
+        return;
+      }
+      this.unlocking = true;
+      try {
+        const res = await fetch('/forum/api/threads/' + this.threadId + '/unlock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: this.unlockPassword })
+        });
+        const json = await res.json();
+        if (json.success) {
+          this.unlockPassword = '';
+          this.loadThread();
+        } else {
+          this.unlockError = json.message === 'password_salah' ? 'Password salah.' : json.message;
+        }
+      } catch (e) {
+        this.unlockError = 'Terjadi kesalahan, silakan coba lagi.';
+      }
+      this.unlocking = false;
+    },
+
+    async loadReplies() {
+      this.repliesLoading = true;
+      try {
+        const res = await fetch('/forum/api/threads/' + this.threadId + '/replies');
+        const json = await res.json();
+        if (json.success) this.replies = json.data.replies;
+      } catch (e) {}
+      this.repliesLoading = false;
+    },
+
+    async submitReply() {
+      this.replyError = '';
+      if (!this.replyContent.trim()) {
+        this.replyError = 'Balasan tidak boleh kosong.';
+        return;
+      }
+      this.submittingReply = true;
+      try {
+        const res = await fetch('/forum/api/threads/' + this.threadId + '/replies', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: this.replyContent })
+        });
+        const json = await res.json();
+        if (json.success) {
+          this.replyContent = '';
+          this.loadReplies();
+          if (this.thread) this.thread.reply_count += 1;
+        } else {
+          this.replyError = json.message === 'harus_login_terlebih_dahulu'
+            ? 'Anda harus login untuk membalas.'
+            : json.message;
+        }
+      } catch (e) {
+        this.replyError = 'Terjadi kesalahan, silakan coba lagi.';
+      }
+      this.submittingReply = false;
+    },
+  };
+
+  createApp(threadApp).mount();
+  threadApp.loadThread();
+</script>
+
+</body>
+</html>

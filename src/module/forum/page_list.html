@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forum</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: {
+            50: '#fff7ed',
+            100: '#ffedd5',
+            200: '#fed7aa',
+            300: '#fdba74',
+            400: '#fb923c',
+            500: '#f97316',
+            600: '#ea580c',
+            700: '#c2410c',
+            800: '#9a3412',
+            900: '#7c2d12',
+          }
+        }
+      }
+    }
+  }
+</script>
+</head>
+<body class="bg-orange-50 min-h-screen text-slate-800">
+
+<div v-scope>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-20 bg-white border-b border-orange-100 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-lg bg-brand-500 flex items-center justify-center text-white font-bold text-lg">F</div>
+        <h1 class="text-lg font-bold text-slate-900 tracking-tight">Forum Diskusi</h1>
+      </div>
+      <button
+        @click="openCreateModal()"
+        class="bg-brand-500 hover:bg-brand-600 active:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm whitespace-nowrap">
+        + Buat Thread
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-6">
+    <!-- Search -->
+    <div class="mb-5">
+      <div class="relative">
+        <input
+          v-model="search"
+          @keyup.enter="onSearch()"
+          type="text"
+          placeholder="Cari thread..."
+          class="w-full bg-white border border-orange-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400">
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400">🔍</span>
+        <button
+          @click="onSearch()"
+          class="absolute right-2 top-1/2 -translate-y-1/2 bg-brand-500 hover:bg-brand-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg">
+          Cari
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
+
+      <!-- Sidebar Tag (desktop: kolom kiri, mobile: di atas, horizontal scroll) -->
+      <aside class="order-1">
+        <div class="bg-white rounded-xl border border-orange-100 p-4 lg:sticky lg:top-24">
+          <h2 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-1.5">
+            <span class="text-brand-500">#</span> Tag
+          </h2>
+
+          <!-- Mobile: scroll horizontal -->
+          <div class="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-1">
+            <button
+              @click="selectTag('')"
+              :class="activeTag === '' ? 'bg-brand-500 text-white' : 'bg-orange-50 text-slate-700 hover:bg-orange-100'"
+              class="shrink-0 text-left text-sm font-medium px-3 py-2 rounded-lg transition-colors whitespace-nowrap lg:whitespace-normal">
+              Semua Thread
+            </button>
+            <button
+              v-for="tag in tags"
+              :key="tag.id"
+              @click="selectTag(tag.slug)"
+              :class="activeTag === tag.slug ? 'bg-brand-500 text-white' : 'bg-orange-50 text-slate-700 hover:bg-orange-100'"
+              class="shrink-0 text-left text-sm font-medium px-3 py-2 rounded-lg transition-colors flex items-center justify-between gap-2 whitespace-nowrap lg:whitespace-normal">
+              <span>{{ tag.name }}</span>
+              <span :class="activeTag === tag.slug ? 'bg-white/20' : 'bg-orange-200 text-orange-700'" class="text-xs px-1.5 py-0.5 rounded-full">{{ tag.thread_count }}</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Thread List -->
+      <section class="order-2">
+        <div v-if="loading" class="text-center text-slate-400 py-16 text-sm">
+          Memuat thread...
+        </div>
+
+        <div v-else-if="threads.length === 0" class="text-center bg-white rounded-xl border border-orange-100 py-16">
+          <p class="text-3xl mb-2">🗒️</p>
+          <p class="text-slate-500 text-sm">Belum ada thread yang cocok. Jadilah yang pertama membuat thread!</p>
+        </div>
+
+        <div v-else class="space-y-3">
+          <a
+            v-for="thread in threads"
+            :key="thread.id"
+            :href="'/forum/' + thread.id"
+            class="block bg-white rounded-xl border border-orange-100 hover:border-brand-300 hover:shadow-md transition-all p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-xs font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
+                    {{ accessIcon(thread.access_type) }} {{ accessLabel(thread.access_type) }}
+                  </span>
+                </div>
+                <h3 class="font-bold text-slate-900 truncate">{{ thread.title }}</h3>
+                <p class="text-xs text-slate-500 mt-1">
+                  oleh <span class="font-medium text-slate-700">{{ thread.author_name }}</span> · {{ formatDate(thread.created_at) }}
+                </p>
+
+                <div v-if="thread.tags" class="flex flex-wrap gap-1.5 mt-2">
+                  <span v-for="t in parseTags(thread.tags)" :key="t" class="text-xs bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full">
+                    #{{ t }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="flex flex-col items-end gap-1 text-xs text-slate-400 shrink-0">
+                <span>👁️ {{ thread.view_count }}</span>
+                <span>💬 {{ thread.reply_count }}</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Modal Buat Thread -->
+  <div v-if="showCreateModal" class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-30" @click.self="showCreateModal = false">
+    <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-slate-900">Buat Thread Baru</h2>
+        <button @click="showCreateModal = false" class="text-slate-400 hover:text-slate-600 text-xl leading-none">×</button>
+      </div>
+
+      <div v-if="createError" class="bg-red-50 text-red-600 text-sm rounded-lg px-3 py-2 mb-4">
+        {{ createError }}
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Judul</label>
+          <input v-model="createForm.title" type="text" class="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" placeholder="Judul thread">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Isi</label>
+          <textarea v-model="createForm.content" rows="5" class="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" placeholder="Tulis isi thread..."></textarea>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Tag (pisahkan dengan koma)</label>
+          <input v-model="createForm.tagsInput" type="text" class="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" placeholder="contoh: rust, web, tutorial">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Hak Akses</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button
+              @click="createForm.access_type = 'public'"
+              :class="createForm.access_type === 'public' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-orange-200 text-slate-600'"
+              class="border rounded-lg py-2 text-xs font-medium">
+              🌐 Publik
+            </button>
+            <button
+              @click="createForm.access_type = 'user'"
+              :class="createForm.access_type === 'user' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-orange-200 text-slate-600'"
+              class="border rounded-lg py-2 text-xs font-medium">
+              👤 Anggota
+            </button>
+            <button
+              @click="createForm.access_type = 'password'"
+              :class="createForm.access_type === 'password' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-orange-200 text-slate-600'"
+              class="border rounded-lg py-2 text-xs font-medium">
+              🔒 Password
+            </button>
+          </div>
+        </div>
+
+        <div v-if="createForm.access_type === 'password'">
+          <label class="block text-sm font-medium text-slate-700 mb-1">Password Thread</label>
+          <input v-model="createForm.access_password" type="password" class="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" placeholder="Buat password untuk thread ini">
+        </div>
+
+        <button
+          @click="submitCreate()"
+          :disabled="creating"
+          class="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white font-semibold py-2.5 rounded-lg transition-colors">
+          {{ creating ? 'Menyimpan...' : 'Buat Thread' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const { createApp } = PetiteVue;
+
+  const forumApp = {
+    tags: [],
+    threads: [],
+    activeTag: '',
+    search: '',
+    page: 1,
+    limit: 20,
+    loading: true,
+    showCreateModal: false,
+    creating: false,
+    createForm: { title: '', content: '', access_type: 'public', access_password: '', tagsInput: '' },
+    createError: '',
+
+    async loadTags() {
+      try {
+        const res = await fetch('/forum/api/tags');
+        const json = await res.json();
+        if (json.success) this.tags = json.data.tags;
+      } catch (e) {}
+    },
+
+    async loadThreads() {
+      this.loading = true;
+      try {
+        const params = new URLSearchParams();
+        if (this.activeTag) params.set('tag', this.activeTag);
+        if (this.search) params.set('search', this.search);
+        params.set('page', this.page);
+        params.set('limit', this.limit);
+        const res = await fetch('/forum/api/threads?' + params.toString());
+        const json = await res.json();
+        if (json.success) this.threads = json.data.threads;
+      } catch (e) {}
+      this.loading = false;
+    },
+
+    selectTag(slug) {
+      this.activeTag = this.activeTag === slug ? '' : slug;
+      this.page = 1;
+      this.loadThreads();
+    },
+
+    onSearch() {
+      this.page = 1;
+      this.loadThreads();
+    },
+
+    parseTags(tagsStr) {
+      if (!tagsStr) return [];
+      return tagsStr.split(',').filter(Boolean);
+    },
+
+    accessLabel(type) {
+      if (type === 'public') return 'Publik';
+      if (type === 'user') return 'Khusus Anggota';
+      if (type === 'password') return 'Terkunci';
+      return type;
+    },
+
+    accessIcon(type) {
+      if (type === 'user') return '👤';
+      if (type === 'password') return '🔒';
+      return '🌐';
+    },
+
+    formatDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    },
+
+    openCreateModal() {
+      this.createError = '';
+      this.createForm = { title: '', content: '', access_type: 'public', access_password: '', tagsInput: '' };
+      this.showCreateModal = true;
+    },
+
+    async submitCreate() {
+      this.createError = '';
+      if (!this.createForm.title.trim() || !this.createForm.content.trim()) {
+        this.createError = 'Judul dan isi thread wajib diisi.';
+        return;
+      }
+      if (this.createForm.access_type === 'password' && !this.createForm.access_password.trim()) {
+        this.createError = 'Password wajib diisi untuk thread terkunci.';
+        return;
+      }
+      this.creating = true;
+      try {
+        const tagsArr = this.createForm.tagsInput
+          .split(',')
+          .map(t => t.trim())
+          .filter(Boolean);
+
+        const res = await fetch('/forum/api/threads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: this.createForm.title,
+            content: this.createForm.content,
+            access_type: this.createForm.access_type,
+            access_password: this.createForm.access_type === 'password' ? this.createForm.access_password : null,
+            tags: tagsArr
+          })
+        });
+        const json = await res.json();
+        if (json.success) {
+          this.showCreateModal = false;
+          window.location.href = '/forum/' + json.data.id;
+        } else {
+          this.createError = json.message === 'harus_login_terlebih_dahulu'
+            ? 'Anda harus login untuk membuat thread.'
+            : json.message;
+        }
+      } catch (e) {
+        this.createError = 'Terjadi kesalahan, silakan coba lagi.';
+      }
+      this.creating = false;
+    },
+
+  };
+
+  const app = PetiteVue.createApp(forumApp).mount();
+  forumApp.loadTags();
+  forumApp.loadThreads();
+</script>
+
+</body>
+</html>

@@ -6,7 +6,7 @@ use actix_session::SessionExt;
 use futures_util::future::{ ok, Ready, LocalBoxFuture };
 use std::rc::Rc;
 use crate::web::{ ApiResponse };
-use crate::web::data::Int;
+use crate::web::data::UInt;
 
 // ── Transform (factory) ──────────────────────────────────────────────────────
 
@@ -51,7 +51,7 @@ where
         Box::pin(async move {
             let session = req.get_session();
 
-            let authenticated = session.get::<Int>("user_id")
+            let authenticated = session.get::<UInt>("user_id")
                 .unwrap_or(None)
                 .is_some();
 
