@@ -14,7 +14,7 @@ actix-session = { version = "0.11.0", features = ["cookie-session"] }
 actix-cors = "0.7.1"
 actix-ws = "0.2.5"
 actix-rt = "2.9.0"
-anyhow = "1.0.82"
+actix-governor = "0.3"
 
 # database
 sqlx = { version = "0.9.0", default-features = false, features = [
@@ -43,6 +43,6 @@ futures-util = "0.3.28"
 rand = "0.8.5"
 bcrypt = "0.15"
 dotenvy = "0.15"
-
+anyhow = "1.0.82"
 tokio-stream = { version = "0.1", features = ["sync"] }
 tokio = { version = "1", features = ["full"] }

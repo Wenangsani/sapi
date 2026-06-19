@@ -4,6 +4,8 @@ extern crate serde;
 extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
+
+// Custom macros
 #[macro_use]
 mod macros;
 
@@ -18,9 +20,10 @@ pub mod module;
 
 // Imports
 use actix_web::{ web::{ get, post, route, scope, Data }, App, HttpServer, cookie::Key, cookie::SameSite };
+use actix_session::{ SessionMiddleware, storage::CookieSessionStore };
+use actix_governor::{Governor, GovernorConfigBuilder};
 use crate::socketsession::{ Usession, UsessionInner };
 use crate::ssesession::SseSession; 
-use actix_session::{ SessionMiddleware, storage::CookieSessionStore };
 use actix_cors::Cors;
 use dotenvy::dotenv;
 use std::env;
@@ -31,7 +34,7 @@ async fn main() -> Result<(), anyhow::Error> {
     // Load the .env file
     dotenv().ok();
 
-    // Read environment variables
+    // Environment variables
     let host = env::var("HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
     let port: u16 = env::var("PORT").unwrap_or_else(|_| "8080".to_string()).parse().unwrap();
     let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "mysql://dbuser:dbpassword@127.0.0.1:3306/dbname".into());
@@ -40,10 +43,20 @@ async fn main() -> Result<(), anyhow::Error> {
     // DataBase connection pool
     let pool = sqlx::MySqlPool::connect(&database_url).await?;
 
-    // Socket and SSE session management
+    // Socket session management
     let socketlist = Usession::new();
+
+    // SSE session management
     let sselist    = SseSession::new();
 
+    // Rate limiter Allow 100 requests per 10-second window per peer
+    let governor_conf = GovernorConfigBuilder::default()
+        .per_second(10)
+        .burst_size(100)
+        .finish()
+        .unwrap();
+
+    // Secret key for session middleware
     let secret_key = Key::from(secret_str.as_bytes());
 
     HttpServer::new(move || {
@@ -63,6 +76,8 @@ async fn main() -> Result<(), anyhow::Error> {
             .supports_credentials();     // wajib agar cookie dikirim cross-origin
 
         App::new()
+            // Attach the rate governor as middleware
+            .wrap(Governor::new(&governor_conf))
             .wrap(cors)
             .wrap(session_mw)
 
