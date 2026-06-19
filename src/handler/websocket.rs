@@ -1,11 +1,9 @@
-use actix_web::{ middleware::Logger, web, App, Error, HttpRequest, HttpResponse, HttpServer };
+use actix_web::{ web, Error, HttpRequest, HttpResponse };
 use actix_ws::{ Message, Session, MessageStream };
 
 use crate::web::from::Data;
-use crate::appstate::Appstate;
-use crate::socketsession::{ Usession, UsessionInner };
-use std::sync::{Arc, Mutex};
-use futures::stream::{FuturesUnordered, StreamExt};
+use crate::socketsession::Usession;
+use futures::stream::StreamExt;
 
 pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socketlist: Data<Usession>) {
     println!("Connetted");
@@ -58,9 +56,9 @@ pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socket
 }
 
 // Simple websocket
-pub async fn ws(req: HttpRequest, body: web::Payload, state: Data<Appstate>, socketlist: Data<Usession>) -> Result<HttpResponse, Error> {
+pub async fn ws(req: HttpRequest, body: web::Payload, socketlist: Data<Usession>) -> Result<HttpResponse, Error> {
 
-    let (response, mut session, mut msg_stream) = actix_ws::handle(&req, body)?;
+    let (response, session, msg_stream) = actix_ws::handle(&req, body)?;
 
     socketlist.insert(session.clone()).await;
 

@@ -1,18 +1,17 @@
-use actix_web::{ web, Error };
+use actix_web::Error;
 use crate::web::{ Request, Response };
-use crate::web::from::{ Data, Path, Json };
-use actix_web::rt::time::interval;
+use crate::web::from::{ Data, Json };
+// use actix_web::rt::time::interval;
 use futures::StreamExt;
 use tokio_stream::wrappers::BroadcastStream;
-use std::time::Duration;
+// use std::time::Duration;
 
-use crate::appstate::Appstate;
-use crate::ssesession::{ SseSession, sse_message, sse_event };
+// use crate::appstate::Appstate;
+use crate::ssesession::{ SseSession, sse_message };
 
 /// Handler GET /sse — client browser subscribe di sini
 pub async fn sse(
-    req: Request,
-    state: Data<Appstate>,
+    _req: Request,
     sse_list: Data<SseSession>,
 ) -> Response {
 
@@ -20,7 +19,7 @@ pub async fn sse(
     let rx = sse_list.subscribe();
 
     // Clone untuk dipakai di drop (unsubscribe saat stream selesai)
-    let sse_list_clone = sse_list.clone();
+    let _sse_list_clone = sse_list.clone();
 
     // Ubah broadcast::Receiver menjadi Stream
     let broadcast_stream = BroadcastStream::new(rx)

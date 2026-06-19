@@ -1,6 +1,6 @@
 use actix_ws::Session;
 use futures::stream::{FuturesUnordered, StreamExt};
-use std::sync::{ Arc, Mutex, MutexGuard };
+use std::sync::{ Arc, Mutex };
 
 #[derive(Clone)]
 pub struct Usession {

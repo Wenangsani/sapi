@@ -1,6 +1,6 @@
 pub mod handler;
 
-use actix_web::web::{get, post, ServiceConfig, scope};
+use actix_web::web::{get, ServiceConfig, scope};
 
 pub fn open_routes(cfg: &mut ServiceConfig) {
     cfg.service(

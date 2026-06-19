@@ -22,7 +22,7 @@ pub mod module;
 use actix_web::{ web::{ get, post, route, scope, Data }, App, HttpServer, cookie::Key, cookie::SameSite };
 use actix_session::{ SessionMiddleware, storage::CookieSessionStore };
 use actix_governor::{Governor, GovernorConfigBuilder};
-use crate::socketsession::{ Usession, UsessionInner };
+use crate::socketsession::Usession;
 use crate::ssesession::SseSession; 
 use actix_cors::Cors;
 use dotenvy::dotenv;
