@@ -3,19 +3,19 @@ use futures::stream::{FuturesUnordered, StreamExt};
 use std::sync::{ Arc, Mutex };
 
 #[derive(Clone)]
-pub struct Usession {
-    inner: Arc<Mutex<UsessionInner>>,
+pub struct SocketSession {
+    inner: Arc<Mutex<SocketInner>>,
 }
 
-pub struct UsessionInner {
+pub struct SocketInner {
     sessions: Vec<Session>,
 }
 
-impl Usession {
+impl SocketSession {
     pub fn new() -> Self {
-        Usession {
+        SocketSession {
             inner: Arc::new(
-                Mutex::new(UsessionInner {
+                Mutex::new(SocketInner {
                     sessions: Vec::new(),
                 })
             ),

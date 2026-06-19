@@ -2,10 +2,10 @@ use actix_web::{ web, Error, HttpRequest, HttpResponse };
 use actix_ws::{ Message, Session, MessageStream };
 
 use crate::web::from::Data;
-use crate::socketsession::Usession;
+use crate::socketsession::SocketSession;
 use futures::stream::StreamExt;
 
-pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socketlist: Data<Usession>) {
+pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socketlist: Data<SocketSession>) {
     println!("Connetted");
 
     let close_reason = loop {
@@ -56,7 +56,7 @@ pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socket
 }
 
 // Simple websocket
-pub async fn ws(req: HttpRequest, body: web::Payload, socketlist: Data<Usession>) -> Result<HttpResponse, Error> {
+pub async fn ws(req: HttpRequest, body: web::Payload, socketlist: Data<SocketSession>) -> Result<HttpResponse, Error> {
 
     let (response, session, msg_stream) = actix_ws::handle(&req, body)?;
 

@@ -14,7 +14,7 @@ Buatkan halaman baru untuk aplikasi Rust menggunakan Actix Web dengan struktur b
 ## Alias yang WAJIB digunakan
 ```rust
 use crate::web::{Pool, Session, Cookie, Request, Response, ApiResponse};
-use crate::web::from::{Data, Path, Json, Form};
+use crate::web::from::{Data, Path, Json, Form, Socket, Sse};
 use crate::web::data::{Int, UInt, String, Date};
 ```
 

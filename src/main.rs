@@ -22,7 +22,7 @@ pub mod module;
 use actix_web::{ web::{ get, post, route, scope, Data }, App, HttpServer, cookie::Key, cookie::SameSite };
 use actix_session::{ SessionMiddleware, storage::CookieSessionStore };
 use actix_governor::{Governor, GovernorConfigBuilder};
-use crate::socketsession::Usession;
+use crate::socketsession::SocketSession;
 use crate::ssesession::SseSession; 
 use actix_cors::Cors;
 use dotenvy::dotenv;
@@ -44,7 +44,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let pool = sqlx::MySqlPool::connect(&database_url).await?;
 
     // Socket session management
-    let socketlist = Usession::new();
+    let socketlist = SocketSession::new();
 
     // SSE session management
     let sselist    = SseSession::new();
