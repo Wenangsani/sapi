@@ -139,7 +139,7 @@
                 <div class="space-y-7">
                     <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border text-xs font-mono text-text-muted bg-surface/50">
                         <span class="w-1.5 h-1.5 rounded-full bg-amber animate-pulse"></span>
-                        Actix Web · SQLx · Session-based Auth
+                        Actix Web · SQLx · Petite-Vue · Tailwind CSS
                     </div>
 
                     <h1 class="font-display font-bold leading-[1.1] text-4xl sm:text-5xl lg:text-6xl">
@@ -237,7 +237,7 @@
                         </div>
                         <div>
                             <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Modular Routing</h3>
-                            <p class="text-text-muted text-sm leading-relaxed">Setiap fitur punya folder <code class="font-mono text-xs text-accent-glow bg-surface-2 px-1.5 py-0.5 rounded">src/module/{nama_module}/</code> sendiri. Route terdaftar lewat <code class="font-mono text-xs text-accent-glow bg-surface-2 px-1.5 py-0.5 rounded">open_routes</code> dan <code class="font-mono text-xs text-accent-glow bg-surface-2 px-1.5 py-0.5 rounded">gate_routes</code>.</p>
+                            <p class="text-text-muted text-sm leading-relaxed">Setiap fitur punya folder sendiri. Route terdaftar lewat <code class="font-mono text-xs text-accent-glow bg-surface-2 px-1.5 py-0.5 rounded">mod.rs</code> membuat module lebih mudah ditambahkan dan dimodifikasi.</p>
                         </div>
                     </div>
 
@@ -257,7 +257,7 @@
                         </div>
                         <div>
                             <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Session Auth Bawaan</h3>
-                            <p class="text-text-muted text-sm leading-relaxed">Autentikasi berbasis <code class="font-mono text-xs text-green-400 bg-surface-2 px-1.5 py-0.5 rounded">actix-session</code> sudah terintegrasi. Guard lewat macro <code class="font-mono text-xs text-green-400 bg-surface-2 px-1.5 py-0.5 rounded">auth!</code> — satu baris, dijamin terisi.</p>
+                            <p class="text-text-muted text-sm leading-relaxed">Autentikasi berbasis <code class="font-mono text-xs text-green-400 bg-surface-2 px-1.5 py-0.5 rounded">actix-session</code> sudah terintegrasi. Guard lewat macro memudahkan dalam autentikasi.</p>
                         </div>
                     </div>
 
@@ -267,7 +267,7 @@
                         </div>
                         <div>
                             <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Server-Side HTML</h3>
-                            <p class="text-text-muted text-sm leading-relaxed">HTML murni di dalam folder module masing-masing. Tidak ada template engine baru atau gunakan Petite-Vue untuk interaktivitas ringan.</p>
+                            <p class="text-text-muted text-sm leading-relaxed">HTML murni di dalam folder module masing-masing. Gunakan <code class="font-mono text-xs text-purple-400 bg-surface-2 px-1.5 py-0.5 rounded">Petite-Vue</code> untuk interaktivitas ringan.</p>
                         </div>
                     </div>
 
@@ -276,8 +276,8 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                         </div>
                         <div>
-                            <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">bcrypt Password Hash</h3>
-                            <p class="text-text-muted text-sm leading-relaxed">Password hashing dengan bcrypt sudah tersedia out-of-the-box. Tidak ada setup tambahan yang perlu dilakukan.</p>
+                            <h3 class="font-display font-semibold text-text-primary text-base mb-1.5">Hash &amp; Rate Limiter</h3>
+                            <p class="text-text-muted text-sm leading-relaxed">Hashing dengan <code class="font-mono text-xs text-rose-400 bg-surface-2 px-1.5 py-0.5 rounded">bcrypt</code> dan rate limiter dengan <code class="font-mono text-xs text-rose-400 bg-surface-2 px-1.5 py-0.5 rounded">actix-governor</code> sudah tersedia. Tidak ada setup tambahan yang perlu dilakukan.</p>
                         </div>
                     </div>
 
@@ -636,6 +636,7 @@
                         "- Database: SQLx MySQL",
                         "- Session: actix-session",
                         "- Password Hash: bcrypt",
+                        "- Rate Limiter: per-IP, terutama untuk endpoint login/register/OTP",
                         "- Routing dilakukan di main.rs menggunakan .route()",
                         "- Menggunakan sistem modular",
                         "- Router berada di src/module/{nama_module}/mod.rs",
@@ -673,6 +674,7 @@
                         "- Gunakan `pub struct` untuk membuat struct baru",
                         "- Handler tidak boleh mengandung string HTML",
                         "- Jika ada halaman yang membutuhkan auth, redirect ke `/auth/login`",
+                        "- Terapkan rate limiter pada endpoint sensitif (login, register, reset password, OTP) untuk mencegah brute-force",
                         "",
                         "Format response error:",
                         "```rust",
