@@ -1,7 +1,6 @@
-use actix_web::{ web, Error, HttpRequest, HttpResponse };
+use actix_web::web::Payload;
 use actix_ws::{ Message, Session, MessageStream };
-
-use crate::web::from::Data;
+use crate::web::{ Data, Request, Response, Error };
 use crate::socketsession::SocketSession;
 use futures::stream::StreamExt;
 
@@ -56,7 +55,7 @@ pub async fn echo_ws(mut session: Session, mut msg_stream: MessageStream, socket
 }
 
 // Simple websocket
-pub async fn ws(req: HttpRequest, body: web::Payload, socketlist: Data<SocketSession>) -> Result<HttpResponse, Error> {
+pub async fn ws(req: Request, body: Payload, socketlist: Data<SocketSession>) -> Result<Response, Error> {
 
     let (response, session, msg_stream) = actix_ws::handle(&req, body)?;
 

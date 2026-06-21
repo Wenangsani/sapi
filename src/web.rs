@@ -1,11 +1,10 @@
-pub use actix_web::Error;
+pub use actix_web::Error as Error;
 pub use actix_web::HttpRequest as Request;
 pub use actix_web::HttpResponse as Response;
 pub use serde_json::Value;
-pub use uuid::Uuid;
 pub use actix_session::Session as Session;
 pub use actix_web::cookie::Cookie as Cookie;
-
+pub use actix_web::web::Data as Data;
 
 pub type Pool = actix_web::web::Data<sqlx::MySqlPool>;
 
@@ -20,7 +19,6 @@ pub struct ApiResponse {
 }
 
 pub mod from {
-    pub use actix_web::web::Data;
     pub use actix_web::web::Form;
     pub use actix_web::web::Json;
     pub use actix_web::web::Path;
@@ -30,6 +28,7 @@ pub mod from {
 
 pub mod data {
     use chrono::{DateTime, Utc};
+    pub use uuid::Uuid;
     pub use String;
     pub type Int = i32;
     pub type UInt = u32;

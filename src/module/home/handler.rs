@@ -1,6 +1,6 @@
 use crate::appstate::Appstate;
-use crate::web::{ Cookie, Session, Response };
-use crate::web::from::{Data, Path};
+use crate::web::{ Data, Cookie, Session, Response };
+use crate::web::from::Path;
 use actix_web::cookie::time::Duration;
 
 #[derive(Deserialize)]

@@ -1,12 +1,7 @@
-use actix_web::Error;
-use crate::web::{ Request, Response };
-use crate::web::from::{ Data, Json };
-// use actix_web::rt::time::interval;
+use crate::web::{ Data, Request, Response, Error };
+use crate::web::from::Json;
 use futures::StreamExt;
 use tokio_stream::wrappers::BroadcastStream;
-// use std::time::Duration;
-
-// use crate::appstate::Appstate;
 use crate::ssesession::{ SseSession, sse_message };
 
 /// Handler GET /sse — client browser subscribe di sini
