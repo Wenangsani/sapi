@@ -3,316 +3,123 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat</title>
+    <title>SSE Test</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        * { box-sizing: border-box; }
-
-        html, body {
-            height: 100%;
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #f5f5f4;
-        }
-
-        #app {
-            display: flex;
-            flex-direction: column;
-            height: 100dvh;
-            max-width: 680px;
-            margin: 0 auto;
-            background: #fff;
-            border-left: 1px solid #e7e5e4;
-            border-right: 1px solid #e7e5e4;
-        }
-
-        /* Header */
-        #header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 16px;
-            background: #fff;
-            border-bottom: 1px solid #e7e5e4;
-            flex-shrink: 0;
-        }
-
-        #header-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #4f46e5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        /* Setup modal */
-        #setup-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.45);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
-            padding: 16px;
-        }
-
-        #setup-card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 28px 24px;
-            width: 100%;
-            max-width: 360px;
-            box-shadow: 0 8px 32px rgba(0,0,0,.12);
-        }
-
-        /* Messages */
-        #msgs {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        #msgs::-webkit-scrollbar { width: 4px; }
-        #msgs::-webkit-scrollbar-thumb { background: #d6d3d1; border-radius: 99px; }
-
-        .msg-row { display: flex; gap: 8px; align-items: flex-end; }
-        .msg-row.me { flex-direction: row-reverse; }
-
-        .msg-av {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .msg-wrap { display: flex; flex-direction: column; max-width: 74%; }
-        .msg-row.me .msg-wrap { align-items: flex-end; }
-
-        .msg-name {
-            font-size: 11px;
-            color: #78716c;
-            margin-bottom: 3px;
-            padding: 0 4px;
-        }
-
-        .msg-bubble {
-            padding: 8px 13px;
-            font-size: 14px;
-            line-height: 1.55;
-            word-break: break-word;
-            white-space: pre-wrap;
-        }
-
-        .msg-bubble.them {
-            background: #f5f5f4;
-            color: #1c1917;
-            border-radius: 16px 16px 16px 4px;
-            border: 1px solid #e7e5e4;
-        }
-
-        .msg-bubble.me {
-            background: #4f46e5;
-            color: #fff;
-            border-radius: 16px 16px 4px 16px;
-        }
-
-        .msg-time {
-            font-size: 10px;
-            color: #a8a29e;
-            padding: 0 4px;
-            margin-top: 3px;
-        }
-
-        /* Typing indicator */
-        .typing-dot {
-            width: 6px; height: 6px;
-            background: #a8a29e;
-            border-radius: 50%;
-            display: inline-block;
-            animation: bounce 1.2s infinite;
-        }
-        .typing-dot:nth-child(2) { animation-delay: .2s; }
-        .typing-dot:nth-child(3) { animation-delay: .4s; }
-
-        @keyframes bounce {
-            0%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-5px); }
-        }
-
-        /* Footer */
-        #footer {
-            padding: 10px 12px;
-            background: #fff;
-            border-top: 1px solid #e7e5e4;
-            display: flex;
-            gap: 8px;
-            align-items: flex-end;
-            flex-shrink: 0;
-        }
-
-        #input-box {
-            flex: 1;
-            resize: none;
-            border: 1px solid #d6d3d1;
-            border-radius: 20px;
-            padding: 8px 14px;
-            font-size: 14px;
-            font-family: inherit;
-            background: #fafaf9;
-            color: #1c1917;
-            outline: none;
-            line-height: 1.5;
-            max-height: 120px;
-            overflow-y: auto;
-            transition: border-color .15s, box-shadow .15s;
-        }
-
-        #input-box:focus {
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79,70,229,.12);
-            background: #fff;
-        }
-
-        #send-btn {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: #4f46e5;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: opacity .15s, transform .1s, background .15s;
-        }
-
-        #send-btn:hover:not(:disabled) { background: #4338ca; }
-        #send-btn:active:not(:disabled) { transform: scale(.92); }
-        #send-btn:disabled { opacity: .35; cursor: default; }
-
-        /* Toast */
-        #toast {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%) translateY(8px);
-            background: #1c1917;
-            color: #fff;
-            font-size: 13px;
-            padding: 8px 16px;
-            border-radius: 99px;
-            opacity: 0;
-            transition: opacity .2s, transform .2s;
-            pointer-events: none;
-            white-space: nowrap;
-            z-index: 99;
-        }
-
-        #toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        /* Status dot */
-        .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; }
-        .dot.green { background: #22c55e; }
-        .dot.red { background: #ef4444; animation: pulse-red 1.5s infinite; }
-        .dot.yellow { background: #eab308; }
-
-        @keyframes pulse-red {
-            0%, 100% { opacity: 1; } 50% { opacity: .4; }
-        }
-    </style>
 </head>
-<body>
+<body class="bg-stone-50 min-h-screen font-sans">
 
-<!-- Setup overlay: masukkan nama -->
-<div id="setup-overlay">
-    <div id="setup-card">
-        <p style="font-size:20px;font-weight:600;color:#1c1917;margin-bottom:6px">Masuk ke chat</p>
-        <p style="font-size:14px;color:#78716c;margin-bottom:20px">Pilih nama yang akan ditampilkan ke semua orang.</p>
+<div class="max-w-2xl mx-auto flex flex-col h-dvh bg-white border-x border-stone-200">
+
+    <!-- Header -->
+    <div class="flex items-center gap-3 px-4 py-3 border-b border-stone-200 shrink-0">
+        <div class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center shrink-0">
+            <svg width="16" height="16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <p class="text-sm font-semibold text-stone-900 leading-tight">Ruang Chat (SSE Test)</p>
+            <p class="text-xs leading-tight mt-0.5" id="conn-status">
+                <span class="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-1"></span>
+                <span>Menghubungkan…</span>
+            </p>
+        </div>
+        <p class="text-xs text-stone-400" id="my-name-label"></p>
+    </div>
+
+    <!-- Messages -->
+    <div id="msgs" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+        <div id="empty-state" class="flex-1 flex flex-col items-center justify-center gap-2 text-stone-400 text-center py-10">
+            <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"/>
+            </svg>
+            <p class="text-sm">Belum ada pesan. Mulai percakapan!</p>
+        </div>
+    </div>
+
+    <!-- Target selector + input -->
+    <div class="border-t border-stone-200 bg-white shrink-0">
+
+        <!-- Target bar -->
+        <div class="flex items-center gap-2 px-3 pt-3 pb-1">
+            <span class="text-xs text-stone-500 shrink-0">Kirim ke:</span>
+            <div class="flex gap-1 flex-wrap">
+                <button data-target="all"
+                    class="target-btn text-xs px-2.5 py-1 rounded-full border border-stone-300 text-stone-600 hover:bg-indigo-50 hover:border-indigo-400 hover:text-indigo-700 transition-colors"
+                >Semua</button>
+                <button data-target="user"
+                    class="target-btn text-xs px-2.5 py-1 rounded-full border border-stone-300 text-stone-600 hover:bg-indigo-50 hover:border-indigo-400 hover:text-indigo-700 transition-colors"
+                >User ID</button>
+                <button data-target="sse"
+                    class="target-btn text-xs px-2.5 py-1 rounded-full border border-stone-300 text-stone-600 hover:bg-indigo-50 hover:border-indigo-400 hover:text-indigo-700 transition-colors"
+                >SSE ID</button>
+            </div>
+        </div>
+
+        <!-- Target value input (muncul jika bukan "all") -->
+        <div id="target-value-row" class="hidden px-3 py-1">
+            <input id="target-value"
+                type="text"
+                placeholder="Masukkan ID..."
+                class="w-full text-xs px-3 py-1.5 border border-stone-300 rounded-lg bg-stone-50 text-stone-800 placeholder-stone-400 focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-200"
+            />
+        </div>
+
+        <!-- Info bar: SSE ID kita sendiri -->
+        <div class="px-3 py-1">
+            <p class="text-xs text-stone-400">
+                SSE ID kamu: <span id="my-sse-id" class="font-mono text-stone-500">—</span>
+            </p>
+        </div>
+
+        <!-- Message input -->
+        <div class="flex gap-2 items-end px-3 pb-3">
+            <textarea
+                id="input-box"
+                rows="1"
+                placeholder="Tulis pesan… (Enter kirim, Shift+Enter baris baru)"
+                disabled
+                class="flex-1 resize-none border border-stone-300 rounded-2xl px-3.5 py-2 text-sm bg-stone-50 text-stone-900 placeholder-stone-400 outline-none leading-relaxed max-h-28 overflow-y-auto transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:bg-white disabled:opacity-40"
+            ></textarea>
+            <button id="send-btn" disabled aria-label="Kirim"
+                class="w-9 h-9 rounded-full bg-indigo-600 border-none flex items-center justify-center shrink-0 transition hover:bg-indigo-700 active:scale-90 disabled:opacity-30 disabled:cursor-default"
+            >
+                <svg width="15" height="15" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                    <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Setup overlay -->
+<div id="setup-overlay" class="fixed inset-0 bg-black/45 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl p-7 w-full max-w-sm shadow-xl">
+        <p class="text-lg font-semibold text-stone-900 mb-1">Masuk ke chat</p>
+        <p class="text-sm text-stone-500 mb-5">Pilih nama yang akan ditampilkan ke semua orang.</p>
         <input
             id="name-input"
             type="text"
             placeholder="Nama kamu"
             maxlength="32"
-            style="width:100%;padding:10px 14px;border:1px solid #d6d3d1;border-radius:10px;font-size:14px;outline:none;margin-bottom:12px;font-family:inherit;color:#1c1917"
             autofocus
+            class="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-sm text-stone-900 outline-none mb-3 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
         />
-        <button
-            id="join-btn"
-            style="width:100%;padding:10px;background:#4f46e5;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer"
+        <button id="join-btn"
+            class="w-full py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 transition"
         >Masuk</button>
     </div>
 </div>
 
-<div id="app">
-    <!-- Header -->
-    <div id="header">
-        <div id="header-avatar">
-            <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-        </div>
-        <div style="flex:1">
-            <p style="font-size:14px;font-weight:600;color:#1c1917;line-height:1.2">Ruang Chat</p>
-            <p style="font-size:12px;line-height:1.2;margin-top:2px" id="conn-status">
-                <span class="dot yellow"></span><span>Menghubungkan…</span>
-            </p>
-        </div>
-        <p style="font-size:12px;color:#a8a29e" id="my-name-label"></p>
-    </div>
-
-    <!-- Messages -->
-    <div id="msgs">
-        <div id="empty-state" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0;color:#a8a29e;gap:8px;text-align:center">
-            <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"/>
-            </svg>
-            <p style="font-size:14px">Belum ada pesan. Mulai percakapan!</p>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <div id="footer">
-        <textarea
-            id="input-box"
-            rows="1"
-            placeholder="Tulis pesan… (Enter kirim, Shift+Enter baris baru)"
-            disabled
-        ></textarea>
-        <button id="send-btn" disabled aria-label="Kirim">
-            <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-            </svg>
-        </button>
-    </div>
-</div>
-
 <!-- Toast -->
-<div id="toast"></div>
+<div id="toast"
+    class="fixed bottom-20 left-1/2 -translate-x-1/2 translate-y-2 bg-stone-900 text-white text-xs px-4 py-2 rounded-full opacity-0 transition-all pointer-events-none whitespace-nowrap z-50"
+></div>
 
 <script>
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
 const COLORS = [
     '#4f46e5','#0891b2','#059669','#d97706',
     '#dc2626','#7c3aed','#db2777','#0284c7',
-    '#16a34a','#ca8a04','#9333ea','#0e7490',
 ];
 
 function strHash(s) {
@@ -320,40 +127,68 @@ function strHash(s) {
     for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
     return Math.abs(h);
 }
+function avatarColor(name) { return COLORS[strHash(name) % COLORS.length]; }
+function formatTime(d) { return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); }
 
-function avatarColor(name) {
-    return COLORS[strHash(name) % COLORS.length];
-}
-
-function formatTime(date) {
-    return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-}
-
-function showToast(msg, duration = 3000) {
+function showToast(msg, ms = 3000) {
     const t = document.getElementById('toast');
     t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), duration);
+    t.classList.remove('opacity-0', 'translate-y-2');
+    t.classList.add('opacity-100', 'translate-y-0');
+    setTimeout(() => {
+        t.classList.add('opacity-0', 'translate-y-2');
+        t.classList.remove('opacity-100', 'translate-y-0');
+    }, ms);
 }
 
 // ── State ────────────────────────────────────────────────────────────────────
+let myName   = '';
+let mySseId  = null;  // diterima dari server setelah connect
+let es       = null;
+let sending  = false;
+let activeTarget = 'all';  // 'all' | 'user' | 'sse'
 
-let myName    = '';
-let es        = null;
-let sending   = false;
+const setupOverlay  = document.getElementById('setup-overlay');
+const nameInput     = document.getElementById('name-input');
+const joinBtn       = document.getElementById('join-btn');
+const msgs          = document.getElementById('msgs');
+const emptyState    = document.getElementById('empty-state');
+const inputBox      = document.getElementById('input-box');
+const sendBtn       = document.getElementById('send-btn');
+const connStatus    = document.getElementById('conn-status');
+const myNameLabel   = document.getElementById('my-name-label');
+const mySseIdEl     = document.getElementById('my-sse-id');
+const targetValueRow = document.getElementById('target-value-row');
+const targetValueInput = document.getElementById('target-value');
 
-const setupOverlay = document.getElementById('setup-overlay');
-const nameInput    = document.getElementById('name-input');
-const joinBtn      = document.getElementById('join-btn');
-const msgs         = document.getElementById('msgs');
-const emptyState   = document.getElementById('empty-state');
-const inputBox     = document.getElementById('input-box');
-const sendBtn      = document.getElementById('send-btn');
-const connStatus   = document.getElementById('conn-status');
-const myNameLabel  = document.getElementById('my-name-label');
+// ── Target selector ──────────────────────────────────────────────────────────
+function setActiveTarget(target) {
+    activeTarget = target;
+    document.querySelectorAll('.target-btn').forEach(btn => {
+        const isActive = btn.dataset.target === target;
+        btn.classList.toggle('bg-indigo-600',   isActive);
+        btn.classList.toggle('text-white',       isActive);
+        btn.classList.toggle('border-indigo-600',isActive);
+        btn.classList.toggle('bg-white',        !isActive);
+        btn.classList.toggle('text-stone-600',  !isActive);
+        btn.classList.toggle('border-stone-300',!isActive);
+    });
+    if (target === 'all') {
+        targetValueRow.classList.add('hidden');
+        targetValueInput.value = '';
+    } else {
+        targetValueRow.classList.remove('hidden');
+        targetValueInput.placeholder = target === 'user' ? 'User ID (angka)…' : 'SSE ID (uuid)…';
+        targetValueInput.focus();
+    }
+}
+
+document.querySelectorAll('.target-btn').forEach(btn => {
+    btn.addEventListener('click', () => setActiveTarget(btn.dataset.target));
+});
+setActiveTarget('all');
 
 // ── Setup ────────────────────────────────────────────────────────────────────
-
 function joinChat() {
     const name = nameInput.value.trim();
     if (!name) { nameInput.focus(); return; }
@@ -362,21 +197,16 @@ function joinChat() {
     myNameLabel.textContent    = name;
     connectSSE();
 }
-
 joinBtn.addEventListener('click', joinChat);
 nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') joinChat(); });
 
 // ── SSE ──────────────────────────────────────────────────────────────────────
-
 function setStatus(state) {
-    const map = {
-        connecting: { dot: 'yellow', text: 'Menghubungkan…' },
-        online:     { dot: 'green',  text: 'Online' },
-        offline:    { dot: 'red',    text: 'Terputus — mencoba ulang…' },
-    };
-    const { dot, text } = map[state] || map.connecting;
-    connStatus.innerHTML = `<span class="dot ${dot}"></span><span>${text}</span>`;
-
+    const dotClass = { connecting: 'bg-yellow-400', online: 'bg-green-500', offline: 'bg-red-500 animate-pulse' };
+    const text     = { connecting: 'Menghubungkan…', online: 'Online', offline: 'Terputus — mencoba ulang…' };
+    connStatus.innerHTML = `
+        <span class="inline-block w-2 h-2 rounded-full ${dotClass[state]} mr-1"></span>
+        <span>${text[state]}</span>`;
     const ready = state === 'online';
     inputBox.disabled = !ready;
     sendBtn.disabled  = !ready || !inputBox.value.trim();
@@ -390,16 +220,24 @@ function connectSSE() {
 
     es.onopen = () => setStatus('online');
 
+    es.addEventListener('init', (e) => {
+        // Server mengirim event "init" dengan sse_id setelah connect
+        try {
+            const data = JSON.parse(e.data);
+            mySseId = data.sse_id;
+            mySseIdEl.textContent = mySseId;
+        } catch {}
+    });
+
     es.onmessage = (e) => {
         try {
             const msg = JSON.parse(e.data);
-            // Abaikan pesan sendiri yang balik via SSE agar tidak duplikasi
-            // (kita sudah render optimistic saat kirim)
-            if (msg._from === myName) return;
+            // Hanya skip jika broadcast dari diri sendiri (optimistic render sudah tampil)
+            // Jika targeted (user/sse) biarkan muncul agar bisa test receive
+            const isOptimisticEcho = msg._from === myName && activeTarget === 'all';
+            if (isOptimisticEcho) return;
             appendMessage(msg._from, msg.message, new Date());
-        } catch {
-            // bukan JSON, abaikan
-        }
+        } catch {}
     };
 
     es.onerror = () => {
@@ -410,78 +248,108 @@ function connectSSE() {
 }
 
 // ── Render pesan ─────────────────────────────────────────────────────────────
-
-function appendMessage(from, text, time) {
+function appendMessage(from, text, time, isSystem = false) {
     if (emptyState.parentNode) emptyState.remove();
+
+    if (isSystem) {
+        const el = document.createElement('div');
+        el.className = 'text-center text-xs text-stone-400 py-1';
+        el.textContent = text;
+        msgs.appendChild(el);
+        msgs.scrollTop = msgs.scrollHeight;
+        return;
+    }
 
     const isMe = from === myName;
     const color = avatarColor(from);
 
-    const row  = document.createElement('div');
-    row.className = 'msg-row' + (isMe ? ' me' : '');
+    const row = document.createElement('div');
+    row.className = `flex gap-2 items-end ${isMe ? 'flex-row-reverse' : ''}`;
 
     const av = document.createElement('div');
-    av.className = 'msg-av';
+    av.className = 'w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0';
     av.style.background = color;
     av.textContent = from[0].toUpperCase();
 
     const wrap = document.createElement('div');
-    wrap.className = 'msg-wrap';
+    wrap.className = `flex flex-col max-w-[74%] ${isMe ? 'items-end' : ''}`;
 
     if (!isMe) {
         const nameEl = document.createElement('div');
-        nameEl.className = 'msg-name';
+        nameEl.className = 'text-xs text-stone-500 mb-0.5 px-1';
         nameEl.textContent = from;
         wrap.appendChild(nameEl);
     }
 
     const bubble = document.createElement('div');
-    bubble.className = 'msg-bubble ' + (isMe ? 'me' : 'them');
+    bubble.className = isMe
+        ? 'bg-indigo-600 text-white text-sm px-3.5 py-2 rounded-2xl rounded-br-sm leading-snug whitespace-pre-wrap break-words'
+        : 'bg-stone-100 text-stone-900 text-sm px-3.5 py-2 rounded-2xl rounded-bl-sm leading-snug border border-stone-200 whitespace-pre-wrap break-words';
     bubble.textContent = text;
 
     const ts = document.createElement('div');
-    ts.className = 'msg-time';
+    ts.className = 'text-xs text-stone-400 mt-0.5 px-1';
     ts.textContent = formatTime(time);
 
     wrap.appendChild(bubble);
     wrap.appendChild(ts);
     row.appendChild(av);
     row.appendChild(wrap);
-
     msgs.appendChild(row);
     msgs.scrollTop = msgs.scrollHeight;
 }
 
 // ── Kirim pesan ──────────────────────────────────────────────────────────────
+function buildTarget() {
+    if (activeTarget === 'all') return { type: 'All' };
+    const val = targetValueInput.value.trim();
+    if (!val) return null;
+    if (activeTarget === 'user') {
+        const uid = parseInt(val, 10);
+        if (isNaN(uid)) { showToast('User ID harus berupa angka'); return null; }
+        return { type: 'User', value: uid };
+    }
+    // sse
+    return { type: 'Sse', value: val };
+}
 
 async function sendMessage() {
     const text = inputBox.value.trim();
     if (!text || sending) return;
 
+    const target = buildTarget();
+    if (!target) return;
+
     sending = true;
     sendBtn.disabled = true;
 
-    // Render optimistic — tampil langsung tanpa tunggu server
     appendMessage(myName, text, new Date());
     inputBox.value = '';
     inputBox.style.height = 'auto';
+
+    // Label target untuk system message
+    let targetLabel = '';
+    if (target.type === 'User')  targetLabel = ` → user ${target.value}`;
+    if (target.type === 'Sse')   targetLabel = ` → sse ${target.value.slice(0,8)}…`;
+    if (targetLabel) appendMessage('', `Dikirim${targetLabel}`, new Date(), true);
 
     try {
         const res = await fetch('/conn/sse/send', {
             method:      'POST',
             credentials: 'include',
             headers:     { 'Content-Type': 'application/json' },
-            body:        JSON.stringify({
+            body: JSON.stringify({
                 message: text,
-                _from:   myName,         // metadata nama, dibaca oleh client SSE lain
+                _from:   myName,
+                target,
             }),
         });
 
         if (!res.ok) {
-            const data = await res.json().catch(() => ({}));
-            showToast('Gagal kirim: ' + (data.message || res.status));
+            const d = await res.json().catch(() => ({}));
+            showToast('Gagal kirim: ' + (d.message || res.status));
         }
-    } catch (err) {
+    } catch {
         showToast('Tidak dapat terhubung ke server');
     } finally {
         sending = false;
@@ -492,10 +360,7 @@ async function sendMessage() {
 sendBtn.addEventListener('click', sendMessage);
 
 inputBox.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 });
 
 inputBox.addEventListener('input', () => {

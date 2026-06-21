@@ -3,109 +3,97 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tes Socket — WebSocket Tester</title>
+  <title>WebSocket Tester</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
-  <style>
-    [v-cloak] { display: none; }
-    .log-box { scrollbar-width: thin; scrollbar-color: #d1d5db transparent; }
-    .log-box::-webkit-scrollbar { width: 4px; }
-    .log-box::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
-    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
-    .pulse { animation: pulse-dot 1.4s ease-in-out infinite; }
-    .font-mono-data { font-family: ui-monospace, 'Cascadia Code', 'Fira Code', monospace; }
-  </style>
 </head>
-<body class="bg-gray-50 min-h-screen text-gray-800 antialiased" v-scope v-cloak>
+<body class="bg-stone-50 min-h-screen text-stone-800 antialiased" v-scope v-cloak>
+
+  <style>[v-cloak]{display:none}</style>
 
   <!-- Header -->
-  <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
-    <div class="flex items-center gap-2">
-      <span class="text-xs font-semibold tracking-widest uppercase text-gray-400">Dev Tool</span>
-      <span class="text-gray-200">/</span>
-      <span class="text-sm font-semibold text-gray-700">WebSocket Tester</span>
-    </div>
+  <header class="bg-white border-b border-stone-200 px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
+    <span class="text-xs font-semibold tracking-widest uppercase text-stone-400">Dev Tool</span>
+    <span class="text-stone-200">/</span>
+    <span class="text-sm font-semibold text-stone-700">WebSocket Tester</span>
     <div class="ml-auto flex items-center gap-2">
-      <span :class="connected ? 'bg-emerald-500 pulse' : 'bg-gray-300'" class="inline-block w-2 h-2 rounded-full"></span>
-      <span class="text-xs font-medium" :class="connected ? 'text-emerald-600' : 'text-gray-400'">
+      <span :class="connected ? 'bg-emerald-500 animate-pulse' : 'bg-stone-300'" class="inline-block w-2 h-2 rounded-full"></span>
+      <span class="text-xs font-medium" :class="connected ? 'text-emerald-600' : 'text-stone-400'">
         {{ connected ? 'Connected' : 'Disconnected' }}
       </span>
     </div>
   </header>
 
-  <!-- Main Layout -->
   <div class="max-w-5xl mx-auto px-4 py-6 flex flex-col gap-5">
 
     <!-- URL Bar -->
-    <div class="bg-white rounded-xl border border-gray-200 p-4 flex flex-col sm:flex-row gap-3">
-      <div class="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-100 transition">
-        <span class="text-xs text-gray-400 font-mono-data font-semibold shrink-0">WS</span>
+    <div class="bg-white rounded-xl border border-stone-200 p-4 flex flex-col sm:flex-row gap-3">
+      <div class="flex-1 flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-lg px-3 py-2 focus-within:border-indigo-400 focus-within:ring-1 focus-within:ring-indigo-100 transition">
+        <span class="text-xs text-stone-400 font-mono font-semibold shrink-0">WS</span>
         <input
           type="text"
           v-model="url"
           :disabled="connected"
-          placeholder="ws://localhost:8080/ws"
-          class="bg-transparent flex-1 text-sm font-mono-data text-gray-700 outline-none placeholder-gray-300 disabled:opacity-50"
+          placeholder="ws://localhost:8080/conn/ws"
+          class="bg-transparent flex-1 text-sm font-mono text-stone-700 outline-none placeholder-stone-300 disabled:opacity-50"
         />
       </div>
       <div class="flex gap-2">
-        <button
-          @click="connect"
-          :disabled="connected"
-          class="flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
+        <button @click="connect" :disabled="connected"
+          class="flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
         >Connect</button>
-        <button
-          @click="disconnect"
-          :disabled="!connected"
-          class="flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium bg-white border border-gray-200 text-red-500 hover:bg-red-50 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
+        <button @click="disconnect" :disabled="!connected"
+          class="flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-medium bg-white border border-stone-200 text-red-500 hover:bg-red-50 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
         >Disconnect</button>
       </div>
     </div>
 
-    <!-- Stats Row -->
-    <div class="grid grid-cols-3 gap-3">
-      <div class="bg-white rounded-xl border border-gray-200 px-4 py-3 text-center">
-        <p class="text-xs text-gray-400 mb-1">Dikirim</p>
-        <p class="text-2xl font-semibold text-gray-700 font-mono-data" v-text="sentCount"></p>
+    <!-- Stats + Info -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="bg-white rounded-xl border border-stone-200 px-4 py-3 text-center">
+        <p class="text-xs text-stone-400 mb-1">Dikirim</p>
+        <p class="text-2xl font-semibold text-stone-700 font-mono" v-text="sentCount"></p>
       </div>
-      <div class="bg-white rounded-xl border border-gray-200 px-4 py-3 text-center">
-        <p class="text-xs text-gray-400 mb-1">Diterima</p>
-        <p class="text-2xl font-semibold text-emerald-600 font-mono-data" v-text="recvCount"></p>
+      <div class="bg-white rounded-xl border border-stone-200 px-4 py-3 text-center">
+        <p class="text-xs text-stone-400 mb-1">Diterima</p>
+        <p class="text-2xl font-semibold text-emerald-600 font-mono" v-text="recvCount"></p>
       </div>
-      <div class="bg-white rounded-xl border border-gray-200 px-4 py-3 text-center">
-        <p class="text-xs text-gray-400 mb-1">Error</p>
-        <p class="text-2xl font-semibold text-red-500 font-mono-data" v-text="errCount"></p>
+      <div class="bg-white rounded-xl border border-stone-200 px-4 py-3 text-center">
+        <p class="text-xs text-stone-400 mb-1">Error</p>
+        <p class="text-2xl font-semibold text-red-500 font-mono" v-text="errCount"></p>
+      </div>
+      <div class="bg-white rounded-xl border border-stone-200 px-4 py-3 text-center">
+        <p class="text-xs text-stone-400 mb-1">Socket ID</p>
+        <p class="text-xs font-mono text-indigo-600 truncate mt-1" :title="mySocketId" v-text="mySocketId ? mySocketId.slice(0,8)+'…' : '—'"></p>
       </div>
     </div>
 
     <!-- Log Panel -->
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div class="flex items-center justify-between px-4 py-2.5 border-b border-gray-100">
-        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Log</span>
-        <button @click="clearLogs" class="text-xs text-gray-400 hover:text-gray-600 transition px-2 py-1 rounded hover:bg-gray-50">Hapus</button>
+    <div class="bg-white rounded-xl border border-stone-200 overflow-hidden">
+      <div class="flex items-center justify-between px-4 py-2.5 border-b border-stone-100">
+        <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider">Log</span>
+        <button @click="clearLogs" class="text-xs text-stone-400 hover:text-stone-600 transition px-2 py-1 rounded hover:bg-stone-50">Hapus</button>
       </div>
-      <div class="log-box h-72 overflow-y-auto px-4 py-3 space-y-1 bg-gray-950">
-        <p v-if="logs.length === 0" class="text-xs text-gray-600 italic pt-2">
+      <div id="log-box" class="h-72 overflow-y-auto px-4 py-3 space-y-1 bg-stone-950" style="scrollbar-width:thin;scrollbar-color:#44403c transparent">
+        <p v-if="logs.length === 0" class="text-xs text-stone-600 italic pt-2 font-mono">
           Belum ada aktivitas. Hubungkan ke server untuk memulai.
         </p>
-        <div v-for="l in logs" class="flex gap-3 items-start font-mono-data text-xs leading-5">
-          <span class="text-gray-600 shrink-0 pt-px">{{ l.time }}</span>
-          <span
-            class="shrink-0 w-4 text-center font-bold pt-px"
+        <div v-for="l in logs" class="flex gap-3 items-start font-mono text-xs leading-5">
+          <span class="text-stone-600 shrink-0 pt-px">{{ l.time }}</span>
+          <span class="shrink-0 w-4 text-center font-bold pt-px"
             :class="{
-              'text-blue-400': l.dir === 'in',
-              'text-emerald-400': l.dir === 'out',
-              'text-yellow-500': l.dir === 'sys',
-              'text-red-400': l.dir === 'err'
+              'text-blue-400':    l.dir==='in',
+              'text-emerald-400': l.dir==='out',
+              'text-yellow-500':  l.dir==='sys',
+              'text-red-400':     l.dir==='err'
             }"
-          >{{ l.dir === 'in' ? '↙' : l.dir === 'out' ? '↗' : l.dir === 'err' ? '✕' : '·' }}</span>
-          <span
-            class="break-all"
+          >{{ l.dir==='in'?'↙':l.dir==='out'?'↗':l.dir==='err'?'✕':'·' }}</span>
+          <span class="break-all"
             :class="{
-              'text-blue-300': l.dir === 'in',
-              'text-emerald-300': l.dir === 'out',
-              'text-yellow-400': l.dir === 'sys',
-              'text-red-400': l.dir === 'err'
+              'text-blue-300':    l.dir==='in',
+              'text-emerald-300': l.dir==='out',
+              'text-yellow-400':  l.dir==='sys',
+              'text-red-400':     l.dir==='err'
             }"
             v-text="l.msg"
           ></span>
@@ -114,18 +102,60 @@
     </div>
 
     <!-- Send Panel -->
-    <div class="bg-white rounded-xl border border-gray-200 p-4">
-      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Kirim Pesan</p>
+    <div class="bg-white rounded-xl border border-stone-200 p-4 flex flex-col gap-4">
+      <p class="text-xs font-semibold text-stone-400 uppercase tracking-wider">Kirim Pesan</p>
+
+      <!-- Nama pengirim -->
+      <div class="flex items-center gap-2">
+        <label class="text-xs text-stone-500 shrink-0 w-20">Nama (_from):</label>
+        <input v-model="fromName" type="text" placeholder="nama kamu"
+          class="flex-1 text-sm px-3 py-1.5 border border-stone-200 rounded-lg bg-stone-50 text-stone-800 placeholder-stone-400 outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100"
+        />
+      </div>
+
+      <!-- Target selector -->
+      <div class="flex flex-col gap-2">
+        <p class="text-xs text-stone-500">Target:</p>
+        <div class="flex flex-wrap gap-2">
+          <button
+            v-for="t in targetOptions"
+            @click="setTarget(t.val)"
+            :class="activeTarget===t.val
+              ? 'bg-indigo-600 text-white border-indigo-600'
+              : 'bg-white text-stone-600 border-stone-200 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50'"
+            class="px-3 py-1 text-xs rounded-full border transition"
+            v-text="t.label"
+          ></button>
+        </div>
+
+        <!-- Target ID input -->
+        <div v-if="activeTarget!=='All'" class="flex items-center gap-2">
+          <input v-model="targetValue"
+            :placeholder="activeTarget==='User' ? 'User ID (angka)…' : 'Socket ID (uuid)…'"
+            type="text"
+            class="flex-1 text-xs font-mono px-3 py-1.5 border border-stone-200 rounded-lg bg-stone-50 text-stone-800 placeholder-stone-400 outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100"
+          />
+        </div>
+      </div>
+
+      <!-- Preview payload JSON -->
+      <div class="bg-stone-950 rounded-lg px-3 py-2.5">
+        <p class="text-xs text-stone-500 mb-1">Preview JSON yang dikirim:</p>
+        <pre class="text-xs font-mono text-emerald-300 whitespace-pre-wrap break-all" v-text="previewJson"></pre>
+      </div>
 
       <!-- Presets -->
-      <div class="flex flex-wrap gap-2 mb-3">
-        <button
-          v-for="p in presets"
-          @click="sendPreset(p.val)"
-          :disabled="!connected"
-          class="px-3 py-1 text-xs rounded-lg border border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed font-mono-data"
-          v-text="p.label"
-        ></button>
+      <div>
+        <p class="text-xs text-stone-400 mb-2">Preset cepat:</p>
+        <div class="flex flex-wrap gap-2">
+          <button
+            v-for="p in presets"
+            @click="applyPreset(p)"
+            :disabled="!connected"
+            class="px-3 py-1 text-xs rounded-lg border border-stone-200 text-stone-600 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed font-mono"
+            v-text="p.label"
+          ></button>
+        </div>
       </div>
 
       <!-- Textarea + Send -->
@@ -134,26 +164,22 @@
           v-model="message"
           @keydown="onKeydown"
           :disabled="!connected"
-          placeholder="Ketik pesan... (Enter kirim · Shift+Enter baris baru)"
+          placeholder="Ketik pesan… (Enter kirim · Shift+Enter baris baru)"
           rows="3"
-          class="flex-1 resize-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono-data text-gray-700 outline-none placeholder-gray-300 focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition disabled:opacity-50"
+          class="flex-1 resize-none bg-stone-50 border border-stone-200 rounded-lg px-3 py-2 text-sm font-mono text-stone-700 outline-none placeholder-stone-300 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 transition disabled:opacity-50"
         ></textarea>
         <div class="flex flex-col gap-2 justify-center">
-          <button
-            @click="send"
-            :disabled="!connected || !message.trim()"
-            class="px-5 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
+          <button @click="send" :disabled="!connected || !message.trim() || !fromName.trim()"
+            class="px-5 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
           >Kirim</button>
-          <button
-            @click="message = ''"
-            :disabled="!message"
-            class="px-5 py-2 rounded-lg text-sm font-medium border border-gray-200 text-gray-500 hover:bg-gray-50 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
+          <button @click="message=''" :disabled="!message"
+            class="px-5 py-2 rounded-lg text-sm font-medium border border-stone-200 text-stone-500 hover:bg-stone-50 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
           >Reset</button>
         </div>
       </div>
     </div>
 
-  </div><!-- /max-w -->
+  </div>
 
   <script>
     PetiteVue.createApp({
@@ -162,15 +188,70 @@
       connected: false,
       logs: [],
       message: '',
+      fromName: '',
       sentCount: 0,
       recvCount: 0,
       errCount: 0,
-      presets: [
-        { label: 'hello',               val: 'hello' },
-        { label: 'ping',                val: 'ping' },
-        { label: '{"type":"broadcast"}', val: '{"type":"broadcast","data":"test"}' },
-        { label: 'echo test',           val: 'echo test 123' },
+      mySocketId: '',
+
+      activeTarget: 'All',
+      targetValue: '',
+
+      targetOptions: [
+        { label: 'Broadcast (semua)', val: 'All'    },
+        { label: 'User ID',           val: 'User'   },
+        { label: 'Socket ID',         val: 'Socket' },
       ],
+
+      presets: [
+        { label: 'hello broadcast', target: 'All',    tval: '', msg: 'Halo semua!' },
+        { label: 'ping broadcast',  target: 'All',    tval: '', msg: 'ping'        },
+        { label: 'ke user 1',       target: 'User',   tval: '1', msg: 'Halo user 1' },
+        { label: 'ke socket ini',   target: 'Socket', tval: '__self__', msg: 'Halo diri sendiri' },
+      ],
+
+      get previewJson() {
+        const obj = this.buildPayload(this.message.trim() || '<pesan>');
+        return obj ? JSON.stringify(obj, null, 2) : '';
+      },
+
+      buildPayload(text) {
+        if (!text) return null;
+        const target = this.buildTarget();
+        if (!target) return null;
+        return {
+          _from:   this.fromName.trim() || 'anonymous',
+          message: text,
+          target,
+        };
+      },
+
+      buildTarget() {
+        if (this.activeTarget === 'All') return { type: 'All' };
+        let val = this.targetValue.trim();
+        // preset khusus: gunakan socket_id sendiri
+        if (val === '__self__') val = this.mySocketId;
+        if (!val) return null;
+        if (this.activeTarget === 'User') {
+          const uid = parseInt(val, 10);
+          if (isNaN(uid)) { this.addLog('err', 'User ID harus angka'); return null; }
+          return { type: 'User', value: uid };
+        }
+        return { type: 'Socket', value: val };
+      },
+
+      setTarget(val) {
+        this.activeTarget = val;
+        if (val === 'All') this.targetValue = '';
+      },
+
+      applyPreset(p) {
+        if (!this.connected) return;
+        this.activeTarget = p.target;
+        this.targetValue  = p.tval === '__self__' ? this.mySocketId : p.tval;
+        this.message      = p.msg;
+        this.$nextTick(() => this.send());
+      },
 
       now() {
         return new Date().toLocaleTimeString('id-ID', { hour12: false });
@@ -179,7 +260,7 @@
       addLog(dir, msg) {
         this.logs.push({ time: this.now(), dir, msg });
         this.$nextTick(() => {
-          const box = document.querySelector('.log-box');
+          const box = document.getElementById('log-box');
           if (box) box.scrollTop = box.scrollHeight;
         });
       },
@@ -197,11 +278,21 @@
 
           this.ws.onmessage = (e) => {
             this.recvCount++;
-            this.addLog('in', typeof e.data === 'string' ? e.data : `[binary: ${e.data.size} bytes]`);
+            this.addLog('in', e.data);
+
+            // Tangkap event init untuk mendapat socket_id
+            try {
+              const parsed = JSON.parse(e.data);
+              if (parsed.event === 'init' && parsed.socket_id) {
+                this.mySocketId = parsed.socket_id;
+                this.addLog('sys', `Socket ID kamu: ${parsed.socket_id}`);
+              }
+            } catch {}
           };
 
           this.ws.onclose = (e) => {
-            this.connected = false;
+            this.connected  = false;
+            this.mySocketId = '';
             this.addLog('sys', `Koneksi ditutup (code: ${e.code})`);
             this.ws = null;
           };
@@ -221,26 +312,24 @@
       },
 
       send() {
-        const msg = this.message.trim();
-        if (!this.ws || !this.connected || !msg) return;
-        this.ws.send(msg);
-        this.addLog('out', msg);
+        const text = this.message.trim();
+        if (!this.ws || !this.connected || !text) return;
+
+        const payload = this.buildPayload(text);
+        if (!payload) return;
+
+        const raw = JSON.stringify(payload);
+        this.ws.send(raw);
+        this.addLog('out', raw);
         this.sentCount++;
         this.message = '';
       },
 
-      sendPreset(val) {
-        if (!this.ws || !this.connected) return;
-        this.ws.send(val);
-        this.addLog('out', val);
-        this.sentCount++;
-      },
-
       clearLogs() {
-        this.logs = [];
+        this.logs      = [];
         this.sentCount = 0;
         this.recvCount = 0;
-        this.errCount = 0;
+        this.errCount  = 0;
       },
 
       onKeydown(e) {
