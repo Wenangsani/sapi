@@ -1,4 +1,4 @@
-use crate::web::{Pool, Session, Request, Response, ApiResponse};
+use crate::web::{Pool, Session, Response, ApiResponse};
 use crate::web::from::{Path, Json};
 use crate::web::data::String as Str;
 use actix_multipart::Multipart;
@@ -1170,7 +1170,7 @@ pub async fn api_reset_failed_attempts(session: Session, pool: Pool) -> Response
 }
 
 /// POST /gate/superadmin/security/toggle-lock
-pub async fn api_toggle_system_lock(session: Session, pool: Pool) -> Response {
+pub async fn api_toggle_system_lock(session: Session, _pool: Pool) -> Response {
     if auth!(session).is_none() {
         return Response::Unauthorized().json(ApiResponse {
             success: false,
