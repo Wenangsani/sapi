@@ -95,8 +95,8 @@ Jangan gunakan `session.get::<UInt>("user_id")` manual jika halaman berstatus Lo
 - Jagan gunakan `init` dan `defer`
 - Jika menggunakan icon usahakan svg dari iconify atau heroicons, jangan gunakan CDN
 - Mount tanpa selector via v-scope, panggil method dari object asli.
-- Setiap interaksi harus memiliki state sendiri (`const stateA = {...}`) dan mount sendiri (`PetiteVue.createApp(stateA).mount('#idA')`)
-- Setiap state memanggil method fetch-nya sendiri dari object state secara langsung (`stateA.fetchData()`)
+- Gunakan satu state untuk setiap halaman (`const state = { ... }`) dan satu mount point (`PetiteVue.createApp(state).mount('#app')`).
+- Panggil method fetch dari state langsung setelah dibuat (`state.fetchData()`) jika diperlukan.
 
 
 ## Aturan Database

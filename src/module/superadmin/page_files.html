@@ -1,315 +1,306 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>SuperAdmin — File Upload</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  [v-cloak] { display: none; }
-  .drop-active { border-color: #3b82f6; background-color: #eff6ff; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SuperAdmin — File Upload</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans antialiased">
 
-<div class="flex min-h-screen">
+  <div class="flex min-h-screen">
 
-  <!-- Sidebar -->
-  <aside class="hidden lg:flex flex-col w-60 bg-white border-r border-slate-200 fixed top-0 left-0 h-full z-20">
-    <div class="px-6 py-5 border-b border-slate-100">
-      <span class="text-blue-600 font-bold text-lg tracking-tight">SuperAdmin</span>
-      <p class="text-xs text-slate-400 mt-0.5">Panel Administrasi</p>
-    </div>
-    <nav class="flex-1 px-3 py-4 space-y-0.5">
-      <a href="/superadmin" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 text-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-        Dashboard
-      </a>
-      <a href="/superadmin/users" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 text-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        Pengguna
-      </a>
-      <a href="/superadmin/files" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
-        File Upload
-      </a>
-      <a href="/superadmin/database" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 text-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582 4-8 4"/></svg>
-        Database
-      </a>
-    </nav>
-    <div class="px-4 py-4 border-t border-slate-100">
-      <a href="/auth/logout" class="flex items-center gap-2 text-sm text-slate-500 hover:text-red-600 transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-        Keluar
-      </a>
-    </div>
-  </aside>
-
-  <div class="flex-1 lg:ml-60">
-
-    <header class="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 sticky top-0 z-10">
-      <span class="text-blue-600 font-bold text-base">SuperAdmin</span>
-      <button id="menuBtn" class="text-slate-600 p-1">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
-    </header>
-    <div id="mobileNav" class="lg:hidden hidden bg-white border-b border-slate-200 px-4 py-3 space-y-1">
-      <a href="/superadmin" class="block px-3 py-2 rounded-lg text-slate-600 text-sm">Dashboard</a>
-      <a href="/superadmin/users" class="block px-3 py-2 rounded-lg text-slate-600 text-sm">Pengguna</a>
-      <a href="/superadmin/files" class="block px-3 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium">File Upload</a>
-      <a href="/superadmin/database" class="block px-3 py-2 rounded-lg text-slate-600 text-sm">Database</a>
-    </div>
-
-    <main class="p-6 max-w-5xl mx-auto" id="app" v-scope v-cloak>
-
-      <div class="mb-6">
-        <h1 class="text-xl font-semibold text-slate-800">File Upload</h1>
-        <p class="text-sm text-slate-500 mt-0.5">Upload dan kelola file yang tersimpan di server</p>
+    <!-- Sidebar -->
+    <aside class="hidden lg:flex flex-col w-60 bg-white border-r border-slate-200 fixed top-0 left-0 h-full z-20">
+      <div class="px-6 py-5 border-b border-slate-100">
+        <span class="text-blue-600 font-bold text-lg tracking-tight">SuperAdmin</span>
+        <p class="text-xs text-slate-400 mt-0.5">Panel Administrasi</p>
       </div>
-
-      <!-- Toast -->
-      <div v-if="toast" class="fixed top-4 right-4 z-50 bg-white border border-slate-200 rounded-xl shadow-lg px-4 py-3 text-sm text-slate-700 flex items-center gap-2">
-        <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-        {{ toast }}
+      <nav class="flex-1 px-3 py-4 space-y-0.5">
+        <a href="/superadmin" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Dashboard
+        </a>
+        <a href="/superadmin/users" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          Pengguna
+        </a>
+        <a href="/superadmin/files" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+          File Upload
+        </a>
+        <a href="/superadmin/database" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582 4-8 4"/></svg>
+          Database
+        </a>
+      </nav>
+      <div class="px-4 py-4 border-t border-slate-100">
+        <a href="/auth/logout" class="flex items-center gap-2 text-sm text-slate-500 hover:text-red-600 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          Keluar
+        </a>
       </div>
+    </aside>
 
-      <!-- Upload Zone -->
-      <div
-        id="dropZone"
-        class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center mb-6 transition-all cursor-pointer hover:border-blue-400 hover:bg-blue-50"
-        @click="triggerFileInput"
-        @dragover.prevent="setDragActive(true)"
-        @dragleave="setDragActive(false)"
-        @drop.prevent="onDrop"
-      >
-        <div class="flex flex-col items-center gap-3">
-          <div class="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center">
-            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-          </div>
-          <div>
-            <p class="text-sm font-medium text-slate-700">Klik atau seret file ke sini</p>
-            <p class="text-xs text-slate-400 mt-0.5">Semua jenis file didukung</p>
-          </div>
-          <div v-if="pendingFiles.length > 0" class="mt-2">
-            <p class="text-xs font-medium text-blue-600">{{ pendingFiles.length }} file dipilih</p>
-            <ul class="text-xs text-slate-500 mt-1 space-y-0.5">
-              <li v-for="f in pendingFiles" :key="f.name">{{ f.name }} ({{ formatBytes(f.size) }})</li>
-            </ul>
-          </div>
-        </div>
-        <input type="file" id="fileInput" class="hidden" multiple @change="onFileSelect"/>
-      </div>
-
-      <div v-if="pendingFiles.length > 0" class="flex gap-2 mb-6">
-        <button @click="uploadFiles" :disabled="uploading" class="px-4 py-2 bg-blue-600 text-white text-sm rounded-xl hover:bg-blue-700 disabled:opacity-60 transition-colors flex items-center gap-2">
-          <svg v-if="uploading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-          {{ uploading ? 'Mengupload...' : 'Upload Sekarang' }}
+    <div class="flex-1 lg:ml-60">
+      <header class="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 sticky top-0 z-10">
+        <span class="text-blue-600 font-bold text-base">SuperAdmin</span>
+        <button id="menuBtn" class="text-slate-600 p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
-        <button @click="clearPending" class="px-4 py-2 text-sm border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">Batal</button>
+      </header>
+      <div id="mobileNav" class="lg:hidden hidden bg-white border-b border-slate-200 px-4 py-3 space-y-1">
+        <a href="/superadmin" class="block px-3 py-2 rounded-lg text-slate-600 text-sm">Dashboard</a>
+        <a href="/superadmin/users" class="block px-3 py-2 rounded-lg text-slate-600 text-sm">Pengguna</a>
+        <a href="/superadmin/files" class="block px-3 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium">File Upload</a>
+        <a href="/superadmin/database" class="block px-3 py-2 rounded-lg text-slate-600 text-sm">Database</a>
       </div>
 
-      <!-- Error -->
-      <div v-if="error" class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600 mb-4">{{ error }}</div>
-
-      <!-- File List -->
-      <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
-        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-          <p class="text-sm font-medium text-slate-700">File Tersimpan</p>
-          <span v-if="meta.total !== undefined" class="text-xs text-slate-500">{{ meta.total }} file</span>
+      <main class="p-6 max-w-5xl mx-auto" id="app" v-scope>
+        <div class="mb-6">
+          <h1 class="text-xl font-semibold text-slate-800">File Upload</h1>
+          <p class="text-sm text-slate-500 mt-0.5">Upload dan kelola file yang tersimpan di server</p>
         </div>
 
-        <div v-if="loading" class="flex items-center justify-center py-12 text-sm text-slate-500 gap-2">
-          <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-          Memuat...
+        <!-- Toast -->
+        <div v-if="toast" class="fixed top-4 right-4 z-50 bg-white border border-slate-200 rounded-xl shadow-lg px-4 py-3 text-sm text-slate-700 flex items-center gap-2">
+          <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          {{ toast }}
         </div>
 
-        <div v-else-if="files.length === 0" class="flex flex-col items-center justify-center py-12 text-slate-400">
-          <svg class="w-9 h-9 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
-          <p class="text-sm">Belum ada file tersimpan</p>
-        </div>
-
-        <div v-else>
-          <div v-for="file in files" :key="file.id" class="flex items-center gap-3 px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors last:border-b-0">
-            <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <!-- Upload Zone -->
+        <div
+          class="border-2 border-dashed rounded-2xl p-8 text-center mb-6 transition-all cursor-pointer border-slate-300 hover:border-blue-400 hover:bg-blue-50"
+          :class="dragActive ? 'border-blue-500 bg-blue-50' : ''"
+          @click="triggerFileInput"
+          @dragover.prevent="setDragActive(true)"
+          @dragleave="setDragActive(false)"
+          @drop.prevent="onDrop"
+        >
+          <div class="flex flex-col items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center">
+              <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
             </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-slate-700 truncate">{{ file.original_name }}</p>
-              <p class="text-xs text-slate-400">{{ formatBytes(file.file_size) }} · {{ file.mime_type }} · {{ formatDate(file.created_at) }}</p>
+            <div>
+              <p class="text-sm font-medium text-slate-700">Klik atau seret file ke sini</p>
+              <p class="text-xs text-slate-400 mt-0.5">Semua jenis file didukung</p>
             </div>
-            <a
-              :href="'/uploads/' + file.filename"
-              target="_blank"
-              class="text-xs text-blue-600 hover:text-blue-800 px-2 py-1 rounded-lg hover:bg-blue-50 transition-colors"
-            >Buka</a>
-            <button
-              @click="confirmDelete(file)"
-              class="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded-lg hover:bg-red-50 transition-colors"
-            >Hapus</button>
+            <div v-if="pendingFiles.length > 0" class="mt-2">
+              <p class="text-xs font-medium text-blue-600">{{ pendingFiles.length }} file dipilih</p>
+              <ul class="text-xs text-slate-500 mt-1 space-y-0.5">
+                <li v-for="f in pendingFiles" :key="f.name">{{ f.name }} ({{ formatBytes(f.size) }})</li>
+              </ul>
+            </div>
+          </div>
+          <input type="file" id="fileInput" class="hidden" multiple @change="onFileSelect" />
+        </div>
+
+        <div v-if="pendingFiles.length > 0" class="flex gap-2 mb-6">
+          <button @click="uploadFiles" :disabled="uploading" class="px-4 py-2 bg-blue-600 text-white text-sm rounded-xl hover:bg-blue-700 disabled:opacity-60 transition-colors flex items-center gap-2">
+            <svg v-if="uploading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            {{ uploading ? 'Mengupload...' : 'Upload Sekarang' }}
+          </button>
+          <button @click="clearPending" class="px-4 py-2 text-sm border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">Batal</button>
+        </div>
+
+        <!-- Error -->
+        <div v-if="error" class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600 mb-4">{{ error }}</div>
+
+        <!-- File List -->
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+          <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+            <p class="text-sm font-medium text-slate-700">File Tersimpan</p>
+            <span v-if="meta.total !== undefined" class="text-xs text-slate-500">{{ meta.total }} file</span>
+          </div>
+
+          <div v-if="loading" class="flex items-center justify-center py-12 text-sm text-slate-500 gap-2">
+            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            Memuat...
+          </div>
+
+          <div v-else-if="files.length === 0" class="flex flex-col items-center justify-center py-12 text-slate-400">
+            <svg class="w-9 h-9 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+            <p class="text-sm">Belum ada file tersimpan</p>
+          </div>
+
+          <div v-else>
+            <div v-for="file in files" :key="file.id" class="flex items-center gap-3 px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors last:border-b-0">
+              <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-slate-700 truncate">{{ file.original_name }}</p>
+                <p class="text-xs text-slate-400">{{ formatBytes(file.file_size) }} · {{ file.mime_type }} · {{ formatDate(file.created_at) }}</p>
+              </div>
+              <a
+                :href="'/uploads/' + file.filename"
+                target="_blank"
+                class="text-xs text-blue-600 hover:text-blue-800 px-2 py-1 rounded-lg hover:bg-blue-50 transition-colors"
+              >Buka</a>
+              <button
+                @click="confirmDelete(file)"
+                class="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded-lg hover:bg-red-50 transition-colors"
+              >Hapus</button>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div v-if="!loading && meta.total_pages > 1" class="flex items-center justify-between px-4 py-3 border-t border-slate-100">
+            <p class="text-xs text-slate-500">Halaman {{ meta.page }} dari {{ meta.total_pages }}</p>
+            <div class="flex gap-1">
+              <button @click="goPage(meta.page - 1)" :disabled="meta.page <= 1" class="px-3 py-1.5 text-xs border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50">Sebelumnya</button>
+              <button @click="goPage(meta.page + 1)" :disabled="meta.page >= meta.total_pages" class="px-3 py-1.5 text-xs border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50">Berikutnya</button>
+            </div>
           </div>
         </div>
 
-        <!-- Pagination -->
-        <div v-if="!loading && meta.total_pages > 1" class="flex items-center justify-between px-4 py-3 border-t border-slate-100">
-          <p class="text-xs text-slate-500">Halaman {{ meta.page }} dari {{ meta.total_pages }}</p>
-          <div class="flex gap-1">
-            <button @click="goPage(meta.page - 1)" :disabled="meta.page <= 1" class="px-3 py-1.5 text-xs border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50">Sebelumnya</button>
-            <button @click="goPage(meta.page + 1)" :disabled="meta.page >= meta.total_pages" class="px-3 py-1.5 text-xs border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50">Berikutnya</button>
+        <!-- Delete Modal -->
+        <div v-if="deleteTarget" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
+          <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
+            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mb-4">
+              <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </div>
+            <h3 class="text-base font-semibold text-slate-800 mb-1">Hapus File?</h3>
+            <p class="text-sm text-slate-500 mb-5">File <strong>{{ deleteTarget.original_name }}</strong> akan dihapus dari server secara permanen.</p>
+            <div class="flex gap-2">
+              <button @click="deleteTarget = null" class="flex-1 px-4 py-2 text-sm border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">Batal</button>
+              <button @click="doDelete" class="flex-1 px-4 py-2 text-sm bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors">Hapus</button>
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- Delete Modal -->
-      <div v-if="deleteTarget" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
-        <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
-          <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mb-4">
-            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-          </div>
-          <h3 class="text-base font-semibold text-slate-800 mb-1">Hapus File?</h3>
-          <p class="text-sm text-slate-500 mb-5">File <strong>{{ deleteTarget.original_name }}</strong> akan dihapus dari server secara permanen.</p>
-          <div class="flex gap-2">
-            <button @click="deleteTarget = null" class="flex-1 px-4 py-2 text-sm border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">Batal</button>
-            <button @click="doDelete" class="flex-1 px-4 py-2 text-sm bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors">Hapus</button>
-          </div>
-        </div>
-      </div>
-
-    </main>
+      </main>
+    </div>
   </div>
-</div>
 
-<script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
-<script>
-document.getElementById('menuBtn').addEventListener('click', function() {
-  document.getElementById('mobileNav').classList.toggle('hidden');
-});
+  <script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
+  <script>
+    document.getElementById('menuBtn').addEventListener('click', function () {
+      document.getElementById('mobileNav').classList.toggle('hidden');
+    });
 
-PetiteVue.createApp({
-  files: [],
-  meta: {},
-  loading: true,
-  error: null,
-  toast: null,
-  uploading: false,
-  pendingFiles: [],
-  deleteTarget: null,
+    const state = {
+      files: [],
+      meta: {},
+      loading: true,
+      error: null,
+      toast: null,
+      uploading: false,
+      pendingFiles: [],
+      deleteTarget: null,
+      dragActive: false,
 
-  formatDate(str) {
-    return new Date(str).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-  },
+      formatDate(str) {
+        return new Date(str).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+      },
 
-  formatBytes(bytes) {
-    if (!bytes || bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-  },
+      formatBytes(bytes) {
+        if (!bytes || bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+      },
 
-  triggerFileInput() {
-    document.getElementById('fileInput').click();
-  },
+      triggerFileInput() {
+        document.getElementById('fileInput').click();
+      },
 
-  setDragActive(active) {
-    const zone = document.getElementById('dropZone');
-    if (active) zone.classList.add('drop-active');
-    else zone.classList.remove('drop-active');
-  },
+      setDragActive(active) {
+        this.dragActive = active;
+      },
 
-  onFileSelect(e) {
-    this.pendingFiles = Array.from(e.target.files);
-  },
+      onFileSelect(e) {
+        this.pendingFiles = Array.from(e.target.files);
+      },
 
-  onDrop(e) {
-    this.setDragActive(false);
-    this.pendingFiles = Array.from(e.dataTransfer.files);
-  },
+      onDrop(e) {
+        this.setDragActive(false);
+        this.pendingFiles = Array.from(e.dataTransfer.files);
+      },
 
-  clearPending() {
-    this.pendingFiles = [];
-    document.getElementById('fileInput').value = '';
-  },
+      clearPending() {
+        this.pendingFiles = [];
+        document.getElementById('fileInput').value = '';
+      },
 
-  async uploadFiles() {
-    if (this.pendingFiles.length === 0) return;
-    this.uploading = true;
-    this.error = null;
-    try {
-      const form = new FormData();
-      this.pendingFiles.forEach(f => form.append('file', f));
-      const res = await fetch('/gate/superadmin/files/upload', { method: 'POST', body: form });
-      const data = await res.json();
-      if (data.success) {
-        this.showToast(data.message);
-        this.clearPending();
-        await this.fetchFiles(1);
-      } else {
-        this.error = data.message;
+      async uploadFiles() {
+        if (this.pendingFiles.length === 0) return;
+        this.uploading = true;
+        this.error = null;
+        try {
+          const form = new FormData();
+          this.pendingFiles.forEach(f => form.append('file', f));
+          const res = await fetch('/gate/superadmin/files/upload', { method: 'POST', body: form });
+          const data = await res.json();
+          if (data.success) {
+            this.showToast(data.message);
+            this.clearPending();
+            await this.fetchFiles(1);
+          } else {
+            this.error = data.message;
+          }
+        } catch (e) {
+          this.error = 'Gagal upload: ' + e.message;
+        } finally {
+          this.uploading = false;
+        }
+      },
+
+      async fetchFiles(page = 1) {
+        this.loading = true;
+        this.error = null;
+        try {
+          const res = await fetch('/gate/superadmin/files?page=' + page + '&limit=20');
+          const data = await res.json();
+          if (data.success) {
+            this.files = data.data;
+            this.meta = data.meta;
+          } else {
+            this.error = data.message;
+          }
+        } catch (e) {
+          this.error = 'Gagal memuat file: ' + e.message;
+        } finally {
+          this.loading = false;
+        }
+      },
+
+      goPage(page) {
+        if (page < 1 || page > this.meta.total_pages) return;
+        this.fetchFiles(page);
+      },
+
+      confirmDelete(file) {
+        this.deleteTarget = file;
+      },
+
+      async doDelete() {
+        if (!this.deleteTarget) return;
+        try {
+          const res = await fetch('/gate/superadmin/files/' + this.deleteTarget.id, { method: 'DELETE' });
+          const data = await res.json();
+          if (data.success) {
+            this.showToast('File berhasil dihapus');
+            this.deleteTarget = null;
+            await this.fetchFiles(this.meta.page);
+          } else {
+            this.error = data.message;
+            this.deleteTarget = null;
+          }
+        } catch (e) {
+          this.error = 'Gagal menghapus: ' + e.message;
+          this.deleteTarget = null;
+        }
+      },
+
+      showToast(msg) {
+        this.toast = msg;
+        setTimeout(() => { this.toast = null; }, 3000);
       }
-    } catch (e) {
-      this.error = 'Gagal upload: ' + e.message;
-    } finally {
-      this.uploading = false;
-    }
-  },
+    };
 
-  async fetchFiles(page = 1) {
-    this.loading = true;
-    this.error = null;
-    try {
-      const res = await fetch('/gate/superadmin/files?page=' + page + '&limit=20');
-      const data = await res.json();
-      if (data.success) {
-        this.files = data.data;
-        this.meta = data.meta;
-      } else {
-        this.error = data.message;
-      }
-    } catch (e) {
-      this.error = 'Gagal memuat file: ' + e.message;
-    } finally {
-      this.loading = false;
-    }
-  },
-
-  goPage(page) {
-    if (page < 1 || page > this.meta.total_pages) return;
-    this.fetchFiles(page);
-  },
-
-  confirmDelete(file) {
-    this.deleteTarget = file;
-  },
-
-  async doDelete() {
-    if (!this.deleteTarget) return;
-    try {
-      const res = await fetch('/gate/superadmin/files/' + this.deleteTarget.id, { method: 'DELETE' });
-      const data = await res.json();
-      if (data.success) {
-        this.showToast('File berhasil dihapus');
-        this.deleteTarget = null;
-        await this.fetchFiles(this.meta.page);
-      } else {
-        this.error = data.message;
-        this.deleteTarget = null;
-      }
-    } catch (e) {
-      this.error = 'Gagal menghapus: ' + e.message;
-      this.deleteTarget = null;
-    }
-  },
-
-  showToast(msg) {
-    this.toast = msg;
-    setTimeout(() => { this.toast = null; }, 3000);
-  },
-
-  async mounted() {
-    await this.fetchFiles();
-  }
-}).mount('#app');
-</script>
+    PetiteVue.createApp(state).mount('#app');
+    state.fetchFiles();
+  </script>
 </body>
 </html>
