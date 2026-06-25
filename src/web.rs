@@ -22,6 +22,7 @@ pub mod from {
     pub use actix_web::web::Form;
     pub use actix_web::web::Json;
     pub use actix_web::web::Path;
+    pub use actix_multipart::Multipart as Multipart;
     pub use crate::socketsession::SocketSession as Socket;
     pub use crate::ssesession::SseSession as Sse;
 }

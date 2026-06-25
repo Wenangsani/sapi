@@ -4,6 +4,7 @@ pub mod auth;
 pub mod test;
 pub mod forum;
 pub mod quiz;
+pub mod superadmin;
 pub mod home;
 
 
@@ -15,6 +16,7 @@ pub fn register_open_routes(config: &mut ServiceConfig) {
     forum::open_routes(config);
     test::open_routes(config);
     quiz::open_routes(config);
+    superadmin::open_routes(config);
     home::open_routes(config); // ← scope("") selalu paling bawah
 }
 
@@ -22,5 +24,6 @@ pub fn register_open_routes(config: &mut ServiceConfig) {
 pub fn register_gate_routes(config: &mut ServiceConfig) {
     forum::gate_routes(config);
     quiz::gate_routes(config);
+    superadmin::gate_routes(config);
     home::gate_routes(config);
 }

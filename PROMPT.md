@@ -13,19 +13,22 @@ Buatkan halaman baru untuk aplikasi Rust menggunakan Actix Web dengan struktur b
 
 ## Alias yang WAJIB digunakan
 ```rust
-use crate::web::{Pool, Session, Cookie, Request, Response, ApiResponse};
-use crate::web::from::{Data, Path, Json, Form, Socket, Sse};
-use crate::web::data::{Int, UInt, String, Date};
+use crate::web::{Data, Pool, Session, Cookie, Request, Response, ApiResponse};
+use crate::web::from::{Path, Json, Form, Multipart, Socket, Sse};
+use crate::web::data::{Int, UInt, Uuid, String, Date};
 ```
 
 Referensi tipe:
+- `Data`     = `actix_web::web::Data`
 - `Pool`     = `Data<MySqlPool>`
-- `Request`  = `HttpRequest`
-- `Response` = `HttpResponse`
+- `Request`  = `actix_web::HttpRequest`
+- `Response` = `actix_web::HttpResponse`
 - `Session`  = `actix_session::Session`
 - `Cookie`   = `actix_web::cookie::Cookie`
+- `Multipart`= `actix_multipart::Multipart`
 - `Int`      = `i32`
 - `UInt`     = `u32`
+- `Uuid`     = `uuid::Uuid`
 - `String`   = `std::string::String`
 - `Date`     = `chrono::DateTime<Utc>`
 
@@ -92,6 +95,8 @@ Jangan gunakan `session.get::<UInt>("user_id")` manual jika halaman berstatus Lo
 - Jagan gunakan `init` dan `defer`
 - Jika menggunakan icon usahakan svg dari iconify atau heroicons, jangan gunakan CDN
 - Mount tanpa selector via v-scope, panggil method dari object asli.
+- Setiap interaksi harus memiliki state sendiri (`const stateA = {...}`) dan mount sendiri (`PetiteVue.createApp(stateA).mount('#idA')`)
+- Setiap state memanggil method fetch-nya sendiri dari object state secara langsung (`stateA.fetchData()`)
 
 
 ## Aturan Database
