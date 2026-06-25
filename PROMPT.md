@@ -91,12 +91,13 @@ Jangan gunakan `session.get::<UInt>("user_id")` manual jika halaman berstatus Lo
 - Gunakan source https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js sebagai Petite-Vue
 - Jagan gunakan `init` dan `defer`
 - Jika menggunakan icon usahakan svg dari iconify atau heroicons, jangan gunakan CDN
+- Mount tanpa selector via v-scope, panggil method dari object asli.
 
 
 ## Aturan Database
 - Untuk id gunakan UNSIGNED INTEGER
 - Gunakan struktur yang efisien dan cepat untuk penggunaan data besar
-- Tebel `user` berisi kolom seperti id, username, fullname, last_login, created_At
+- Tebel `users` berisi kolom seperti id, username, fullname, last_login, created_At
 
 
 ## Desain

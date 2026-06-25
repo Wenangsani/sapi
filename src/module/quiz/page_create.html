@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Buat Quiz Baru</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+
+<!-- id="app" dipasang di body agar navbar juga masuk scope petite-vue -->
+<body class="bg-slate-50 min-h-screen font-sans" id="app" v-cloak>
+
+<!-- Navbar -->
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-30">
+  <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="/quiz" class="text-slate-500 hover:text-brand-600 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+        </svg>
+      </a>
+      <span class="font-semibold text-slate-800">Buat Quiz Baru</span>
+    </div>
+    <!-- Tombol ini sekarang dalam scope app, @click berjalan -->
+    <button @click="submit()" :disabled="submitting"
+      class="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 disabled:opacity-60 transition-colors">
+      <span v-if="submitting" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+      <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+      </svg>
+      Publikasikan
+    </button>
+  </div>
+</nav>
+
+<!-- Toast -->
+<div v-if="toast.show"
+  class="fixed top-4 right-4 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2"
+  :class="toast.ok ? 'bg-green-600 text-white' : 'bg-red-600 text-white'">
+  <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+    <path v-if="toast.ok" stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+    <path v-else stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+  </svg>
+  {{ toast.msg }}
+</div>
+
+<!-- Main -->
+<main class="max-w-3xl mx-auto px-4 py-8">
+
+  <!-- Info Quiz -->
+  <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 mb-6">
+    <h2 class="font-semibold text-slate-800 mb-4">Informasi Quiz</h2>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1.5">Judul <span class="text-red-500">*</span></label>
+        <input v-model="title" type="text" placeholder="Contoh: Pengetahuan Umum Nusantara"
+          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-500 focus:outline-none text-slate-800 text-sm placeholder:text-slate-400 transition-colors"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1.5">Deskripsi <span class="text-slate-400 font-normal">(opsional)</span></label>
+        <textarea v-model="description" rows="2" placeholder="Jelaskan tentang quiz ini…"
+          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-500 focus:outline-none text-slate-800 text-sm placeholder:text-slate-400 resize-none transition-colors">
+        </textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Soal-soal -->
+  <div class="space-y-4 mb-6">
+    <div v-for="(q, qi) in questions" :key="q._id"
+      class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 hover:shadow-sm transition-shadow">
+
+      <!-- Header soal -->
+      <div class="flex items-center gap-3 mb-4">
+        <span class="px-2.5 py-0.5 bg-brand-100 text-brand-700 rounded-full text-xs font-semibold shrink-0">
+          Soal {{ qi + 1 }}
+        </span>
+        <select v-model="q.type" @change="onTypeChange(q)"
+          class="text-xs border border-slate-200 rounded-lg px-2 py-1 text-slate-600 focus:outline-none focus:border-brand-400">
+          <option value="single">Pilihan Ganda</option>
+          <option value="multiple">Checklist</option>
+          <option value="text">Isian Singkat</option>
+        </select>
+        <button v-if="questions.length > 1" @click="removeQuestion(qi)"
+          class="ml-auto text-slate-300 hover:text-red-500 transition-colors p-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Teks pertanyaan -->
+      <textarea v-model="q.question" :placeholder="`Tuliskan pertanyaan ${qi + 1}…`" rows="2"
+        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-500 focus:outline-none text-slate-800 text-sm placeholder:text-slate-400 resize-none mb-4 transition-colors">
+      </textarea>
+
+      <!-- Opsi pilihan (single / multiple) -->
+      <div v-if="q.type !== 'text'" class="space-y-2">
+        <div v-for="(opt, oi) in q.options" :key="oi" class="flex items-center gap-2.5">
+          <!-- Tandai benar -->
+          <button @click="toggleCorrect(q, oi)"
+            :title="opt.is_correct ? 'Jawaban benar' : 'Tandai sebagai benar'"
+            class="w-5 h-5 rounded shrink-0 border-2 flex items-center justify-center transition-colors"
+            :class="opt.is_correct ? 'bg-green-500 border-green-500' : 'border-slate-300 hover:border-green-400'">
+            <svg v-if="opt.is_correct" class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+            </svg>
+          </button>
+          <input v-model="opt.label" :placeholder="`Pilihan ${oi + 1}…`" type="text"
+            class="flex-1 px-3 py-2 rounded-lg border border-slate-200 focus:border-brand-400 focus:outline-none text-slate-700 text-sm placeholder:text-slate-400 transition-colors"/>
+          <button v-if="q.options.length > 2" @click="removeOption(q, oi)"
+            class="text-slate-300 hover:text-red-400 transition-colors shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <button @click="addOption(q)"
+          class="flex items-center gap-1.5 text-sm text-brand-600 hover:text-brand-700 font-medium mt-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
+          Tambah pilihan
+        </button>
+      </div>
+
+      <!-- Kunci jawaban untuk tipe text -->
+      <div v-else>
+        <label class="block text-xs text-slate-500 font-medium mb-1.5">
+          Kunci Jawaban <span class="text-slate-400">(untuk penilaian otomatis)</span>
+        </label>
+        <input v-model="q.answer_key" type="text" placeholder="Jawaban yang diharapkan…"
+          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-500 focus:outline-none text-slate-700 text-sm placeholder:text-slate-400 transition-colors"/>
+        <p class="text-xs text-slate-400 mt-1">Sistem membandingkan tanpa memperhatikan huruf kapital.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tambah soal -->
+  <button @click="addQuestion()"
+    class="w-full py-4 rounded-2xl border-2 border-dashed border-slate-300 hover:border-brand-400 text-slate-500 hover:text-brand-600 transition-colors flex items-center justify-center gap-2 text-sm font-medium">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+    </svg>
+    Tambah Soal
+  </button>
+
+  <!-- Spacer bawah -->
+  <div class="h-10"></div>
+</main>
+
+<script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
+<script>
+var _uid = 0
+function uid() { return ++_uid }
+
+function makeQuestion() {
+  return {
+    _id: uid(),
+    type: 'single',
+    question: '',
+    answer_key: '',
+    options: [
+      { label: '', is_correct: false },
+      { label: '', is_correct: false }
+    ]
+  }
+}
+
+PetiteVue.createApp({
+  title: '',
+  description: '',
+  questions: [makeQuestion()],
+  submitting: false,
+  toast: { show: false, ok: true, msg: '' },
+
+  showToast: function(ok, msg) {
+    this.toast = { show: true, ok: ok, msg: msg }
+    var self = this
+    setTimeout(function() { self.toast = { show: false, ok: true, msg: '' } }, 3500)
+  },
+
+  addQuestion: function() {
+    this.questions = this.questions.concat([makeQuestion()])
+    var self = this
+    setTimeout(function() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }) }, 60)
+  },
+
+  removeQuestion: function(index) {
+    this.questions = this.questions.filter(function(_, i) { return i !== index })
+  },
+
+  addOption: function(q) {
+    q.options = q.options.concat([{ label: '', is_correct: false }])
+  },
+
+  removeOption: function(q, index) {
+    q.options = q.options.filter(function(_, i) { return i !== index })
+  },
+
+  toggleCorrect: function(q, index) {
+    if (q.type === 'single') {
+      q.options = q.options.map(function(o, i) { return Object.assign({}, o, { is_correct: i === index }) })
+    } else {
+      q.options = q.options.map(function(o, i) {
+        return i === index ? Object.assign({}, o, { is_correct: !o.is_correct }) : o
+      })
+    }
+  },
+
+  onTypeChange: function(q) {
+    if (q.type === 'text') {
+      q.options = []
+    } else if (q.options.length < 2) {
+      q.options = [{ label: '', is_correct: false }, { label: '', is_correct: false }]
+    }
+    if (q.type === 'single') {
+      q.options = q.options.map(function(o) { return Object.assign({}, o, { is_correct: false }) })
+    }
+  },
+
+  validate: function() {
+    if (!this.title.trim()) {
+      this.showToast(false, 'Judul quiz tidak boleh kosong')
+      return false
+    }
+    for (var i = 0; i < this.questions.length; i++) {
+      var q = this.questions[i]
+      if (!q.question.trim()) {
+        this.showToast(false, 'Soal ' + (i + 1) + ' belum diisi')
+        return false
+      }
+      if (q.type !== 'text') {
+        var filled = q.options.filter(function(o) { return o.label.trim() })
+        if (filled.length < 2) {
+          this.showToast(false, 'Soal ' + (i + 1) + ' minimal 2 pilihan jawaban')
+          return false
+        }
+        var hasCorrect = q.options.some(function(o) { return o.is_correct })
+        if (!hasCorrect) {
+          this.showToast(false, 'Soal ' + (i + 1) + ' belum ada jawaban yang ditandai benar')
+          return false
+        }
+      }
+    }
+    return true
+  },
+
+  submit: async function() {
+    if (this.submitting) return
+    if (!this.validate()) return
+    this.submitting = true
+
+    var payload = {
+      title: this.title.trim(),
+      description: this.description.trim() || null,
+      questions: this.questions.map(function(q) {
+        return {
+          question: q.question.trim(),
+          type: q.type,
+          answer_key: q.type === 'text' ? (q.answer_key.trim() || null) : null,
+          options: q.type !== 'text'
+            ? q.options.filter(function(o) { return o.label.trim() }).map(function(o) {
+                return { label: o.label.trim(), is_correct: o.is_correct }
+              })
+            : []
+        }
+      })
+    }
+
+    try {
+      var res = await fetch('/quiz/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      var json = await res.json()
+      if (json.success) {
+        this.showToast(true, 'Quiz berhasil dibuat!')
+        var quizId = json.data.quiz_id
+        setTimeout(function() { window.location.href = '/quiz/' + quizId }, 1200)
+      } else {
+        this.showToast(false, json.message || 'Gagal membuat quiz')
+        this.submitting = false
+      }
+    } catch (e) {
+      this.showToast(false, 'Gagal terhubung ke server')
+      this.submitting = false
+    }
+  },
+
+  mounted: function() {}
+}).mount('#app')
+</script>
+</body>
+</html>

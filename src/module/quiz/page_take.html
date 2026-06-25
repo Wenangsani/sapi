@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kerjakan Quiz</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: {
+            50:  '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe',
+            300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6',
+            600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a',
+          }
+        },
+        fontFamily: { sans: ['Inter', 'sans-serif'] }
+      }
+    }
+  }
+</script>
+<style>
+  [v-cloak] { display: none; }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans">
+
+<div v-scope>
+
+<!-- Navbar -->
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-30">
+  <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+    <a id="back-link" href="/quiz" class="text-slate-500 hover:text-brand-600 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+      </svg>
+    </a>
+    <div class="flex-1 mx-4">
+      <div id="progress-bar" class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+        <div id="progress-fill" class="h-full bg-brand-500 rounded-full transition-all duration-300" style="width:0%"></div>
+      </div>
+    </div>
+    <span id="progress-label" class="text-sm font-medium text-slate-600 shrink-0">0 / 0</span>
+  </div>
+</nav>
+
+<!-- Main -->
+<main class="max-w-2xl mx-auto px-4 py-8" v-cloak>
+
+  <!-- Loading -->
+  <div v-if="phase === 'loading'" class="flex flex-col items-center justify-center py-24 gap-3">
+    <div class="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin"></div>
+    <p class="text-slate-500 text-sm">Memuat soal…</p>
+  </div>
+
+  <!-- Error -->
+  <div v-else-if="phase === 'error'" class="text-center py-20">
+    <p class="text-slate-700 font-medium mb-1">{{ error }}</p>
+    <p class="text-sm text-slate-500 mb-4">Pastikan kamu sudah login untuk mengerjakan quiz.</p>
+    <a href="/auth/login" class="inline-block px-5 py-2.5 bg-brand-600 text-white rounded-xl text-sm font-medium hover:bg-brand-700">Masuk Sekarang</a>
+  </div>
+
+  <!-- Quiz sedang berjalan -->
+  <div v-else-if="phase === 'quiz'" class="slide-enter">
+    <!-- Nomor soal -->
+    <div class="flex items-center gap-2 mb-6">
+      <span class="px-3 py-1 bg-brand-100 text-brand-700 rounded-full text-sm font-semibold">
+        Soal {{ current + 1 }}
+      </span>
+      <span class="text-slate-400 text-sm">dari {{ questions.length }}</span>
+      <!-- Tipe badge -->
+      <span class="ml-auto px-2.5 py-0.5 rounded-full text-xs font-medium"
+        :class="{
+          'bg-purple-100 text-purple-700': questions[current].type === 'single',
+          'bg-teal-100 text-teal-700': questions[current].type === 'multiple',
+          'bg-orange-100 text-orange-700': questions[current].type === 'text'
+        }">
+        {{ typeLabel(questions[current].type) }}
+      </span>
+    </div>
+
+    <!-- Pertanyaan -->
+    <h2 class="text-lg sm:text-xl font-semibold text-slate-800 mb-6 leading-snug">
+      {{ questions[current].question }}
+    </h2>
+
+    <!-- Opsi: single -->
+    <div v-if="questions[current].type === 'single'" class="space-y-3">
+      <button v-for="opt in questions[current].options" :key="opt.id"
+        @click="selectSingle(opt.id)"
+        class="w-full text-left px-4 py-3.5 rounded-xl border-2 border-slate-200 hover:border-brand-400 transition-colors text-slate-700 text-sm font-medium"
+        :class="isSingleSelected(opt.id) ? 'border-brand-500 bg-brand-50 text-brand-700' : ''">
+        <span class="flex items-center gap-3">
+          <span class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0"
+            :class="isSingleSelected(opt.id) ? 'border-brand-500' : 'border-slate-300'">
+            <span v-if="isSingleSelected(opt.id)" class="w-2.5 h-2.5 rounded-full bg-brand-500"></span>
+          </span>
+          {{ opt.label }}
+        </span>
+      </button>
+    </div>
+
+    <!-- Opsi: multiple (checklist) -->
+    <div v-else-if="questions[current].type === 'multiple'" class="space-y-3">
+      <p class="text-xs text-slate-500 -mt-3 mb-1">Pilih semua jawaban yang benar</p>
+      <button v-for="opt in questions[current].options" :key="opt.id"
+        @click="toggleMulti(opt.id)"
+        class="w-full text-left px-4 py-3.5 rounded-xl border-2 border-slate-200 hover:border-brand-400 transition-colors text-slate-700 text-sm font-medium"
+        :class="isMultiSelected(opt.id) ? 'border-brand-500 bg-brand-50 text-brand-700' : ''">
+        <span class="flex items-center gap-3">
+          <span class="w-5 h-5 rounded border-2 flex items-center justify-center shrink-0"
+            :class="isMultiSelected(opt.id) ? 'border-brand-500 bg-brand-500' : 'border-slate-300'">
+            <svg v-if="isMultiSelected(opt.id)" class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+            </svg>
+          </span>
+          {{ opt.label }}
+        </span>
+      </button>
+    </div>
+
+    <!-- Isian teks -->
+    <div v-else-if="questions[current].type === 'text'">
+      <textarea
+        :value="getTextAnswer()"
+        @input="setTextAnswer($event.target.value)"
+        rows="4"
+        placeholder="Tuliskan jawabanmu di sini…"
+        class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-brand-500 focus:outline-none text-slate-700 text-sm resize-none transition-colors">
+      </textarea>
+    </div>
+
+    <!-- Navigasi -->
+    <div class="mt-8 flex items-center gap-3">
+      <button v-if="current > 0" @click="prev()"
+        class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors">
+        Sebelumnya
+      </button>
+      <button v-if="current < questions.length - 1" @click="next()"
+        class="ml-auto px-6 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition-colors">
+        Selanjutnya
+      </button>
+      <button v-else @click="confirmSubmit()"
+        class="ml-auto px-6 py-2.5 rounded-xl bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+        </svg>
+        Kumpulkan
+      </button>
+    </div>
+
+    <!-- Mini navigator -->
+    <div class="mt-8 pt-6 border-t border-slate-200">
+      <p class="text-xs text-slate-500 mb-3 font-medium uppercase tracking-wide">Navigasi Soal</p>
+      <div class="flex flex-wrap gap-2">
+        <button v-for="(q, i) in questions" :key="q.id"
+          @click="goTo(i)"
+          class="w-8 h-8 rounded-lg text-xs font-semibold transition-colors"
+          :class="i === current
+            ? 'bg-brand-600 text-white'
+            : isAnswered(i)
+              ? 'bg-brand-100 text-brand-700 hover:bg-brand-200'
+              : 'bg-slate-100 text-slate-500 hover:bg-slate-200'">
+          {{ i + 1 }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Konfirmasi submit -->
+  <div v-else-if="phase === 'confirm'" class="max-w-sm mx-auto text-center py-12">
+    <div class="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+      </svg>
+    </div>
+    <h2 class="text-xl font-bold text-slate-800 mb-2">Siap dikumpulkan?</h2>
+    <p class="text-slate-500 text-sm mb-2">Kamu menjawab <span class="font-semibold text-brand-600">{{ answeredCount }}</span> dari <span class="font-semibold">{{ questions.length }}</span> soal.</p>
+    <p v-if="answeredCount < questions.length" class="text-amber-600 text-xs mb-6">
+      {{ questions.length - answeredCount }} soal belum dijawab — tetap bisa dikumpulkan.
+    </p>
+    <p v-else class="text-green-600 text-xs mb-6">Semua soal sudah dijawab.</p>
+    <div class="flex gap-3 justify-center">
+      <button @click="phase = 'quiz'" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm hover:bg-slate-50">
+        Kembali
+      </button>
+      <button @click="submit()" :disabled="submitting"
+        class="px-6 py-2.5 rounded-xl bg-green-600 text-white text-sm font-medium hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
+        <span v-if="submitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+        {{ submitting ? 'Menyimpan…' : 'Kumpulkan Sekarang' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Hasil -->
+  <div v-else-if="phase === 'result'" class="max-w-sm mx-auto text-center py-12">
+    <!-- Score ring -->
+    <div class="relative w-32 h-32 mx-auto mb-6">
+      <svg class="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="#e2e8f0" stroke-width="12"/>
+        <circle cx="60" cy="60" r="52" fill="none" stroke="#2563eb" stroke-width="12"
+          :stroke-dasharray="`${(result.score / 100 * 326.7).toFixed(1)} 326.7`"
+          stroke-linecap="round"/>
+      </svg>
+      <div class="absolute inset-0 flex flex-col items-center justify-center">
+        <span class="text-3xl font-bold text-brand-700">{{ result.score.toFixed(0) }}</span>
+        <span class="text-xs text-slate-500">poin</span>
+      </div>
+    </div>
+
+    <h2 class="text-2xl font-bold text-slate-800 mb-1">
+      {{ result.score >= 80 ? 'Luar Biasa! 🎉' : result.score >= 60 ? 'Bagus! 👍' : 'Coba Lagi Nanti 💪' }}
+    </h2>
+    <p class="text-slate-500 text-sm mb-6">
+      Kamu menjawab <span class="font-semibold text-brand-600">{{ result.correct }}</span>
+      dari <span class="font-semibold">{{ result.total }}</span> soal dengan benar.
+    </p>
+
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a :href="`/quiz/${quizId}`"
+        class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50">
+        Lihat Papan Peringkat
+      </a>
+      <a href="/quiz"
+        class="px-5 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-medium hover:bg-brand-700">
+        Quiz Lainnya
+      </a>
+    </div>
+  </div>
+
+</main>
+
+</div>
+
+<script>
+  const quizTakeApp = {
+    phase: 'loading',
+    questions: [],
+    answers: {},
+    current: 0,
+    submitting: false,
+    error: null,
+    result: null,
+
+    get quizId() {
+      return window.location.pathname.split('/').filter(Boolean)[1]
+    },
+
+    get answeredCount() {
+      return Object.keys(this.answers).filter(k => {
+        const a = this.answers[k]
+        if (!a) return false
+        if (a.type === 'text') return (a.value || '').trim().length > 0
+        return Array.isArray(a.value) && a.value.length > 0
+      }).length
+    },
+
+    typeLabel(t) {
+      return { single: 'Pilihan Ganda', multiple: 'Checklist', text: 'Isian' }[t] || t
+    },
+
+    selectSingle(optId) {
+      const qid = this.questions[this.current].id
+      this.answers = { ...this.answers, [qid]: { type: 'single', value: [optId] } }
+      this.updateProgress()
+    },
+    isSingleSelected(optId) {
+      const qid = this.questions[this.current].id
+      const a = this.answers[qid]
+      return a && Array.isArray(a.value) && a.value[0] === optId
+    },
+
+    toggleMulti(optId) {
+      const qid = this.questions[this.current].id
+      const a = this.answers[qid] || { type: 'multiple', value: [] }
+      const vals = [...(a.value || [])]
+      const idx = vals.indexOf(optId)
+      if (idx === -1) vals.push(optId)
+      else vals.splice(idx, 1)
+      this.answers = { ...this.answers, [qid]: { type: 'multiple', value: vals } }
+      this.updateProgress()
+    },
+    isMultiSelected(optId) {
+      const qid = this.questions[this.current].id
+      const a = this.answers[qid]
+      return a && Array.isArray(a.value) && a.value.includes(optId)
+    },
+
+    getTextAnswer() {
+      const qid = this.questions[this.current].id
+      return (this.answers[qid] || {}).value || ''
+    },
+    setTextAnswer(val) {
+      const qid = this.questions[this.current].id
+      this.answers = { ...this.answers, [qid]: { type: 'text', value: val } }
+      this.updateProgress()
+    },
+
+    isAnswered(index) {
+      const qid = this.questions[index]?.id
+      if (!qid) return false
+      const a = this.answers[qid]
+      if (!a) return false
+      if (a.type === 'text') return (a.value || '').trim().length > 0
+      return Array.isArray(a.value) && a.value.length > 0
+    },
+
+    updateProgress() {
+      const fill = document.getElementById('progress-fill')
+      const label = document.getElementById('progress-label')
+      if (fill && this.questions.length > 0) {
+        const pct = ((this.current + 1) / this.questions.length * 100).toFixed(1)
+        fill.style.width = pct + '%'
+      }
+      if (label) label.textContent = `${this.current + 1} / ${this.questions.length}`
+    },
+
+    goTo(i) {
+      this.current = i
+      this.updateProgress()
+    },
+    next() {
+      if (this.current < this.questions.length - 1) {
+        this.current++
+        this.updateProgress()
+      }
+    },
+    prev() {
+      if (this.current > 0) {
+        this.current--
+        this.updateProgress()
+      }
+    },
+
+    confirmSubmit() {
+      this.phase = 'confirm'
+    },
+
+    async submit() {
+      this.submitting = true
+      const answers = Object.entries(this.answers).map(([qid, a]) => {
+        const base = { question_id: parseInt(qid) }
+        if (a.type === 'text') {
+          return { ...base, answer_text: a.value, option_ids: null }
+        }
+        return { ...base, answer_text: null, option_ids: a.value }
+      })
+
+      try {
+        const res = await fetch(`/quiz/${this.quizId}/submit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ answers })
+        })
+        const json = await res.json()
+        if (json.success) {
+          this.result = json.data
+          this.phase = 'result'
+        } else {
+          alert(json.message || 'Gagal mengumpulkan jawaban')
+          this.phase = 'quiz'
+        }
+      } catch (e) {
+        alert('Gagal terhubung ke server')
+        this.phase = 'quiz'
+      } finally {
+        this.submitting = false
+      }
+    },
+
+    async mounted() {
+      document.getElementById('back-link').href = `/quiz/${this.quizId}`
+
+      try {
+        const res = await fetch(`/quiz/${this.quizId}/questions`)
+        if (res.status === 401 || res.status === 403) {
+          this.error = 'Kamu harus login untuk mengerjakan quiz ini.'
+          this.phase = 'error'
+          return
+        }
+        const json = await res.json()
+        if (json.success && json.data?.length > 0) {
+          this.questions = json.data
+          this.phase = 'quiz'
+          this.updateProgress()
+        } else {
+          this.error = json.message || 'Soal tidak tersedia'
+          this.phase = 'error'
+        }
+      } catch (e) {
+        this.error = 'Gagal memuat soal'
+        this.phase = 'error'
+      }
+    }
+  };
+
+  PetiteVue.createApp(quizTakeApp).mount();
+
+  // Panggil mounted() dari object asli — pola yang sama dengan contoh forum
+  quizTakeApp.mounted();
+</script>
+</body>
+</html>
