@@ -109,7 +109,7 @@ pub async fn api_stats(session: Session, pool: Pool) -> Response {
     };
 
     let total_size: (Option<i64>,) =
-        match sqlx::query_as("SELECT SUM(file_size) FROM uploaded_files")
+        match sqlx::query_as("SELECT CAST(SUM(file_size) AS SIGNED) FROM uploaded_files")
             .fetch_one(pool.get_ref())
             .await
         {
