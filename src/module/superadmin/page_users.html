@@ -1,335 +1,674 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>SuperAdmin — Pengguna</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  [v-cloak] { display: none; }
-</style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SuperAdmin — Pengguna</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans antialiased">
+<body class="bg-blue-50 min-h-screen font-sans antialiased">
 
-<div class="flex min-h-screen">
+    <div class="flex min-h-screen">
 
-  <!-- Sidebar -->
-  <aside class="hidden lg:flex flex-col w-60 bg-white border-r border-slate-200 fixed top-0 left-0 h-full z-20">
-    <div class="px-6 py-5 border-b border-slate-100">
-      <span class="text-blue-600 font-bold text-lg tracking-tight">SuperAdmin</span>
-      <p class="text-xs text-slate-400 mt-0.5">Panel Administrasi</p>
-    </div>
-    <nav class="flex-1 px-3 py-4 space-y-0.5">
-      <a href="/superadmin" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 text-sm">
-        <!-- heroicons: home -->
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-        </svg>
-        Dashboard
-      </a>
-      <a href="/superadmin/users" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium">
-        <!-- heroicons: users -->
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-        </svg>
-        Pengguna
-      </a>
-      <a href="/superadmin/files" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 text-sm">
-        <!-- heroicons: folder -->
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
-        </svg>
-        File Upload
-      </a>
-      <a href="/superadmin/database" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 text-sm">
-        <!-- heroicons: database -->
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <ellipse cx="12" cy="5" rx="9" ry="3"/>
-          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
-          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
-        </svg>
-        Database
-      </a>
-    </nav>
-    <div class="px-4 py-4 border-t border-slate-100">
-      <a href="/auth/logout" class="flex items-center gap-2 text-sm text-slate-500 hover:text-red-600 transition-colors">
-        <!-- heroicons: logout -->
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-        </svg>
-        Keluar
-      </a>
-    </div>
-  </aside>
+        <!-- ─── Sidebar ─────────────────────────────────────────────────────── -->
+        <aside class="hidden lg:flex flex-col w-56 bg-white border-r border-blue-100 fixed top-0 left-0 h-full z-20">
+            <!-- Logo -->
+            <div class="px-5 py-4 border-b border-blue-100 flex items-center gap-2.5">
+                <div class="w-7 h-7 bg-blue-600 rounded flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z" />
+                        <path d="M3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-slate-800 leading-tight">SuperAdmin</p>
+                    <p class="text-xs text-blue-400 leading-tight">Panel Administrasi</p>
+                </div>
+            </div>
 
-  <div class="flex-1 lg:ml-60">
+            <!-- Nav -->
+            <nav class="flex-1 px-2 py-3 space-y-0.5">
 
-    <!-- Mobile Top Bar -->
-    <div id="mobileHeader">
-      <header class="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 sticky top-0 z-10">
-        <span class="text-blue-600 font-bold text-base">SuperAdmin</span>
-        <button id="menuBtn" class="text-slate-600 p-1">
-          <!-- heroicons: menu -->
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-        </button>
-      </header>
-      <div id="mobileNav" class="lg:hidden hidden bg-white border-b border-slate-200 px-4 py-3 space-y-1">
-        <a href="/superadmin" class="block px-3 py-2 rounded-lg text-slate-600 text-sm">Dashboard</a>
-        <a href="/superadmin/users" class="block px-3 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium">Pengguna</a>
-        <a href="/superadmin/files" class="block px-3 py-2 rounded-lg text-slate-600 text-sm">File Upload</a>
-        <a href="/superadmin/database" class="block px-3 py-2 rounded-lg text-slate-600 text-sm">Database</a>
-      </div>
-    </div>
+                <p class="px-3 pt-2 pb-1 text-xs font-medium text-blue-300 uppercase tracking-widest">Utama</p>
 
-    <!-- Users Table Section -->
-    <main class="p-6 max-w-5xl mx-auto">
+                <a href="/superadmin" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-blue-50 hover:text-blue-700 text-sm transition-colors">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                    </svg>
+                    Dashboard
+                </a>
 
-      <div id="usersApp" v-scope v-cloak>
+                <a href="/superadmin/users" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none" /><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 6a8 3 0 1 0 16 0A8 3 0 1 0 4 6" /><path d="M4 6v6a8 3 0 0 0 16 0V6" /><path d="M4 12v6a8 3 0 0 0 16 0v-6" /></g></svg>
+                    Pengguna
+                </a>
 
-        <!-- Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-          <div>
-            <h1 class="text-xl font-semibold text-slate-800">Pengguna</h1>
-            <p class="text-sm text-slate-500 mt-0.5">
-              <span v-if="meta.total !== undefined">{{ meta.total }} pengguna terdaftar</span>
-              <span v-else>Memuat...</span>
-            </p>
-          </div>
-          <div class="relative">
-            <input
-              type="text"
-              v-model="search"
-              placeholder="Cari username atau nama..."
-              class="w-full sm:w-64 pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-              @input="onSearch"
-            />
-            <!-- heroicons: search -->
-            <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-          </div>
-        </div>
+                <a href="/superadmin/files" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-blue-50 hover:text-blue-700 text-sm transition-colors">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                    </svg>
+                    File Upload
+                </a>
 
-        <!-- Error Banner -->
-        <div v-if="error" class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600 mb-4">
-          {{ error }}
-        </div>
+                <a href="/superadmin/database" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-blue-50 hover:text-blue-700 text-sm transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none" /><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 6a8 3 0 1 0 16 0A8 3 0 1 0 4 6" /><path d="M4 6v6a8 3 0 0 0 16 0V6" /><path d="M4 12v6a8 3 0 0 0 16 0v-6" /></g></svg>
+                    Database
+                </a>
 
-        <!-- Toast -->
-        <div v-if="toast" class="fixed top-4 right-4 z-50 bg-white border border-slate-200 rounded-xl shadow-lg px-4 py-3 text-sm text-slate-700 flex items-center gap-2">
-          <!-- heroicons: check -->
-          <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 13l4 4L19 7"/>
-          </svg>
-          {{ toast }}
-        </div>
+                <p class="px-3 pt-3 pb-1 text-xs font-medium text-blue-300 uppercase tracking-widest">Monitor</p>
 
-        <!-- Table Card -->
-        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                <a href="/superadmin/logs" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-blue-50 hover:text-blue-700 text-sm transition-colors">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    Log Aktivitas
+                </a>
 
-          <!-- Loading -->
-          <div v-if="loading" class="flex items-center justify-center py-16 text-sm text-slate-500 gap-2">
-            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-            </svg>
-            Memuat data...
-          </div>
+                <a href="/superadmin/security" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-blue-50 hover:text-blue-700 text-sm transition-colors">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    Keamanan
+                </a>
 
-          <!-- Empty State -->
-          <div v-else-if="users.length === 0" class="flex flex-col items-center justify-center py-16 text-slate-400">
-            <!-- heroicons: user-group -->
-            <svg class="w-10 h-10 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            <p class="text-sm">Tidak ada pengguna ditemukan</p>
-          </div>
+                <a href="/superadmin/settings" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-blue-50 hover:text-blue-700 text-sm transition-colors">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                    Pengaturan
+                </a>
+            </nav>
 
-          <!-- Table -->
-          <div v-else class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <thead>
-                <tr class="border-b border-slate-100 bg-slate-50">
-                  <th class="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">ID</th>
-                  <th class="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Username</th>
-                  <th class="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide hidden md:table-cell">Nama Lengkap</th>
-                  <th class="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide hidden lg:table-cell">Login Terakhir</th>
-                  <th class="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide hidden lg:table-cell">Terdaftar</th>
-                  <th class="px-4 py-3"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="user in users" :key="user.id" class="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                  <td class="px-4 py-3 text-slate-400 font-mono text-xs">{{ user.id }}</td>
-                  <td class="px-4 py-3">
-                    <div class="flex items-center gap-2">
-                      <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-medium shrink-0">
-                        {{ user.username.charAt(0).toUpperCase() }}
-                      </div>
-                      <span class="font-medium text-slate-700">{{ user.username }}</span>
+            <!-- User / Logout -->
+            <div class="px-3 py-3 border-t border-blue-100">
+                <a href="/auth/logout" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 text-sm transition-colors">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Keluar
+                </a>
+            </div>
+        </aside>
+
+        <!-- ─── Main ────────────────────────────────────────────────────────── -->
+        <div class="flex-1 lg:ml-56">
+
+            <!-- Mobile top bar -->
+            <header class="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-blue-100 sticky top-0 z-10">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
+                        <svg class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z" />
+                            <path d="M3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0z" />
+                        </svg>
                     </div>
-                  </td>
-                  <td class="px-4 py-3 text-slate-600 hidden md:table-cell">{{ user.fullname }}</td>
-                  <td class="px-4 py-3 text-slate-500 text-xs hidden lg:table-cell">{{ user.last_login ? formatDate(user.last_login) : '—' }}</td>
-                  <td class="px-4 py-3 text-slate-500 text-xs hidden lg:table-cell">{{ formatDate(user.created_at) }}</td>
-                  <td class="px-4 py-3 text-right">
-                    <button
-                      @click="confirmDelete(user)"
-                      class="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors"
-                    >
-                      Hapus
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                    <span class="text-sm font-semibold text-slate-800">SuperAdmin</span>
+                </div>
+                <button id="menuBtn" class="p-1.5 rounded-lg hover:bg-blue-50 text-slate-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </header>
 
-          <!-- Pagination -->
-          <div v-if="!loading && meta.total_pages > 1" class="flex items-center justify-between px-4 py-3 border-t border-slate-100">
-            <p class="text-xs text-slate-500">Halaman {{ meta.page }} dari {{ meta.total_pages }}</p>
-            <div class="flex gap-1">
-              <button
-                @click="goPage(meta.page - 1)"
-                :disabled="meta.page <= 1"
-                class="px-3 py-1.5 text-xs border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50 transition-colors"
-              >Sebelumnya</button>
-              <button
-                @click="goPage(meta.page + 1)"
-                :disabled="meta.page >= meta.total_pages"
-                class="px-3 py-1.5 text-xs border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50 transition-colors"
-              >Berikutnya</button>
+            <!-- Mobile drawer -->
+            <div id="mobileNav" class="lg:hidden hidden bg-white border-b border-blue-100 px-3 py-2 space-y-0.5">
+                <a href="/superadmin" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="/superadmin/users" class="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Pengguna
+                </a>
+                <a href="/superadmin/files" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                    </svg>
+                    File Upload
+                </a>
+                <a href="/superadmin/database" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none" /><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 6a8 3 0 1 0 16 0A8 3 0 1 0 4 6" /><path d="M4 6v6a8 3 0 0 0 16 0V6" /><path d="M4 12v6a8 3 0 0 0 16 0v-6" /></g></svg>
+                    Database
+                </a>
+                <a href="/superadmin/logs" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    Log Aktivitas
+                </a>
+                <a href="/superadmin/security" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    Keamanan
+                </a>
+                <a href="/superadmin/settings" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                    Pengaturan
+                </a>
             </div>
-          </div>
+
+            <!-- ─── Page Content ────────────────────────────────────────────── -->
+            <main class="p-5 max-w-5xl mx-auto" id="app" v-scope v-cloak>
+
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                    <div>
+                        <h1 class="text-lg font-semibold text-slate-800">Pengguna</h1>
+                        <p class="text-xs text-slate-400 mt-0.5">
+                            <span v-if="meta.total !== undefined">{{ meta.total }} pengguna terdaftar</span>
+                            <span v-else>Memuat...</span>
+                        </p>
+                    </div>
+                    <div class="relative">
+                        <input
+                        type="text"
+                        v-model="search"
+                        placeholder="Cari username atau nama..."
+                        class="w-full sm:w-64 pl-9 pr-3 py-2 text-sm border border-blue-100 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        @input="onSearch"
+                        />
+                        <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Error Banner -->
+                <div v-if="error" class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600 mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {{ error }}
+                </div>
+
+                <!-- Toast -->
+                <div v-if="toast" class="fixed top-4 right-4 z-50 bg-white border border-blue-100 rounded-xl shadow-lg px-4 py-3 text-sm text-slate-700 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 13l4 4L19 7" />
+                    </svg>
+                    {{ toast }}
+                </div>
+
+                <!-- Table Card -->
+                <div class="bg-white border border-blue-100 rounded-xl overflow-hidden">
+
+                    <!-- Loading -->
+                    <div v-if="loading" class="flex items-center justify-center py-16 text-sm text-slate-500 gap-2">
+                        <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Memuat data...
+                    </div>
+
+                    <!-- Empty State -->
+                    <div v-else-if="users.length === 0" class="flex flex-col items-center justify-center py-16 text-slate-400">
+                        <svg class="w-10 h-10 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <p class="text-sm">Tidak ada pengguna ditemukan</p>
+                    </div>
+
+                    <!-- Table -->
+                    <div v-else class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-blue-50 bg-blue-50/50">
+                                    <th class="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">ID</th>
+                                    <th class="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Username</th>
+                                    <th class="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide hidden md:table-cell">Nama Lengkap</th>
+                                    <th class="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide hidden lg:table-cell">Login Terakhir</th>
+                                    <th class="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide hidden lg:table-cell">Terdaftar</th>
+                                    <th class="px-4 py-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="user in users" :key="user.id" class="border-b border-blue-50 last:border-0 hover:bg-blue-50/30 transition-colors">
+                                    <td class="px-4 py-3 text-slate-400 font-mono text-xs">{{ user.id }}</td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-medium shrink-0">
+                                                {{ user.username.charAt(0).toUpperCase() }}
+                                            </div>
+                                            <span class="font-medium text-slate-700">{{ user.username }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 text-slate-600 hidden md:table-cell">{{ user.fullname }}</td>
+                                    <td class="px-4 py-3 text-slate-500 text-xs hidden lg:table-cell">{{ user.last_login ? formatDate(user.last_login) : '—' }}</td>
+                                    <td class="px-4 py-3 text-slate-500 text-xs hidden lg:table-cell">{{ formatDate(user.created_at) }}</td>
+                                    <td class="px-4 py-3 text-right">
+                                        <div class="flex items-center justify-end gap-1 flex-wrap">
+                                            <!-- Edit -->
+                                            <button @click="openEdit(user)" class="text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors flex items-center gap-1">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                                Edit
+                                            </button>
+                                            <!-- Password -->
+                                            <button @click="openChangePassword(user)" class="text-xs text-amber-600 hover:text-amber-800 hover:bg-amber-50 px-2 py-1 rounded-lg transition-colors flex items-center gap-1">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                                </svg>
+                                                Password
+                                            </button>
+                                            <!-- Delete -->
+                                            <button @click="confirmDelete(user)" class="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors flex items-center gap-1">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                Hapus
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div v-if="!loading && meta.total_pages > 1" class="flex items-center justify-between px-4 py-3 border-t border-blue-50">
+                        <p class="text-xs text-slate-500">Halaman {{ meta.page }} dari {{ meta.total_pages }}</p>
+                        <div class="flex gap-1">
+                            <button @click="goPage(meta.page - 1)" :disabled="meta.page <= 1" class="px-3 py-1.5 text-xs border border-blue-100 rounded-lg disabled:opacity-40 hover:bg-blue-50 transition-colors">
+                                Sebelumnya
+                            </button>
+                            <button @click="goPage(meta.page + 1)" :disabled="meta.page >= meta.total_pages" class="px-3 py-1.5 text-xs border border-blue-100 rounded-lg disabled:opacity-40 hover:bg-blue-50 transition-colors">
+                                Berikutnya
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ─── Modal Edit User ──────────────────────────────────────── -->
+                <div v-if="editTarget" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
+                    <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
+                        <div class="flex items-center justify-between mb-5">
+                            <div>
+                                <h3 class="text-base font-semibold text-slate-800">Edit Pengguna</h3>
+                                <p class="text-xs text-slate-400 mt-0.5">ID #{{ editTarget.id }}</p>
+                            </div>
+                            <button @click="editTarget = null; editError = null" class="text-slate-400 hover:text-slate-600 transition-colors p-1">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div v-if="editError" class="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-600 mb-4 flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ editError }}
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1.5">Username</label>
+                                <div class="w-full px-3 py-2 text-sm border border-blue-100 rounded-lg bg-blue-50/50 text-slate-400 select-none">
+                                    {{ editTarget.username }}
+                                </div>
+                                <p class="text-xs text-slate-400 mt-1">Username tidak dapat diubah</p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1.5">Nama Lengkap</label>
+                                <input type="text" v-model="editForm.fullname" class="w-full px-3 py-2 text-sm border border-blue-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white" placeholder="Nama Lengkap" />
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 mt-6">
+                            <button @click="editTarget = null; editError = null" class="flex-1 px-4 py-2 text-sm border border-blue-100 rounded-xl hover:bg-blue-50 transition-colors">
+                                Batal
+                            </button>
+                            <button @click="doEdit" :disabled="editLoading" class="flex-1 px-4 py-2 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+                                <svg v-if="editLoading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                </svg>
+                                Simpan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ─── Modal Ganti Password ────────────────────────────────── -->
+                <div v-if="passwordTarget" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
+                    <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
+                        <div class="flex items-center justify-between mb-5">
+                            <div>
+                                <h3 class="text-base font-semibold text-slate-800">Ganti Password</h3>
+                                <p class="text-xs text-slate-400 mt-0.5">{{ passwordTarget.username }}</p>
+                            </div>
+                            <button @click="passwordTarget = null; passwordError = null; passwordForm.new_password = ''; passwordForm.confirm_password = ''" class="text-slate-400 hover:text-slate-600 transition-colors p-1">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div v-if="passwordError" class="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-600 mb-4 flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ passwordError }}
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1.5">Password Baru</label>
+                                <div class="relative">
+                                    <input :type="showNewPwd ? 'text' : 'password'" v-model="passwordForm.new_password" class="w-full pl-3 pr-10 py-2 text-sm border border-blue-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" placeholder="Minimal 8 karakter" />
+                                    <button @click="showNewPwd = !showNewPwd" class="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 transition-colors" type="button">
+                                        <svg v-if="!showNewPwd" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                        <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="mt-1.5 flex gap-1">
+                                    <div class="h-1 flex-1 rounded-full" :class="passwordStrength >= 1 ? 'bg-red-400' : 'bg-blue-100'"></div>
+                                    <div class="h-1 flex-1 rounded-full" :class="passwordStrength >= 2 ? 'bg-amber-400' : 'bg-blue-100'"></div>
+                                    <div class="h-1 flex-1 rounded-full" :class="passwordStrength >= 3 ? 'bg-green-400' : 'bg-blue-100'"></div>
+                                </div>
+                                <p class="text-xs mt-1" :class="['text-slate-400', 'text-red-500', 'text-amber-500', 'text-green-500'][passwordStrength]">
+                                    {{ ['', 'Lemah', 'Sedang', 'Kuat'][passwordStrength] }}
+                                </p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1.5">Konfirmasi Password</label>
+                                <div class="relative">
+                                    <input :type="showConfirmPwd ? 'text' : 'password'" v-model="passwordForm.confirm_password" class="w-full pl-3 pr-10 py-2 text-sm border border-blue-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" :class="passwordForm.confirm_password && passwordForm.new_password !== passwordForm.confirm_password ? 'border-red-300 ring-1 ring-red-200' : ''" placeholder="Ulangi password baru" />
+                                    <button @click="showConfirmPwd = !showConfirmPwd" class="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 transition-colors" type="button">
+                                        <svg v-if="!showConfirmPwd" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                        <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <p v-if="passwordForm.confirm_password && passwordForm.new_password !== passwordForm.confirm_password" class="text-xs text-red-500 mt-1">
+                                    Password tidak cocok
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 mt-6">
+                            <button @click="passwordTarget = null; passwordError = null; passwordForm.new_password = ''; passwordForm.confirm_password = ''" class="flex-1 px-4 py-2 text-sm border border-blue-100 rounded-xl hover:bg-blue-50 transition-colors">
+                                Batal
+                            </button>
+                            <button @click="doChangePassword" :disabled="passwordLoading" class="flex-1 px-4 py-2 text-sm bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+                                <svg v-if="passwordLoading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                </svg>
+                                Simpan Password
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ─── Modal Konfirmasi Hapus ──────────────────────────────── -->
+                <div v-if="deleteTarget" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
+                    <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
+                        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-base font-semibold text-slate-800 mb-1">Hapus Pengguna?</h3>
+                        <p class="text-sm text-slate-500 mb-5">
+                            Tindakan ini akan menghapus <strong>{{ deleteTarget.username }}</strong> secara permanen dan tidak dapat dibatalkan.
+                        </p>
+                        <div class="flex gap-2">
+                            <button @click="deleteTarget = null" class="flex-1 px-4 py-2 text-sm border border-blue-100 rounded-xl hover:bg-blue-50 transition-colors">
+                                Batal
+                            </button>
+                            <button @click="doDelete" class="flex-1 px-4 py-2 text-sm bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors">
+                                Hapus
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
         </div>
+    </div>
 
-        <!-- Confirm Delete Modal -->
-        <div v-if="deleteTarget" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
-          <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
-            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mb-4">
-              <!-- heroicons: exclamation -->
-              <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-              </svg>
-            </div>
-            <h3 class="text-base font-semibold text-slate-800 mb-1">Hapus Pengguna?</h3>
-            <p class="text-sm text-slate-500 mb-5">
-              Tindakan ini akan menghapus <strong>{{ deleteTarget.username }}</strong> secara permanen dan tidak dapat dibatalkan.
-            </p>
-            <div class="flex gap-2">
-              <button
-                @click="deleteTarget = null"
-                class="flex-1 px-4 py-2 text-sm border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
-              >Batal</button>
-              <button
-                @click="doDelete"
-                class="flex-1 px-4 py-2 text-sm bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors"
-              >Hapus</button>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-    </main>
-  </div>
-</div>
-
-<script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
-<script>
-  // Mobile menu toggle (vanilla JS, no Petite-Vue needed)
-  document.getElementById('menuBtn').addEventListener('click', function () {
-    document.getElementById('mobileNav').classList.toggle('hidden');
-  });
-
-  // ── Users state ──────────────────────────────────────────────────────────
-  const usersState = {
-    users: [],
-    meta: {},
-    loading: true,
-    error: null,
-    toast: null,
-    search: '',
-    deleteTarget: null,
-    _searchTimer: null,
-
-    formatDate(str) {
-      if (!str) return '—';
-      return new Date(str).toLocaleDateString('id-ID', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      });
-    },
-
-    async fetchUsers(page) {
-      page = page || 1;
-      this.loading = true;
-      this.error = null;
-      try {
-        const params = new URLSearchParams({ page: page, limit: 20 });
-        if (this.search) params.set('search', this.search);
-        const res = await fetch('/gate/superadmin/users?' + params.toString());
-        const data = await res.json();
-        if (data.success) {
-          this.users = data.data;
-          this.meta = data.meta;
-        } else {
-          this.error = data.message;
-        }
-      } catch (e) {
-        this.error = 'Gagal memuat data: ' + e.message;
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    onSearch() {
-      clearTimeout(this._searchTimer);
-      this._searchTimer = setTimeout(() => usersState.fetchUsers(1), 400);
-    },
-
-    goPage(page) {
-      if (page < 1 || page > this.meta.total_pages) return;
-      usersState.fetchUsers(page);
-    },
-
-    confirmDelete(user) {
-      this.deleteTarget = user;
-    },
-
-    async doDelete() {
-      if (!this.deleteTarget) return;
-      try {
-        const res = await fetch('/gate/superadmin/users/' + this.deleteTarget.id, {
-          method: 'DELETE',
+    <script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js">
+    </script>
+    <script>
+        document.getElementById('menuBtn').addEventListener('click', function() {
+            document.getElementById('mobileNav').classList.toggle('hidden');
         });
-        const data = await res.json();
-        if (data.success) {
-          this.deleteTarget = null;
-          usersState.showToast('Pengguna berhasil dihapus');
-          await usersState.fetchUsers(this.meta.page);
-        } else {
-          this.error = data.message;
-          this.deleteTarget = null;
-        }
-      } catch (e) {
-        this.error = 'Gagal menghapus: ' + e.message;
-        this.deleteTarget = null;
-      }
-    },
 
-    showToast(msg) {
-      this.toast = msg;
-      setTimeout(() => { usersState.toast = null; }, 3000);
-    },
-  };
+        const state = {
+            // ── Daftar pengguna ──────────────────────────────────────────────
+            users: [],
+            meta: {},
+            loading: true,
+            error: null,
+            toast: null,
+            search: '',
+            _searchTimer: null,
 
-  PetiteVue.createApp(usersState).mount('#usersApp');
+            // ── Modal Hapus ──────────────────────────────────────────────────
+            deleteTarget: null,
 
-  usersState.fetchUsers();
-</script>
+            // ── Modal Edit ───────────────────────────────────────────────────
+            editTarget: null,
+            editForm: { fullname: '' },
+            editLoading: false,
+            editError: null,
+
+            // ── Modal Ganti Password ─────────────────────────────────────────
+            passwordTarget: null,
+            passwordForm: { new_password: '', confirm_password: '' },
+            passwordLoading: false,
+            passwordError: null,
+            showNewPwd: false,
+            showConfirmPwd: false,
+
+            // ── Computed: password strength ──────────────────────────────────
+            get passwordStrength() {
+                const p = this.passwordForm.new_password;
+                if (!p) return 0;
+                let score = 0;
+                if (p.length >= 8) score++;
+                if (/[A-Z]/.test(p) || /[0-9]/.test(p)) score++;
+                if (/[^A-Za-z0-9]/.test(p) && p.length >= 10) score++;
+                return score;
+            },
+
+            // ── Helpers ──────────────────────────────────────────────────────
+            formatDate(str) {
+                if (!str) return '—';
+                return new Date(str).toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                });
+            },
+
+            showToast(msg) {
+                this.toast = msg;
+                setTimeout(() => { state.toast = null; }, 3000);
+            },
+
+            // ── Fetch Users ──────────────────────────────────────────────────
+            async fetchUsers(page) {
+                page = page || 1;
+                this.loading = true;
+                this.error = null;
+                try {
+                    const params = new URLSearchParams({ page: page, limit: 20 });
+                    if (this.search) params.set('search', this.search);
+                    const res = await fetch('/gate/superadmin/users?' + params.toString());
+                    const data = await res.json();
+                    if (data.success) {
+                        this.users = data.data;
+                        this.meta = data.meta;
+                    } else {
+                        this.error = data.message;
+                    }
+                } catch (e) {
+                    this.error = 'Gagal memuat data: ' + e.message;
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            onSearch() {
+                clearTimeout(this._searchTimer);
+                this._searchTimer = setTimeout(() => state.fetchUsers(1), 400);
+            },
+
+            goPage(page) {
+                if (page < 1 || page > this.meta.total_pages) return;
+                state.fetchUsers(page);
+            },
+
+            // ── Delete ───────────────────────────────────────────────────────
+            confirmDelete(user) {
+                this.deleteTarget = user;
+            },
+
+            async doDelete() {
+                if (!this.deleteTarget) return;
+                try {
+                    const res = await fetch('/gate/superadmin/users/' + this.deleteTarget.id, {
+                        method: 'DELETE',
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        this.deleteTarget = null;
+                        state.showToast('Pengguna berhasil dihapus');
+                        await state.fetchUsers(this.meta.page);
+                    } else {
+                        this.error = data.message;
+                        this.deleteTarget = null;
+                    }
+                } catch (e) {
+                    this.error = 'Gagal menghapus: ' + e.message;
+                    this.deleteTarget = null;
+                }
+            },
+
+            // ── Edit User ────────────────────────────────────────────────────
+            openEdit(user) {
+                this.editTarget = user;
+                this.editForm.fullname = user.fullname;
+                this.editError = null;
+            },
+
+            async doEdit() {
+                if (!this.editTarget) return;
+                this.editError = null;
+
+                if (!this.editForm.fullname.trim()) {
+                    this.editError = 'Nama lengkap tidak boleh kosong';
+                    return;
+                }
+
+                this.editLoading = true;
+                try {
+                    const res = await fetch('/gate/superadmin/users/' + this.editTarget.id, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fullname: this.editForm.fullname.trim(),
+                        }),
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        this.editTarget = null;
+                        state.showToast('Data pengguna berhasil diperbarui');
+                        await state.fetchUsers(this.meta.page);
+                    } else {
+                        this.editError = data.message;
+                    }
+                } catch (e) {
+                    this.editError = 'Gagal memperbarui: ' + e.message;
+                } finally {
+                    this.editLoading = false;
+                }
+            },
+
+            // ── Ganti Password ──────────────────────────────────────────────
+            openChangePassword(user) {
+                this.passwordTarget = user;
+                this.passwordForm.new_password = '';
+                this.passwordForm.confirm_password = '';
+                this.passwordError = null;
+                this.showNewPwd = false;
+                this.showConfirmPwd = false;
+            },
+
+            async doChangePassword() {
+                if (!this.passwordTarget) return;
+                this.passwordError = null;
+
+                if (!this.passwordForm.new_password) {
+                    this.passwordError = 'Password baru tidak boleh kosong';
+                    return;
+                }
+                if (this.passwordForm.new_password.length < 8) {
+                    this.passwordError = 'Password minimal 8 karakter';
+                    return;
+                }
+                if (this.passwordForm.new_password !== this.passwordForm.confirm_password) {
+                    this.passwordError = 'Konfirmasi password tidak cocok';
+                    return;
+                }
+
+                this.passwordLoading = true;
+                try {
+                    const res = await fetch('/gate/superadmin/users/' + this.passwordTarget.id + '/password', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            new_password: this.passwordForm.new_password,
+                            confirm_password: this.passwordForm.confirm_password,
+                        }),
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        this.passwordTarget = null;
+                        this.passwordForm.new_password = '';
+                        this.passwordForm.confirm_password = '';
+                        state.showToast('Password berhasil diubah');
+                    } else {
+                        this.passwordError = data.message;
+                    }
+                } catch (e) {
+                    this.passwordError = 'Gagal mengubah password: ' + e.message;
+                } finally {
+                    this.passwordLoading = false;
+                }
+            },
+        };
+
+        PetiteVue.createApp(state).mount('#app');
+        state.fetchUsers();
+    </script>
+
 </body>
 </html>

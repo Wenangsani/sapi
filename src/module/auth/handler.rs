@@ -20,6 +20,7 @@ pub struct UserRow {
     pub username: String,
     pub password: String,
     pub created_at: Date,
+    pub last_login: Option<Date>,  // +
 }
 
 // Login page
@@ -81,6 +82,12 @@ pub async fn login(pool: Pool, data: Json<LoginData>, session: Session) -> Respo
             meta: None,
         });
     }
+
+    // Update last_login ke waktu sekarang  +
+    let _ = sqlx::query("UPDATE users SET last_login = NOW() WHERE id = ?")  // +
+        .bind(user.id)  // +
+        .execute(conn)  // +
+        .await;  // +
 
     if session.insert("user_id", user.id).is_err() {
         return Response::InternalServerError().json(ApiResponse {

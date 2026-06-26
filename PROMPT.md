@@ -32,6 +32,16 @@ Referensi tipe:
 - `String`   = `std::string::String`
 - `Date`     = `chrono::DateTime<Utc>`
 
+
+## Aturan Router
+- Terdapat `pub mod handler;`
+- Tambahkan fungsi `open_routes(cfg: &mut ServiceConfig)` untuk daftar route tanpa auth
+- Tambahkan fungsi `gate_routes(cfg: &mut ServiceConfig)` untuk daftar route dengan auth, gunakan hanya untuk API, jangan gunakan untuk halaman
+- Gate routes sudah memiliki prefix atau scope `/gate` di main.rs, setiap diakses harus memiliki awalan `/gate`
+- Gunakan `cfg.service()` dan `scope("/url_utama"))` untuk menambahkan route
+- Jangan tambahkan route diluar url_utama
+
+
 ## Aturan Handler
 - Return type wajib `Response`
 - Gunakan `Pool` untuk query database
@@ -75,15 +85,6 @@ Macro ini akan me-return `user_id` bertipe `UInt` jika user atau `None` jika buk
 Jangan gunakan `session.get::<UInt>("user_id")` manual jika halaman berstatus Login Required — gunakan `auth!(session)`.
 
 
-## Aturan Router
-- Terdapat `pub mod handler;`
-- Tambahkan fungsi `open_routes(cfg: &mut ServiceConfig)` untuk daftar route tanpa auth
-- Tambahkan fungsi `gate_routes(cfg: &mut ServiceConfig)` untuk daftar route dengan auth, gunakan hanya untuk API, jangan gunakan untuk halaman
-- Gate routes sudah memiliki prefix atau scope `/gate` di main.rs, setiap diakses harus memiliki awalan `/gate`
-- Gunakan `cfg.service()` dan `scope("/url_utama"))` untuk menambahkan route
-- Jangan tambahkan route diluar url_utama
-
-
 ## Aturan HTML
 - HTML dan Petite-Vue, tidak ada kode Rust di dalamnya
 - Tailwind CSS (utility-first, tanpa custom CSS)
@@ -99,17 +100,17 @@ Jangan gunakan `session.get::<UInt>("user_id")` manual jika halaman berstatus Lo
 - Panggil method fetch dari state langsung setelah dibuat (`state.fetchData()`) jika diperlukan.
 
 
-## Aturan Database
-- Untuk id gunakan UNSIGNED INTEGER
-- Gunakan struktur yang efisien dan cepat untuk penggunaan data besar
-- Tebel `users` berisi kolom seperti id, username, fullname, last_login, created_At
-
-
 ## Desain
 - Modern, minimalis, profesional
 - Responsive (mobile-first)
 - Tailwind utility-first
 - Tidak ada framework CSS tambahan
+
+
+## Aturan Database
+- Untuk id gunakan UNSIGNED INTEGER
+- Gunakan struktur yang efisien dan cepat untuk penggunaan data besar
+- Tebel `users` berisi kolom seperti id, username, fullname, password, last_login, created_at
 
 
 ## Output yang harus dihasilkan
