@@ -2,7 +2,7 @@ use crate::web::{Pool, Session, Response, ApiResponse};
 use crate::web::from::{Path, Json};
 use actix_web::web::Query;
 use serde_json::{json, Value};
-use sqlx::{Column, Row};
+use sqlx::{Column, Row, TypeInfo};
 use std::collections::HashMap;
 use crate::module::superadmin::superadmin_mod::{DbQueryInput, PaginationQuery};
 
@@ -383,14 +383,147 @@ pub async fn api_delete_row(
 // ── Helper ────────────────────────────────────────────────────────────────────
 
 pub(super) fn try_get_value(row: &sqlx::mysql::MySqlRow, index: usize) -> Value {
-    if let Ok(v) = row.try_get::<Option<String>, _>(index) {
-        return v.map(|s| json!(s)).unwrap_or(json!(null));
+    // Catatan: SQLx 0.9 MySQL mengembalikan nama tipe tanpa presisi/panjang,
+    // contoh: "INT", "VARCHAR", "DATETIME" — bukan "INT(11)" atau "VARCHAR(255)".
+    // BOOLEAN/BOOL di MySQL disimpan sebagai TINYINT(1), type_name-nya tetap "TINYINT".
+    let type_name = row.column(index).type_info().name().to_uppercase();
+
+    match type_name.as_str() {
+        // ── Integer signed ─────────────────────────────────────────────────
+        // TINYINT mencakup BOOLEAN/BOOL karena MySQL menyimpannya sebagai TINYINT(1)
+        "TINYINT" | "SMALLINT" | "MEDIUMINT" | "INT" | "INTEGER" => {
+            row.try_get::<Option<i32>, _>(index)
+                .ok()
+                .flatten()
+                .map(|v| json!(v))
+                .unwrap_or(json!(null))
+        }
+        "BIGINT" => {
+            row.try_get::<Option<i64>, _>(index)
+                .ok()
+                .flatten()
+                .map(|v| json!(v))
+                .unwrap_or(json!(null))
+        }
+        "YEAR" => {
+            // YEAR dikembalikan SQLx sebagai i16
+            row.try_get::<Option<i16>, _>(index)
+                .ok()
+                .flatten()
+                .map(|v| json!(v))
+                .unwrap_or(json!(null))
+        }
+        // ── Integer unsigned ───────────────────────────────────────────────
+        "TINYINT UNSIGNED" | "SMALLINT UNSIGNED" | "MEDIUMINT UNSIGNED"
+        | "INT UNSIGNED" | "INTEGER UNSIGNED" => {
+            row.try_get::<Option<u32>, _>(index)
+                .ok()
+                .flatten()
+                .map(|v| json!(v))
+                .unwrap_or(json!(null))
+        }
+        "BIGINT UNSIGNED" => {
+            row.try_get::<Option<u64>, _>(index)
+                .ok()
+                .flatten()
+                .map(|v| json!(v))
+                .unwrap_or(json!(null))
+        }
+        // ── Float / Decimal ────────────────────────────────────────────────
+        "FLOAT" => {
+            row.try_get::<Option<f32>, _>(index)
+                .ok()
+                .flatten()
+                .map(|v| json!(v))
+                .unwrap_or(json!(null))
+        }
+        "DOUBLE" | "REAL" => {
+            row.try_get::<Option<f64>, _>(index)
+                .ok()
+                .flatten()
+                .map(|v| json!(v))
+                .unwrap_or(json!(null))
+        }
+        "DECIMAL" | "NUMERIC" => {
+            // Gunakan rust_decimal untuk presisi penuh, fallback ke String
+            row.try_get::<Option<sqlx::types::Decimal>, _>(index)
+                .ok()
+                .flatten()
+                .map(|v| json!(v.to_string()))
+                .unwrap_or_else(|| {
+                    row.try_get::<Option<String>, _>(index)
+                        .ok()
+                        .flatten()
+                        .map(|s| json!(s))
+                        .unwrap_or(json!(null))
+                })
+        }
+        // ── Date / Time ────────────────────────────────────────────────────
+        "DATE" => {
+            row.try_get::<Option<chrono::NaiveDate>, _>(index)
+                .ok()
+                .flatten()
+                .map(|v| json!(v.format("%Y-%m-%d").to_string()))
+                .unwrap_or(json!(null))
+        }
+        "TIME" => {
+            row.try_get::<Option<chrono::NaiveTime>, _>(index)
+                .ok()
+                .flatten()
+                .map(|v| json!(v.format("%H:%M:%S").to_string()))
+                .unwrap_or(json!(null))
+        }
+        "DATETIME" | "TIMESTAMP" => {
+            // SQLx 0.9 MySQL: TIMESTAMP dikembalikan sebagai NaiveDateTime (bukan DateTime<Utc>)
+            row.try_get::<Option<chrono::NaiveDateTime>, _>(index)
+                .ok()
+                .flatten()
+                .map(|v| json!(v.format("%Y-%m-%d %H:%M:%S").to_string()))
+                .unwrap_or(json!(null))
+        }
+        // ── String / Text ──────────────────────────────────────────────────
+        "CHAR" | "VARCHAR" | "TINYTEXT" | "TEXT" | "MEDIUMTEXT" | "LONGTEXT"
+        | "ENUM" | "SET" => {
+            row.try_get::<Option<String>, _>(index)
+                .ok()
+                .flatten()
+                .map(|v| json!(v))
+                .unwrap_or(json!(null))
+        }
+        // ── Binary / Blob ──────────────────────────────────────────────────
+        "TINYBLOB" | "BLOB" | "MEDIUMBLOB" | "LONGBLOB" | "BINARY" | "VARBINARY" => {
+            // Encode manual ke hex tanpa crate tambahan
+            row.try_get::<Option<Vec<u8>>, _>(index)
+                .ok()
+                .flatten()
+                .map(|bytes| {
+                    let hex: String = bytes
+                        .iter()
+                        .map(|b| format!("{:02x}", b))
+                        .collect();
+                    json!(format!("0x{}", hex))
+                })
+                .unwrap_or(json!(null))
+        }
+        // ── JSON ───────────────────────────────────────────────────────────
+        "JSON" => {
+            row.try_get::<Option<serde_json::Value>, _>(index)
+                .ok()
+                .flatten()
+                .unwrap_or(json!(null))
+        }
+        // ── Fallback ───────────────────────────────────────────────────────
+        _ => {
+            if let Ok(Some(v)) = row.try_get::<Option<String>, _>(index) {
+                return json!(v);
+            }
+            if let Ok(Some(v)) = row.try_get::<Option<i64>, _>(index) {
+                return json!(v);
+            }
+            if let Ok(Some(v)) = row.try_get::<Option<f64>, _>(index) {
+                return json!(v);
+            }
+            json!(null)
+        }
     }
-    if let Ok(v) = row.try_get::<Option<i64>, _>(index) {
-        return v.map(|n| json!(n)).unwrap_or(json!(null));
-    }
-    if let Ok(v) = row.try_get::<Option<f64>, _>(index) {
-        return v.map(|f| json!(f)).unwrap_or(json!(null));
-    }
-    json!(null)
 }

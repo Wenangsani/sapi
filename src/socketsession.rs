@@ -36,6 +36,11 @@ impl SocketSession {
         inner.retain(|e| e.socket_id != socket_id);
     }
 
+    /// Jumlah koneksi WebSocket yang aktif saat ini
+    pub fn client_count(&self) -> usize {
+        self.inner.lock().unwrap().len()
+    }
+
     /// Kirim event "init" ke client segera setelah connect — berisi socket_id-nya sendiri
     pub async fn send_init(&self, socket_id: &str) {
         let msg = serde_json::json!({

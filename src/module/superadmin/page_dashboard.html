@@ -5,17 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SuperAdmin — Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    [v-cloak] { display: none; }
-  </style>
+  <style>[v-cloak]{display:none}</style>
 </head>
 <body class="bg-blue-50 min-h-screen font-sans antialiased">
-
 <div class="flex min-h-screen">
 
   <!-- Sidebar -->
   <aside class="hidden lg:flex flex-col w-56 bg-white border-r border-blue-100 fixed top-0 left-0 h-full z-20">
-    <!-- Logo -->
     <div class="px-5 py-4 border-b border-blue-100 flex items-center gap-2.5">
       <div class="w-7 h-7 bg-blue-600 rounded flex items-center justify-center flex-shrink-0">
         <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -28,51 +24,38 @@
         <p class="text-xs text-blue-400 leading-tight">Panel Administrasi</p>
       </div>
     </div>
-
-    <!-- Nav -->
     <nav class="flex-1 px-2 py-3 space-y-0.5">
-
       <p class="px-3 pt-2 pb-1 text-xs font-medium text-blue-300 uppercase tracking-widest">Utama</p>
-
       <a href="/superadmin" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
         Dashboard
       </a>
-
       <a href="/superadmin/users" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-blue-50 hover:text-blue-700 text-sm transition-colors">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         Pengguna
       </a>
-
       <a href="/superadmin/files" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-blue-50 hover:text-blue-700 text-sm transition-colors">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
         File Upload
       </a>
-
       <a href="/superadmin/database" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-blue-50 hover:text-blue-700 text-sm transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none" /><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 6a8 3 0 1 0 16 0A8 3 0 1 0 4 6" /><path d="M4 6v6a8 3 0 0 0 16 0V6" /><path d="M4 12v6a8 3 0 0 0 16 0v-6" /></g></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none"><g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 6a8 3 0 1 0 16 0A8 3 0 1 0 4 6"/><path d="M4 6v6a8 3 0 0 0 16 0V6"/><path d="M4 12v6a8 3 0 0 0 16 0v-6"/></g></svg>
         Database
       </a>
-
       <p class="px-3 pt-3 pb-1 text-xs font-medium text-blue-300 uppercase tracking-widest">Monitor</p>
-
       <a href="/superadmin/logs" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-blue-50 hover:text-blue-700 text-sm transition-colors">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
         Log Aktivitas
       </a>
-
       <a href="/superadmin/security" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-blue-50 hover:text-blue-700 text-sm transition-colors">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
         Keamanan
       </a>
-
       <a href="/superadmin/settings" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-blue-50 hover:text-blue-700 text-sm transition-colors">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
         Pengaturan
       </a>
     </nav>
-
-    <!-- User / Logout -->
     <div class="px-3 py-3 border-t border-blue-100">
       <a href="/auth/logout" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 text-sm transition-colors">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
@@ -99,38 +82,17 @@
 
     <!-- Mobile drawer -->
     <div id="mobileNav" class="lg:hidden hidden bg-white border-b border-blue-100 px-3 py-2 space-y-0.5">
-      <a href="/superadmin" class="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
-        Dashboard
-      </a>
-      <a href="/superadmin/users" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        Pengguna
-      </a>
-      <a href="/superadmin/files" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
-        File Upload
-      </a>
-      <a href="/superadmin/database" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none" /><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 6a8 3 0 1 0 16 0A8 3 0 1 0 4 6" /><path d="M4 6v6a8 3 0 0 0 16 0V6" /><path d="M4 12v6a8 3 0 0 0 16 0v-6" /></g></svg>
-        Database
-      </a>
-      <a href="/superadmin/logs" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-        Log Aktivitas
-      </a>
-      <a href="/superadmin/security" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-        Keamanan
-      </a>
-      <a href="/superadmin/settings" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
-        Pengaturan
-      </a>
+      <a href="/superadmin" class="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium">Dashboard</a>
+      <a href="/superadmin/users" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">Pengguna</a>
+      <a href="/superadmin/files" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">File Upload</a>
+      <a href="/superadmin/database" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">Database</a>
+      <a href="/superadmin/logs" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">Log Aktivitas</a>
+      <a href="/superadmin/security" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">Keamanan</a>
+      <a href="/superadmin/settings" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-500 text-sm">Pengaturan</a>
     </div>
 
-    <!-- Page content -->
-    <main class="p-5 max-w-5xl mx-auto" id="app" v-scope v-cloak>
+    <!-- Page content — NO petite-vue, pure vanilla JS -->
+    <main class="p-5 max-w-5xl mx-auto">
 
       <!-- Page header -->
       <div class="flex items-center justify-between mb-6">
@@ -138,25 +100,24 @@
           <h1 class="text-lg font-semibold text-slate-800">Dashboard</h1>
           <p class="text-xs text-slate-400 mt-0.5">Ringkasan sistem secara keseluruhan</p>
         </div>
-        <!-- System status pill -->
-        <div class="flex items-center gap-1.5 bg-white border border-blue-100 rounded-full px-3 py-1.5">
-          <span class="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0"></span>
-          <span class="text-xs font-medium text-green-700">Sistem Aktif</span>
+        <div id="statusPill" class="flex items-center gap-1.5 bg-white border border-blue-100 rounded-full px-3 py-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-slate-300 flex-shrink-0"></span>
+          <span class="text-xs font-medium text-slate-400">Memuat...</span>
         </div>
       </div>
 
       <!-- Stat cards -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+      <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
 
         <!-- Total Users -->
         <div class="bg-white border border-blue-100 rounded-xl p-4">
           <div class="flex items-center justify-between mb-3">
             <span class="text-xs font-medium text-slate-400">Total Pengguna</span>
-            <div class="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div class="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center">
               <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
             </div>
           </div>
-          <p class="text-2xl font-bold text-slate-800">{{ stats.user_count ?? '—' }}</p>
+          <p id="val-users" class="text-2xl font-bold text-slate-800">—</p>
           <p class="text-xs text-blue-500 mt-1 flex items-center gap-1">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
             Pengguna terdaftar
@@ -167,11 +128,11 @@
         <div class="bg-white border border-blue-100 rounded-xl p-4">
           <div class="flex items-center justify-between mb-3">
             <span class="text-xs font-medium text-slate-400">File Upload</span>
-            <div class="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div class="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center">
               <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
             </div>
           </div>
-          <p class="text-2xl font-bold text-slate-800">{{ stats.file_count ?? '—' }}</p>
+          <p id="val-files" class="text-2xl font-bold text-slate-800">—</p>
           <p class="text-xs text-blue-500 mt-1 flex items-center gap-1">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             File tersimpan
@@ -182,77 +143,135 @@
         <div class="bg-white border border-blue-100 rounded-xl p-4">
           <div class="flex items-center justify-between mb-3">
             <span class="text-xs font-medium text-slate-400">Storage Digunakan</span>
-            <div class="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div class="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center">
               <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
             </div>
           </div>
-          <p class="text-2xl font-bold text-slate-800">{{ formatBytes(stats.total_storage_bytes) }}</p>
+          <p id="val-storage" class="text-2xl font-bold text-slate-800">—</p>
           <p class="text-xs text-blue-500 mt-1 flex items-center gap-1">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7"/></svg>
             Total ukuran
           </p>
         </div>
 
-        <!-- System -->
-        <div class="bg-blue-600 border border-blue-600 rounded-xl p-4">
+        <!-- WebSocket Connections -->
+        <div class="bg-white border border-blue-100 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-medium text-slate-400">Koneksi WebSocket</span>
+            <div class="w-7 h-7 bg-violet-50 rounded-lg flex items-center justify-center">
+              <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            </div>
+          </div>
+          <p id="val-ws" class="text-2xl font-bold text-slate-800">—</p>
+          <p id="lbl-ws" class="text-xs text-slate-400 mt-1 flex items-center gap-1">
+            <span id="dot-ws" class="w-1.5 h-1.5 rounded-full bg-slate-300 inline-block flex-shrink-0"></span>
+            Tidak ada klien
+          </p>
+        </div>
+
+        <!-- SSE Connections -->
+        <div class="bg-white border border-blue-100 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-medium text-slate-400">Koneksi SSE</span>
+            <div class="w-7 h-7 bg-amber-50 rounded-lg flex items-center justify-center">
+              <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+          </div>
+          <p id="val-sse" class="text-2xl font-bold text-slate-800">—</p>
+          <p id="lbl-sse" class="text-xs text-slate-400 mt-1 flex items-center gap-1">
+            <span id="dot-sse" class="w-1.5 h-1.5 rounded-full bg-slate-300 inline-block flex-shrink-0"></span>
+            Tidak ada klien
+          </p>
+        </div>
+
+        <!-- System Status -->
+        <div id="card-system" class="bg-blue-600 border border-blue-600 rounded-xl p-4">
           <div class="flex items-center justify-between mb-3">
             <span class="text-xs font-medium text-blue-200">Status Sistem</span>
-            <div class="w-7 h-7 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div class="w-7 h-7 bg-blue-500 rounded-lg flex items-center justify-center">
               <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
           </div>
-          <p class="text-2xl font-bold text-white">Aktif</p>
+          <p id="val-system" class="text-2xl font-bold text-white">...</p>
           <p class="text-xs text-blue-200 mt-1 flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-green-400 flex-shrink-0 inline-block"></span>
-            Berjalan normal
+            <span id="dot-system" class="w-1.5 h-1.5 rounded-full bg-slate-300 inline-block flex-shrink-0"></span>
+            <span id="lbl-system">Memeriksa...</span>
           </p>
         </div>
 
       </div>
 
-      <!-- Flat status strip (signature element) -->
+      <!-- Status Layanan -->
       <div class="bg-white border border-blue-100 rounded-xl mb-6 overflow-hidden">
-        <div class="flex items-center px-4 py-2.5 border-b border-blue-50">
-          <svg class="w-3.5 h-3.5 text-blue-400 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Status Layanan</span>
+        <div class="flex items-center justify-between px-4 py-2.5 border-b border-blue-50">
+          <div class="flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Status Layanan</span>
+          </div>
+          <span id="refresh-indicator" class="text-xs text-slate-300">Auto-refresh 30s</span>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-blue-50">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-x divide-y sm:divide-y-0 divide-blue-50">
+
           <div class="px-4 py-3 flex items-center gap-2.5">
             <div class="w-6 h-6 bg-blue-50 rounded-md flex items-center justify-center flex-shrink-0">
               <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             </div>
             <div>
               <p class="text-xs text-slate-400">API Server</p>
-              <p class="text-xs font-semibold text-green-600 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>Online</p>
+              <p id="svc-api" class="text-xs font-semibold text-slate-300 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-slate-200 inline-block"></span>...</p>
             </div>
           </div>
+
           <div class="px-4 py-3 flex items-center gap-2.5">
             <div class="w-6 h-6 bg-blue-50 rounded-md flex items-center justify-center flex-shrink-0">
-              <svg class="w-3.5 h-3.5 text-blue-500" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none" /><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 6a8 3 0 1 0 16 0A8 3 0 1 0 4 6" /><path d="M4 6v6a8 3 0 0 0 16 0V6" /><path d="M4 12v6a8 3 0 0 0 16 0v-6" /></g></svg>
+              <svg class="w-3.5 h-3.5 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 6a8 3 0 1 0 16 0A8 3 0 1 0 4 6"/><path d="M4 6v6a8 3 0 0 0 16 0V6"/><path d="M4 12v6a8 3 0 0 0 16 0v-6"/></g></svg>
             </div>
             <div>
               <p class="text-xs text-slate-400">Database</p>
-              <p class="text-xs font-semibold text-green-600 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>Online</p>
+              <p id="svc-database" class="text-xs font-semibold text-slate-300 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-slate-200 inline-block"></span>...</p>
             </div>
           </div>
+
           <div class="px-4 py-3 flex items-center gap-2.5">
             <div class="w-6 h-6 bg-blue-50 rounded-md flex items-center justify-center flex-shrink-0">
               <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
             </div>
             <div>
               <p class="text-xs text-slate-400">Storage</p>
-              <p class="text-xs font-semibold text-green-600 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>Online</p>
+              <p id="svc-storage" class="text-xs font-semibold text-slate-300 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-slate-200 inline-block"></span>...</p>
             </div>
           </div>
+
           <div class="px-4 py-3 flex items-center gap-2.5">
             <div class="w-6 h-6 bg-blue-50 rounded-md flex items-center justify-center flex-shrink-0">
               <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
             </div>
             <div>
               <p class="text-xs text-slate-400">Auth Service</p>
-              <p class="text-xs font-semibold text-green-600 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>Online</p>
+              <p id="svc-auth" class="text-xs font-semibold text-slate-300 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-slate-200 inline-block"></span>...</p>
             </div>
           </div>
+
+          <div class="px-4 py-3 flex items-center gap-2.5">
+            <div class="w-6 h-6 bg-violet-50 rounded-md flex items-center justify-center flex-shrink-0">
+              <svg class="w-3.5 h-3.5 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400">WebSocket</p>
+              <p id="svc-ws" class="text-xs font-semibold text-slate-300 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-slate-200 inline-block"></span>...</p>
+            </div>
+          </div>
+
+          <div class="px-4 py-3 flex items-center gap-2.5">
+            <div class="w-6 h-6 bg-amber-50 rounded-md flex items-center justify-center flex-shrink-0">
+              <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400">SSE</p>
+              <p id="svc-sse" class="text-xs font-semibold text-slate-300 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-slate-200 inline-block"></span>...</p>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -263,7 +282,6 @@
           <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Akses Cepat</h2>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-
           <a href="/superadmin/users" class="bg-white border border-blue-100 rounded-xl p-4 hover:border-blue-400 hover:bg-blue-50 transition-all group">
             <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-200 transition-colors">
               <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -271,7 +289,6 @@
             <p class="text-sm font-semibold text-slate-700 group-hover:text-blue-700 leading-tight">Kelola Pengguna</p>
             <p class="text-xs text-slate-400 mt-0.5">CRUD data user</p>
           </a>
-
           <a href="/superadmin/files" class="bg-white border border-blue-100 rounded-xl p-4 hover:border-blue-400 hover:bg-blue-50 transition-all group">
             <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-200 transition-colors">
               <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
@@ -279,15 +296,13 @@
             <p class="text-sm font-semibold text-slate-700 group-hover:text-blue-700 leading-tight">Manajemen File</p>
             <p class="text-xs text-slate-400 mt-0.5">Upload &amp; hapus file</p>
           </a>
-
           <a href="/superadmin/database" class="bg-white border border-blue-100 rounded-xl p-4 hover:border-blue-400 hover:bg-blue-50 transition-all group">
             <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-200 transition-colors">
-              <svg class="w-4 h-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none" /><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 6a8 3 0 1 0 16 0A8 3 0 1 0 4 6" /><path d="M4 6v6a8 3 0 0 0 16 0V6" /><path d="M4 12v6a8 3 0 0 0 16 0v-6" /></g></svg>
+              <svg class="w-4 h-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 6a8 3 0 1 0 16 0A8 3 0 1 0 4 6"/><path d="M4 6v6a8 3 0 0 0 16 0V6"/><path d="M4 12v6a8 3 0 0 0 16 0v-6"/></g></svg>
             </div>
             <p class="text-sm font-semibold text-slate-700 group-hover:text-blue-700 leading-tight">Konsol Database</p>
             <p class="text-xs text-slate-400 mt-0.5">Jalankan query SQL</p>
           </a>
-
           <a href="/superadmin/logs" class="bg-white border border-blue-100 rounded-xl p-4 hover:border-blue-400 hover:bg-blue-50 transition-all group">
             <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-200 transition-colors">
               <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
@@ -295,64 +310,111 @@
             <p class="text-sm font-semibold text-slate-700 group-hover:text-blue-700 leading-tight">Log Aktivitas</p>
             <p class="text-xs text-slate-400 mt-0.5">Pantau jejak admin</p>
           </a>
-
         </div>
       </div>
 
-      <!-- Error state -->
-      <div v-if="error" class="mt-4 bg-red-50 border border-red-100 rounded-xl px-4 py-3 flex items-center gap-2.5 text-sm text-red-600">
+      <!-- Error -->
+      <div id="errorBox" class="hidden mt-4 bg-red-50 border border-red-100 rounded-xl px-4 py-3 flex items-center gap-2.5 text-sm text-red-600">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        {{ error }}
-      </div>
-
-      <!-- Loading -->
-      <div v-if="loading" class="mt-4 flex items-center gap-2 text-xs text-slate-400">
-        <svg class="w-3.5 h-3.5 animate-spin text-blue-400" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-        Memuat statistik...
+        <span id="errorMsg"></span>
       </div>
 
     </main>
   </div>
 </div>
 
-<script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
 <script>
-document.getElementById('menuBtn').addEventListener('click', function() {
+document.getElementById('menuBtn').addEventListener('click', function () {
   document.getElementById('mobileNav').classList.toggle('hidden');
 });
 
-const state = {
-  stats: {},
-  loading: true,
-  error: null,
+function formatBytes(bytes) {
+  if (!bytes || bytes === 0) return '0 B';
+  const k = 1024, sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
 
-  formatBytes(bytes) {
-    if (!bytes || bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-  },
+function setSvcStatus(id, status) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const online = status === 'online';
+  const dot   = online ? 'bg-green-500' : 'bg-red-500';
+  const text  = online ? 'text-green-600' : 'text-red-500';
+  const label = online ? 'Online' : 'Error';
+  el.className = 'text-xs font-semibold flex items-center gap-1 ' + text;
+  el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full inline-block ' + dot + '"></span>' + label;
+}
 
-  async fetchStats() {
-    try {
-      const res = await fetch('/gate/superadmin/stats');
-      const data = await res.json();
-      if (data.success) {
-        this.stats = data.data;
-      } else {
-        this.error = data.message;
-      }
-    } catch (e) {
-      this.error = 'Gagal memuat statistik: ' + e.message;
-    } finally {
-      this.loading = false;
-    }
+async function fetchStats() {
+  const indicator = document.getElementById('refresh-indicator');
+  indicator.textContent = 'Memuat...';
+
+  try {
+    const res  = await fetch('/gate/superadmin/stats');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if (!json.success) throw new Error(json.message);
+
+    const d = json.data;
+
+    // Stat cards
+    document.getElementById('val-users').textContent   = d.user_count  ?? '—';
+    document.getElementById('val-files').textContent   = d.file_count  ?? '—';
+    document.getElementById('val-storage').textContent = formatBytes(d.total_storage_bytes);
+
+    // WebSocket card
+    const ws = d.ws_connections ?? 0;
+    document.getElementById('val-ws').textContent = ws;
+    document.getElementById('dot-ws').className   = 'w-1.5 h-1.5 rounded-full inline-block flex-shrink-0 ' + (ws > 0 ? 'bg-violet-400' : 'bg-slate-300');
+    const lblWs = document.getElementById('lbl-ws');
+    lblWs.className   = 'text-xs mt-1 flex items-center gap-1 ' + (ws > 0 ? 'text-violet-500' : 'text-slate-400');
+    lblWs.lastChild.textContent = ws > 0 ? ' Aktif terhubung' : ' Tidak ada klien';
+
+    // SSE card
+    const sse = d.sse_connections ?? 0;
+    document.getElementById('val-sse').textContent = sse;
+    document.getElementById('dot-sse').className   = 'w-1.5 h-1.5 rounded-full inline-block flex-shrink-0 ' + (sse > 0 ? 'bg-amber-400' : 'bg-slate-300');
+    const lblSse = document.getElementById('lbl-sse');
+    lblSse.className   = 'text-xs mt-1 flex items-center gap-1 ' + (sse > 0 ? 'text-amber-500' : 'text-slate-400');
+    lblSse.lastChild.textContent = sse > 0 ? ' Aktif streaming' : ' Tidak ada klien';
+
+    // Status Layanan strip
+    const svcs = d.services ?? {};
+    setSvcStatus('svc-api',      svcs.api?.status);
+    setSvcStatus('svc-database', svcs.database?.status);
+    setSvcStatus('svc-storage',  svcs.storage?.status);
+    setSvcStatus('svc-auth',     svcs.auth?.status);
+    setSvcStatus('svc-ws',       svcs.websocket?.status);
+    setSvcStatus('svc-sse',      svcs.sse?.status);
+
+    // System status card
+    const allOk = Object.values(svcs).every(s => s.status === 'online');
+    const card  = document.getElementById('card-system');
+    card.className = 'rounded-xl p-4 border transition-colors ' + (allOk ? 'bg-blue-600 border-blue-600' : 'bg-red-500 border-red-500');
+    document.getElementById('val-system').textContent  = allOk ? 'Aktif' : 'Error';
+    document.getElementById('dot-system').className    = 'w-1.5 h-1.5 rounded-full inline-block flex-shrink-0 ' + (allOk ? 'bg-green-400' : 'bg-red-200');
+    document.getElementById('lbl-system').textContent  = allOk ? 'Semua layanan normal' : 'Ada layanan bermasalah';
+
+    // Header pill
+    const pill = document.getElementById('statusPill');
+    pill.className = 'flex items-center gap-1.5 bg-white border rounded-full px-3 py-1.5 ' + (allOk ? 'border-blue-100' : 'border-red-100');
+    pill.innerHTML = '<span class="w-1.5 h-1.5 rounded-full flex-shrink-0 ' + (allOk ? 'bg-green-500' : 'bg-red-500') + '"></span>'
+                   + '<span class="text-xs font-medium ' + (allOk ? 'text-green-700' : 'text-red-700') + '">'
+                   + (allOk ? 'Sistem Aktif' : 'Ada Masalah') + '</span>';
+
+    document.getElementById('errorBox').classList.add('hidden');
+
+  } catch (e) {
+    document.getElementById('errorMsg').textContent = 'Gagal memuat statistik: ' + e.message;
+    document.getElementById('errorBox').classList.remove('hidden');
   }
-};
 
-PetiteVue.createApp(state).mount('#app');
-state.fetchStats();
+  indicator.textContent = 'Auto-refresh 30s';
+}
+
+fetchStats();
+setInterval(fetchStats, 30000);
 </script>
 </body>
 </html>
