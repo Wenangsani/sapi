@@ -91,8 +91,8 @@ Jangan gunakan `session.get::<UInt>("user_id")` manual jika halaman berstatus Lo
 - Petite-Vue untuk state lokal dan interaktivitas, kosongkan v-scope, taruh logika di createApp()
 - Fetch API untuk komunikasi dengan backend
 - Mobile friendly
-- Gunakan source https://cdn.tailwindcss.com sebagai Tailwind
-- Gunakan source https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js sebagai Petite-Vue
+- Gunakan source `https://cdn.tailwindcss.com` sebagai Tailwind
+- Gunakan source `https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js` sebagai Petite-Vue
 - Jagan gunakan `init` dan `defer`
 - Jika menggunakan icon usahakan svg dari iconify atau heroicons, jangan gunakan CDN
 - Mount tanpa selector via v-scope, panggil method dari object asli.
@@ -110,7 +110,7 @@ Jangan gunakan `session.get::<UInt>("user_id")` manual jika halaman berstatus Lo
 ## Aturan Database
 - Untuk id gunakan UNSIGNED INTEGER
 - Gunakan struktur yang efisien dan cepat untuk penggunaan data besar
-- Tebel `users` berisi kolom seperti id, username, fullname, password, last_login, created_at
+- Tebel `users` berisi kolom `id, username, fullname, password, last_login, created_at`
 
 
 ## Output yang harus dihasilkan
