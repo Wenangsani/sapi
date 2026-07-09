@@ -104,6 +104,13 @@ pub async fn page_feed(session: Session) -> Response {
         .body(include_str!("page_feed.html"))
 }
 
+pub async fn page_post_detail(session: Session) -> Response {
+    let _user_id = auth!(session);
+    Response::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(include_str!("page_post.html"))
+}
+
 // ========================================================
 // POSTS
 // ========================================================

@@ -5,25 +5,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Feed — Sapi</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Gunakan CDN petite-vue yang lebih stabil -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f2f1ff', 100: '#e6e4ff', 200: '#d0ccff', 300: '#aea5ff',
+              400: '#8b7bff', 500: '#7358ff', 600: '#6238f0', 700: '#5129cc',
+              800: '#4323a3', 900: '#382180',
+            },
+          },
+        },
+      },
+    };
+  </script>
   <script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
   <style>
-    /* v-cloak harus berada pada elemen yang di-mount */
     [v-cloak] { display: none !important; }
-    .skeleton { background: #e2e8f0; border-radius: 0.75rem; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
-    .fade-in { animation: fade 0.2s ease; }
-    @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .skeleton {
+      background: linear-gradient(100deg, #eef0f6 30%, #e2e5f0 45%, #eef0f6 60%);
+      background-size: 200% 100%;
+      border-radius: 0.75rem;
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0% { background-position: 150% 0; } 100% { background-position: -50% 0; } }
+
+    @keyframes fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fade-up 0.22s ease both; }
+
+    @keyframes pop-in { from { opacity: 0; transform: scale(0.97) translateY(4px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .pop-in { animation: pop-in 0.16s ease both; }
+
+    @keyframes slide-in-right { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    .panel-slide { animation: slide-in-right 0.22s cubic-bezier(.2,.8,.2,1) both; }
+
+    @keyframes toast-in { from { opacity: 0; transform: translateX(20px) scale(0.97); } to { opacity: 1; transform: translateX(0) scale(1); } }
+    .toast-in { animation: toast-in 0.2s ease both; }
+
     .line-clamp-5 { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
-    .notif-dot { width: 8px; height: 8px; }
-    .avatar-ring { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #bfdbfe; }
-    .post-card { transition: box-shadow 0.15s; }
-    .post-card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
-    .btn-action { transition: background 0.15s, color 0.15s; }
-    .comment-box { border-left: 2px solid #e2e8f0; padding-left: 0.75rem; }
+    .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .comment-thread { border-left: 2px solid #ecebf9; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .post-card { transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+    .post-card:hover { box-shadow: 0 10px 28px -14px rgba(56, 33, 128, 0.18); border-color: #e6e4ff; }
+
+    .btn-action { transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease; }
+    .btn-action:active { transform: scale(0.96); }
   </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800">
 
 <!-- ================================================================
      ELEMEN APP – di-mount oleh PetiteVue
@@ -31,203 +66,238 @@
 <div id="app" v-cloak>
 
   <!-- ========== TOAST ========== -->
-  <div class="fixed top-4 right-4 z-50 space-y-2">
+  <div class="fixed top-4 right-4 left-4 sm:left-auto z-[60] flex flex-col items-end gap-2 pointer-events-none">
     <template v-for="t in toasts" :key="t.id">
-      <div class="toast flex items-center gap-3 bg-white border border-gray-100 shadow-lg rounded-xl px-4 py-3 text-sm max-w-xs"
-           :class="t.type==='error'?'border-l-4 border-l-red-500':'border-l-4 border-l-blue-500'">
-        <span v-if="t.type==='error'" class="text-red-500">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      <div class="toast-in pointer-events-auto flex items-center gap-3 bg-white shadow-lg shadow-slate-900/10 rounded-2xl px-4 py-3 text-sm max-w-sm border border-slate-100"
+           :class="t.type==='error' ? 'border-l-4 border-l-rose-500' : 'border-l-4 border-l-brand-500'">
+        <span class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center"
+              :class="t.type==='error' ? 'bg-rose-50 text-rose-500' : 'bg-brand-50 text-brand-600'">
+          <svg v-if="t.type==='error'" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+          <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
         </span>
-        <span v-else class="text-blue-500">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-        </span>
-        <span class="text-gray-700">{{ t.msg }}</span>
+        <span class="text-slate-700">{{ t.msg }}</span>
       </div>
     </template>
   </div>
 
   <!-- ========== MODAL EDIT ========== -->
-  <div v-if="editModal.open" class="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" @click.self="editModal.open=false">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 fade-in">
+  <div v-if="editModal.open" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" @click.self="editModal.open=false">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-6 pop-in">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-semibold text-gray-800 text-lg">Edit Post</h3>
-        <button @click="editModal.open=false" class="text-gray-400 hover:text-gray-600 p-1">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          </div>
+          <h3 class="font-semibold text-slate-800 text-lg">Edit Post</h3>
+        </div>
+        <button @click="editModal.open=false" class="text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg p-1.5 transition">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
       <textarea v-model="editModal.content" rows="4"
-        class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-gray-50 text-gray-800"
+        class="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 focus:border-brand-300 bg-slate-50 text-slate-800 resize-none"
         placeholder="Apa yang ada di pikiranmu?"></textarea>
       <div class="flex items-center gap-3 mt-3">
-        <select v-model="editModal.visibility" class="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 text-gray-700">
-          <option value="public">🌏 Publik</option>
-          <option value="friends">👥 Teman</option>
-          <option value="private">🔒 Pribadi</option>
-        </select>
+        <div class="relative">
+          <button type="button" @click="editModal.visOpen = !editModal.visOpen"
+            class="flex items-center gap-1.5 text-sm border border-slate-200 rounded-full pl-3 pr-2.5 py-2 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-200 text-slate-700 transition">
+            <svg v-if="editModal.visibility==='public'" class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 21a9 9 0 100-18 9 9 0 000 18z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3.6 9h16.8M3.6 15h16.8M11.5 3c-2.5 3-2.5 15 0 18M12.5 3c2.5 3 2.5 15 0 18"/></svg>
+            <svg v-else-if="editModal.visibility==='friends'" class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857m0 0a5.002 5.002 0 00-9.288 0M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <svg v-else class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <span>{{ editModal.visibility==='public' ? 'Publik' : editModal.visibility==='friends' ? 'Teman' : 'Pribadi' }}</span>
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div v-if="editModal.visOpen" class="fixed inset-0 z-10" @click="editModal.visOpen=false"></div>
+          <div v-if="editModal.visOpen" class="absolute left-0 mt-1.5 w-40 bg-white rounded-2xl shadow-lg border border-slate-100 py-1.5 z-20">
+            <button type="button" @click="editModal.visibility='public'; editModal.visOpen=false"
+              class="w-full flex items-center gap-2 px-3.5 py-2 text-sm text-slate-700 hover:bg-slate-50 transition">
+              <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 21a9 9 0 100-18 9 9 0 000 18z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3.6 9h16.8M3.6 15h16.8M11.5 3c-2.5 3-2.5 15 0 18M12.5 3c2.5 3 2.5 15 0 18"/></svg>
+              Publik
+            </button>
+            <button type="button" @click="editModal.visibility='friends'; editModal.visOpen=false"
+              class="w-full flex items-center gap-2 px-3.5 py-2 text-sm text-slate-700 hover:bg-slate-50 transition">
+              <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857m0 0a5.002 5.002 0 00-9.288 0M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              Teman
+            </button>
+            <button type="button" @click="editModal.visibility='private'; editModal.visOpen=false"
+              class="w-full flex items-center gap-2 px-3.5 py-2 text-sm text-slate-700 hover:bg-slate-50 transition">
+              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              Pribadi
+            </button>
+          </div>
+        </div>
         <button @click="saveEditPost" :disabled="editModal.loading"
-          class="ml-auto bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2 rounded-xl transition disabled:opacity-50">
+          class="ml-auto bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2.5 rounded-full transition disabled:opacity-50">
           <span v-if="editModal.loading">Menyimpan…</span>
-          <span v-else>Simpan</span>
+          <span v-else>Simpan perubahan</span>
         </button>
       </div>
     </div>
   </div>
 
   <!-- ========== MODAL REPORT ========== -->
-  <div v-if="reportModal.open" class="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" @click.self="reportModal.open=false">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 fade-in">
-      <h3 class="font-semibold text-gray-800 text-lg mb-4">Laporkan Post</h3>
-      <div class="space-y-2 mb-4">
-        <label v-for="r in reportReasons" :key="r.value" class="flex items-center gap-3 cursor-pointer">
-          <input type="radio" :value="r.value" v-model="reportModal.reason" class="accent-blue-600" />
-          <span class="text-sm text-gray-700">{{ r.label }}</span>
+  <div v-if="reportModal.open" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" @click.self="reportModal.open=false">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 pop-in">
+      <div class="flex items-center gap-2.5 mb-4">
+        <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>
+        </div>
+        <h3 class="font-semibold text-slate-800 text-lg">Laporkan Post</h3>
+      </div>
+      <div class="space-y-1 mb-4">
+        <label v-for="r in reportReasons" :key="r.value"
+          class="flex items-center gap-3 cursor-pointer rounded-xl px-3 py-2.5 hover:bg-slate-50 transition"
+          :class="reportModal.reason===r.value ? 'bg-rose-50' : ''">
+          <input type="radio" :value="r.value" v-model="reportModal.reason" class="accent-rose-500" />
+          <span class="text-sm text-slate-700">{{ r.label }}</span>
         </label>
       </div>
       <textarea v-model="reportModal.note" rows="2" placeholder="Catatan tambahan (opsional)"
-        class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-200 mb-4"></textarea>
+        class="w-full border border-slate-200 rounded-2xl px-3.5 py-2.5 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-200 mb-4 resize-none"></textarea>
       <div class="flex gap-2 justify-end">
-        <button @click="reportModal.open=false" class="text-sm text-gray-500 hover:text-gray-700 px-4 py-2 rounded-xl">Batal</button>
+        <button @click="reportModal.open=false" class="text-sm text-slate-500 hover:text-slate-700 px-4 py-2.5 rounded-full hover:bg-slate-50 transition">Batal</button>
         <button @click="submitReport" :disabled="!reportModal.reason || reportModal.loading"
-          class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-5 py-2 rounded-xl transition disabled:opacity-50">
+          class="bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium px-5 py-2.5 rounded-full transition disabled:opacity-50">
           <span v-if="reportModal.loading">Mengirim…</span>
-          <span v-else>Kirim Laporan</span>
+          <span v-else>Kirim laporan</span>
         </button>
       </div>
     </div>
   </div>
 
   <!-- ========== NOTIFIKASI SIDEBAR ========== -->
-  <div v-if="notifOpen" class="fixed inset-0 z-30 flex justify-end" @click.self="notifOpen=false">
-    <div class="w-full max-w-sm bg-white h-full shadow-2xl flex flex-col fade-in">
-      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-        <h3 class="font-semibold text-gray-800">Notifikasi</h3>
-        <div class="flex items-center gap-2">
-          <button @click="markAllRead" class="text-xs text-blue-600 hover:underline" v-if="unreadCount>0">Tandai semua terbaca</button>
-          <button @click="notifOpen=false" class="text-gray-400 hover:text-gray-600">
+  <div v-if="notifOpen" class="fixed inset-0 z-40 flex justify-end">
+    <div class="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px]" @click="notifOpen=false"></div>
+    <div class="relative w-full max-w-sm bg-white h-full shadow-2xl flex flex-col panel-slide">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+        <h3 class="font-semibold text-slate-800 flex items-center gap-2">
+          <svg class="w-4.5 h-4.5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          Notifikasi
+        </h3>
+        <div class="flex items-center gap-3">
+          <button @click="markAllRead" class="text-xs font-medium text-brand-600 hover:text-brand-700" v-if="unreadCount>0">Tandai semua terbaca</button>
+          <button @click="notifOpen=false" class="text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg p-1 transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
       </div>
-      <div class="overflow-y-auto flex-1 divide-y divide-gray-50">
+      <div class="overflow-y-auto flex-1 divide-y divide-slate-50">
         <div v-if="notifLoading" class="p-4 space-y-3">
-          <div class="skeleton h-12 rounded-xl" v-for="i in 5" :key="i"></div>
+          <div class="skeleton h-14 rounded-2xl" v-for="i in 5" :key="i"></div>
         </div>
-        <div v-else-if="notifications.length===0" class="flex flex-col items-center justify-center py-16 text-gray-400">
-          <svg class="w-10 h-10 mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-          <span class="text-sm">Belum ada notifikasi</span>
+        <div v-else-if="notifications.length===0" class="flex flex-col items-center justify-center py-20 text-slate-400 px-6 text-center">
+          <div class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-3">
+            <svg class="w-8 h-8 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          </div>
+          <span class="text-sm font-medium text-slate-500">Belum ada notifikasi</span>
+          <span class="text-xs text-slate-400 mt-1">Aktivitas orang lain di postmu akan muncul di sini</span>
         </div>
         <div v-else v-for="n in notifications" :key="n.id"
-          class="flex items-start gap-3 px-5 py-4 cursor-pointer hover:bg-blue-50 transition"
-          :class="!n.is_read?'bg-blue-50/60':''"
+          class="flex items-start gap-3 px-5 py-4 cursor-pointer hover:bg-brand-50/50 transition"
+          :class="!n.is_read ? 'bg-brand-50/40' : ''"
           @click="handleNotifClick(n)">
-          <div class="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 text-white text-sm font-bold">
-            {{ n.actor_fullname ? n.actor_fullname.charAt(0) : '?' }}
+          <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-white text-sm font-bold bg-gradient-to-br"
+               :class="avatarGradient(n.actor_username)">
+            {{ n.actor_fullname ? n.actor_fullname.charAt(0).toUpperCase() : '?' }}
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm text-gray-800"><span class="font-semibold">{{ n.actor_fullname || 'Pengguna' }}</span> {{ notifText(n.notif_type) }}</p>
-            <p class="text-xs text-gray-400 mt-0.5">{{ timeAgo(n.created_at) }}</p>
+            <p class="text-sm text-slate-800 leading-snug"><span class="font-semibold">{{ n.actor_fullname || 'Pengguna' }}</span> {{ notifText(n.notif_type) }}</p>
+            <p class="text-xs text-slate-400 mt-0.5">{{ timeAgo(n.created_at) }}</p>
           </div>
-          <span v-if="!n.is_read" class="notif-dot rounded-full bg-blue-500 flex-shrink-0 mt-1.5"></span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========== SAVED SIDEBAR ========== -->
-  <div v-if="savedOpen" class="fixed inset-0 z-30 flex justify-end" @click.self="savedOpen=false">
-    <div class="w-full max-w-sm bg-white h-full shadow-2xl flex flex-col fade-in">
-      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-        <h3 class="font-semibold text-gray-800">Post Tersimpan</h3>
-        <button @click="savedOpen=false" class="text-gray-400 hover:text-gray-600">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
-      <div class="overflow-y-auto flex-1 p-4 space-y-3">
-        <div v-if="savedLoading" class="space-y-3">
-          <div class="skeleton h-20 rounded-xl" v-for="i in 3" :key="i"></div>
-        </div>
-        <div v-else-if="savedPosts.length===0" class="flex flex-col items-center justify-center py-16 text-gray-400">
-          <svg class="w-10 h-10 mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
-          <span class="text-sm">Belum ada yang disimpan</span>
-        </div>
-        <div v-else v-for="p in savedPosts" :key="p.id"
-          class="bg-gray-50 rounded-xl p-4 border border-gray-100">
-          <div class="flex items-center gap-2 mb-2">
-            <div class="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
-              {{ p.fullname ? p.fullname.charAt(0) : '?' }}
-            </div>
-            <span class="text-sm font-medium text-gray-800">{{ p.fullname || 'Pengguna' }}</span>
-            <span class="text-xs text-gray-400 ml-auto">{{ timeAgo(p.created_at) }}</span>
-          </div>
-          <p class="text-sm text-gray-700 line-clamp-3">{{ p.content }}</p>
+          <span v-if="!n.is_read" class="w-2 h-2 rounded-full bg-brand-500 flex-shrink-0 mt-2"></span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ========== TOPBAR ========== -->
-  <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-blue-100 shadow-sm">
+  <header class="sticky top-0 z-30 bg-white/85 backdrop-blur-md border-b border-slate-100">
     <div class="max-w-2xl mx-auto flex items-center justify-between px-4 py-3">
-      <div class="flex items-center gap-2">
-        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center shadow-sm shadow-brand-600/20">
           <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
         </div>
-        <span class="font-bold text-blue-700 text-lg tracking-tight">Feed</span>
+        <span class="font-bold text-slate-800 text-lg tracking-tight">Feed</span>
       </div>
       <div class="flex items-center gap-1">
-        <button @click="openSaved" class="relative p-2 rounded-xl hover:bg-blue-50 text-gray-500 hover:text-blue-600 transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
-        </button>
-        <button @click="openNotif" class="relative p-2 rounded-xl hover:bg-blue-50 text-gray-500 hover:text-blue-600 transition">
+        <button @click="openNotif" title="Notifikasi" class="relative p-2.5 rounded-xl hover:bg-slate-50 text-slate-500 hover:text-brand-600 transition">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-          <span v-if="unreadCount>0" class="absolute top-1 right-1 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-0.5">{{ unreadCount }}</span>
+          <span v-if="unreadCount>0" class="absolute top-1.5 right-1.5 bg-rose-500 text-white text-[9px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-0.5 ring-2 ring-white">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
         </button>
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold bg-gradient-to-br ml-1"
+             :class="avatarGradient(currentUser.username)" :title="currentUser.fullname || 'Kamu'">
+          {{ currentUser.initial }}
+        </div>
       </div>
     </div>
   </header>
 
   <!-- ========== MAIN CONTENT ========== -->
-  <main class="max-w-2xl mx-auto px-4 py-6 space-y-5">
+  <main class="max-w-2xl mx-auto px-4 py-6 space-y-5 pb-24">
 
     <!-- FORM BUAT POST -->
-    <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-5">
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
       <div class="flex gap-3 items-start">
-        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 avatar-ring">
-          {{ currentUserInitial }}
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+             :class="avatarGradient(currentUser.username)">
+          {{ currentUser.initial }}
         </div>
         <div class="flex-1">
           <textarea v-model="newPost.content" rows="3"
-            class="w-full text-sm bg-blue-50 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300 text-gray-800 placeholder-gray-400 transition"
+            class="w-full text-sm bg-slate-50 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-300 text-slate-800 placeholder-slate-400 transition resize-none"
             placeholder="Apa yang ada di pikiranmu hari ini?"></textarea>
 
           <div v-if="newPost.showImageInput" class="mt-2">
             <input v-model="newPost.image_url" type="url" placeholder="URL gambar (opsional)"
-              class="w-full text-sm border border-blue-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white text-gray-700" />
+              class="w-full text-sm border border-slate-200 rounded-2xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-200 bg-white text-slate-700" />
           </div>
 
           <div v-if="newPost.image_url" class="mt-2 relative">
-            <img :src="newPost.image_url" class="w-full max-h-48 object-cover rounded-xl border border-blue-100" @error="newPost.image_url=''" alt="preview" />
-            <button @click="newPost.image_url=''" class="absolute top-2 right-2 bg-black/50 text-white rounded-full p-1 hover:bg-black/70">
+            <img :src="newPost.image_url" class="w-full max-h-48 object-cover rounded-2xl border border-slate-100" @error="newPost.image_url=''" alt="preview" />
+            <button @click="newPost.image_url=''" class="absolute top-2 right-2 bg-slate-900/50 text-white rounded-full p-1.5 hover:bg-slate-900/70 transition">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
           </div>
 
           <div class="flex items-center gap-2 mt-3 flex-wrap">
             <button @click="newPost.showImageInput=!newPost.showImageInput"
-              class="flex items-center gap-1.5 text-xs text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg px-3 py-1.5 transition"
-              :class="newPost.showImageInput?'text-blue-600 bg-blue-50':''">
+              class="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-full px-3.5 py-2 transition"
+              :class="newPost.showImageInput ? 'text-brand-600 bg-brand-50' : ''">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
               Foto
             </button>
 
-            <select v-model="newPost.visibility" class="text-xs border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 text-gray-600">
-              <option value="public">🌏 Publik</option>
-              <option value="friends">👥 Teman</option>
-              <option value="private">🔒 Pribadi</option>
-            </select>
+            <div class="relative">
+              <button type="button" @click="newPost.visOpen = !newPost.visOpen"
+                class="flex items-center gap-1.5 text-xs font-medium border border-slate-200 rounded-full pl-3 pr-2.5 py-2 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-200 text-slate-600 transition">
+                <svg v-if="newPost.visibility==='public'" class="w-3.5 h-3.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 21a9 9 0 100-18 9 9 0 000 18z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3.6 9h16.8M3.6 15h16.8M11.5 3c-2.5 3-2.5 15 0 18M12.5 3c2.5 3 2.5 15 0 18"/></svg>
+                <svg v-else-if="newPost.visibility==='friends'" class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857m0 0a5.002 5.002 0 00-9.288 0M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <svg v-else class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                <span>{{ newPost.visibility==='public' ? 'Publik' : newPost.visibility==='friends' ? 'Teman' : 'Pribadi' }}</span>
+                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <div v-if="newPost.visOpen" class="fixed inset-0 z-10" @click="newPost.visOpen=false"></div>
+              <div v-if="newPost.visOpen" class="absolute left-0 mt-1.5 w-40 bg-white rounded-2xl shadow-lg border border-slate-100 py-1.5 z-20">
+                <button type="button" @click="newPost.visibility='public'; newPost.visOpen=false"
+                  class="w-full flex items-center gap-2 px-3.5 py-2 text-sm text-slate-700 hover:bg-slate-50 transition">
+                  <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 21a9 9 0 100-18 9 9 0 000 18z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3.6 9h16.8M3.6 15h16.8M11.5 3c-2.5 3-2.5 15 0 18M12.5 3c2.5 3 2.5 15 0 18"/></svg>
+                  Publik
+                </button>
+                <button type="button" @click="newPost.visibility='friends'; newPost.visOpen=false"
+                  class="w-full flex items-center gap-2 px-3.5 py-2 text-sm text-slate-700 hover:bg-slate-50 transition">
+                  <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857m0 0a5.002 5.002 0 00-9.288 0M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  Teman
+                </button>
+                <button type="button" @click="newPost.visibility='private'; newPost.visOpen=false"
+                  class="w-full flex items-center gap-2 px-3.5 py-2 text-sm text-slate-700 hover:bg-slate-50 transition">
+                  <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                  Pribadi
+                </button>
+              </div>
+            </div>
 
             <button @click="createPost" :disabled="!newPost.content.trim() || newPost.loading"
-              class="ml-auto bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2 rounded-xl transition">
+              class="ml-auto bg-brand-600 hover:bg-brand-700 disabled:opacity-40 disabled:hover:bg-brand-600 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition">
               <span v-if="newPost.loading">Memposting…</span>
               <span v-else>Posting</span>
             </button>
@@ -237,22 +307,23 @@
     </div>
 
     <!-- FILTER -->
-    <div class="flex items-center gap-2 overflow-x-auto pb-1">
+    <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
       <button @click="currentFilter='all'; fetchPosts()"
-        class="flex-shrink-0 text-xs font-medium px-4 py-2 rounded-full border transition"
-        :class="currentFilter==='all'?'bg-blue-600 text-white border-blue-600':'bg-white text-gray-600 border-gray-200 hover:border-blue-300'">
+        class="flex-shrink-0 text-xs font-semibold px-4 py-2 rounded-full border transition"
+        :class="currentFilter==='all' ? 'bg-brand-600 text-white border-brand-600 shadow-sm shadow-brand-600/20' : 'bg-white text-slate-600 border-slate-200 hover:border-brand-300'">
         Semua Post
       </button>
       <button @click="currentFilter='saved'; fetchSavedPostsInline()"
-        class="flex-shrink-0 text-xs font-medium px-4 py-2 rounded-full border transition"
-        :class="currentFilter==='saved'?'bg-blue-600 text-white border-blue-600':'bg-white text-gray-600 border-gray-200 hover:border-blue-300'">
+        class="flex-shrink-0 text-xs font-semibold px-4 py-2 rounded-full border transition flex items-center gap-1.5"
+        :class="currentFilter==='saved' ? 'bg-brand-600 text-white border-brand-600 shadow-sm shadow-brand-600/20' : 'bg-white text-slate-600 border-slate-200 hover:border-brand-300'">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
         Tersimpan
       </button>
     </div>
 
     <!-- SKELETON LOADING -->
     <div v-if="loading" class="space-y-5">
-      <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-5 space-y-3" v-for="i in 3" :key="i">
+      <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 space-y-3" v-for="i in 3" :key="i">
         <div class="flex items-center gap-3">
           <div class="skeleton w-10 h-10 rounded-full"></div>
           <div class="space-y-1.5 flex-1">
@@ -269,45 +340,52 @@
     <!-- DAFTAR POST -->
     <div v-else-if="posts.length>0" class="space-y-5">
       <div v-for="post in posts" :key="post.id"
-        class="post-card bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden fade-in">
+        class="post-card bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden fade-in">
 
         <!-- Header -->
         <div class="flex items-start gap-3 p-5 pb-3">
-          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-            {{ post.fullname ? post.fullname.charAt(0) : '?' }}
+          <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 bg-gradient-to-br"
+               :class="avatarGradient(post.username)">
+            {{ post.fullname ? post.fullname.charAt(0).toUpperCase() : '?' }}
           </div>
           <div class="flex-1 min-w-0">
-            <div class="flex items-baseline gap-2">
-              <span class="font-semibold text-gray-900 text-sm">{{ post.fullname || 'Pengguna' }}</span>
-              <span class="text-gray-400 text-xs">@{{ post.username || 'user' }}</span>
+            <div class="flex items-baseline gap-2 flex-wrap">
+              <span class="font-semibold text-slate-900 text-sm">{{ post.fullname || 'Pengguna' }}</span>
+              <span class="text-slate-400 text-xs">@{{ post.username || 'user' }}</span>
             </div>
             <div class="flex items-center gap-2 mt-0.5">
-              <span class="text-xs text-gray-400">{{ timeAgo(post.created_at) }}</span>
-              <span class="text-gray-300">·</span>
-              <span class="text-xs text-gray-400">
-                <span v-if="post.visibility==='public'">🌏 Publik</span>
+              <span class="text-xs text-slate-400">{{ timeAgo(post.created_at) }}</span>
+              <span class="text-slate-300">·</span>
+              <span class="text-xs text-slate-400">
+                <span v-if="post.visibility==='public'" class="inline-flex items-center gap-1"><svg class="w-3.5 h-3.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 21a9 9 0 100-18 9 9 0 000 18z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3.6 9h16.8M3.6 15h16.8M11.5 3c-2.5 3-2.5 15 0 18M12.5 3c2.5 3 2.5 15 0 18"/></svg>Publik</span>
                 <span v-else-if="post.visibility==='friends'">👥 Teman</span>
                 <span v-else>🔒 Pribadi</span>
               </span>
-              <span v-if="post.updated_at && post.updated_at !== post.created_at" class="text-xs text-blue-300 italic">(diedit)</span>
+              <span v-if="post.updated_at && post.updated_at !== post.created_at" class="text-xs text-brand-400 italic">(diedit)</span>
             </div>
           </div>
 
           <div class="relative flex-shrink-0" data-menu>
-            <button @click="togglePostMenu(post.id)" class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition">
+            <button @click="togglePostMenu(post.id)" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition">
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
             </button>
-            <div v-if="openMenu===post.id" class="menu-dropdown absolute right-0 top-8 bg-white rounded-xl shadow-xl border border-gray-100 py-1 w-44 z-10">
-              <button @click="openEdit(post)" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition text-left">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                Edit Post
+            <div v-if="openMenu===post.id" class="pop-in absolute right-0 top-9 bg-white rounded-2xl shadow-xl border border-slate-100 py-1.5 w-48 z-10">
+              <template v-if="post.user_id === currentUser.id">
+                <button @click="openEdit(post)" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-brand-50 hover:text-brand-700 transition text-left">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                  Edit Post
+                </button>
+                <button @click="deletePost(post)" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-rose-500 hover:bg-rose-50 transition text-left">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                  Hapus Post
+                </button>
+                <hr class="my-1 border-slate-100" />
+              </template>
+              <button @click="copyLink(post); openMenu=null" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition text-left">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                Salin Tautan
               </button>
-              <button @click="deletePost(post)" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition text-left">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                Hapus Post
-              </button>
-              <hr class="my-1 border-gray-100" />
-              <button @click="openReport(post)" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-500 hover:bg-gray-50 transition text-left">
+              <button v-if="post.user_id !== currentUser.id" @click="openReport(post)" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-500 hover:bg-slate-50 transition text-left">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>
                 Laporkan
               </button>
@@ -317,22 +395,23 @@
 
         <!-- Konten -->
         <div class="px-5 pb-3">
-          <p class="text-sm text-gray-800 leading-relaxed whitespace-pre-line"
+          <p class="text-sm text-slate-800 leading-relaxed whitespace-pre-line"
             :class="!post.expanded && post.content && post.content.length > 300 ? 'line-clamp-5' : ''">{{ post.content }}</p>
           <button v-if="post.content && post.content.length > 300" @click="post.expanded = !post.expanded"
-            class="text-xs text-blue-600 hover:underline mt-1">
+            class="text-xs font-medium text-brand-600 hover:text-brand-700 mt-1">
             {{ post.expanded ? 'Tampilkan lebih sedikit' : 'Tampilkan selengkapnya' }}
           </button>
-          <img v-if="post.image_url" :src="post.image_url" class="mt-3 w-full rounded-xl max-h-80 object-cover border border-blue-50" alt="post image" />
+          <img v-if="post.image_url" :src="post.image_url" class="mt-3 w-full rounded-2xl max-h-80 object-cover border border-slate-100" alt="post image" />
         </div>
 
         <!-- Statistik -->
-        <div class="px-5 py-2 border-t border-b border-gray-50 flex items-center justify-between text-xs text-gray-500">
-          <span v-if="post.like_count>0">
-            <span class="inline-block mr-1">❤️</span>{{ post.like_count }} suka
+        <div v-if="post.like_count>0 || post.comment_count>0" class="px-5 py-2 border-t border-b border-slate-50 flex items-center justify-between text-xs text-slate-500">
+          <span v-if="post.like_count>0" class="flex items-center gap-1">
+            <span class="w-4 h-4 rounded-full bg-rose-500 flex items-center justify-center text-white text-[9px]">♥</span>
+            {{ post.like_count }} suka
           </span>
           <span v-else></span>
-          <span v-if="post.comment_count>0" @click="toggleComments(post)" class="cursor-pointer hover:text-blue-600">
+          <span v-if="post.comment_count>0" @click="toggleComments(post)" class="cursor-pointer hover:text-brand-600 transition">
             {{ post.comment_count }} komentar
           </span>
         </div>
@@ -340,8 +419,8 @@
         <!-- Tombol Aksi -->
         <div class="px-3 py-1 flex items-center gap-1">
           <button @click="toggleLike(post)"
-            class="btn-action flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm transition"
-            :class="post.is_liked?'text-blue-600 font-semibold bg-blue-50 hover:bg-blue-100':'text-gray-500 hover:bg-gray-50'">
+            class="btn-action flex-1 flex items-center justify-center gap-1.5 py-2 rounded-2xl text-sm transition"
+            :class="post.is_liked ? 'text-rose-500 font-semibold bg-rose-50 hover:bg-rose-100' : 'text-slate-500 hover:bg-slate-50'">
             <svg class="w-4 h-4" :fill="post.is_liked?'currentColor':'none'" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
             </svg>
@@ -349,7 +428,7 @@
           </button>
 
           <button @click="toggleComments(post)"
-            class="btn-action flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm text-gray-500 hover:bg-gray-50 transition">
+            class="btn-action flex-1 flex items-center justify-center gap-1.5 py-2 rounded-2xl text-sm text-slate-500 hover:bg-slate-50 transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
             </svg>
@@ -357,8 +436,8 @@
           </button>
 
           <button @click="toggleSave(post)"
-            class="btn-action flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm transition"
-            :class="post.is_saved?'text-yellow-600 font-semibold bg-yellow-50 hover:bg-yellow-100':'text-gray-500 hover:bg-gray-50'">
+            class="btn-action flex-1 flex items-center justify-center gap-1.5 py-2 rounded-2xl text-sm transition"
+            :class="post.is_saved ? 'text-amber-600 font-semibold bg-amber-50 hover:bg-amber-100' : 'text-slate-500 hover:bg-slate-50'">
             <svg class="w-4 h-4" :fill="post.is_saved?'currentColor':'none'" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
             </svg>
@@ -366,7 +445,7 @@
           </button>
 
           <button @click="copyLink(post)"
-            class="btn-action flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm text-gray-500 hover:bg-gray-50 transition">
+            class="btn-action flex-1 flex items-center justify-center gap-1.5 py-2 rounded-2xl text-sm text-slate-500 hover:bg-slate-50 transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
             </svg>
@@ -375,79 +454,81 @@
         </div>
 
         <!-- KOMENTAR -->
-        <div v-if="post.showComments" class="border-t border-gray-100 bg-gray-50/50 px-5 py-4 space-y-4">
+        <div v-if="post.showComments" class="border-t border-slate-100 bg-slate-50/60 px-5 py-4 space-y-4">
           <div v-if="post.commentsLoading" class="space-y-3">
-            <div class="skeleton h-10 rounded-xl" v-for="i in 2" :key="i"></div>
+            <div class="skeleton h-10 rounded-2xl" v-for="i in 2" :key="i"></div>
           </div>
           <div v-else class="space-y-3">
             <div v-for="c in (post.comments || [])" :key="c.id" class="space-y-3">
               <div class="flex items-start gap-2.5">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-blue-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
-                  {{ c.fullname ? c.fullname.charAt(0) : '?' }}
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0 bg-gradient-to-br"
+                     :class="avatarGradient(c.username)">
+                  {{ c.fullname ? c.fullname.charAt(0).toUpperCase() : '?' }}
                 </div>
                 <div class="flex-1 min-w-0">
-                  <div class="bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-100 relative group">
+                  <div class="bg-white rounded-2xl px-4 py-3 shadow-sm border border-slate-100 relative group">
                     <div class="flex items-baseline gap-1.5 flex-wrap">
-                      <span class="text-sm font-semibold text-gray-800">{{ c.fullname || 'Pengguna' }}</span>
-                      <span class="text-xs text-gray-400">@{{ c.username || 'user' }}</span>
+                      <span class="text-sm font-semibold text-slate-800">{{ c.fullname || 'Pengguna' }}</span>
+                      <span class="text-xs text-slate-400">@{{ c.username || 'user' }}</span>
                     </div>
-                    <p class="text-sm text-gray-700 mt-1 whitespace-pre-line">{{ c.content }}</p>
-                    <div class="absolute top-2 right-2 hidden group-hover:flex gap-1">
-                      <button @click="startEditComment(c)" class="p-1 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-600">
+                    <p class="text-sm text-slate-700 mt-1 whitespace-pre-line">{{ c.content }}</p>
+                    <div v-if="c.user_id === currentUser.id" class="absolute top-2 right-2 hidden group-hover:flex gap-1">
+                      <button @click="startEditComment(c)" class="p-1 rounded-lg hover:bg-brand-50 text-slate-400 hover:text-brand-600">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                       </button>
-                      <button @click="deleteComment(post, c)" class="p-1 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500">
+                      <button @click="deleteComment(post, c)" class="p-1 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-500">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                       </button>
                     </div>
                   </div>
                   <div v-if="editingComment && editingComment.id===c.id" class="mt-2 flex gap-2">
-                    <input v-model="editingComment.content" class="flex-1 text-sm border border-blue-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200" />
-                    <button @click="saveEditComment(post)" class="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-xl hover:bg-blue-700">Simpan</button>
-                    <button @click="editingComment=null" class="text-gray-400 text-xs px-2">Batal</button>
+                    <input v-model="editingComment.content" class="flex-1 text-sm border border-brand-200 rounded-2xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-200" />
+                    <button @click="saveEditComment(post)" class="bg-brand-600 text-white text-xs px-3.5 py-2 rounded-full hover:bg-brand-700">Simpan</button>
+                    <button @click="editingComment=null" class="text-slate-400 text-xs px-2">Batal</button>
                   </div>
                   <div class="flex items-center gap-3 mt-1.5 pl-1">
                     <button @click="toggleLikeComment(c)"
                       class="flex items-center gap-1 text-xs transition"
-                      :class="c.is_liked?'text-blue-600 font-semibold':'text-gray-400 hover:text-blue-600'">
+                      :class="c.is_liked ? 'text-rose-500 font-semibold' : 'text-slate-400 hover:text-rose-500'">
                       <svg class="w-3.5 h-3.5" :fill="c.is_liked?'currentColor':'none'" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                       </svg>
                       <span>{{ c.like_count > 0 ? c.like_count : '' }} Suka</span>
                     </button>
-                    <button @click="startReply(post, c)" class="text-xs text-gray-400 hover:text-blue-600 transition">Balas</button>
-                    <span class="text-xs text-gray-300">{{ timeAgo(c.created_at) }}</span>
+                    <button @click="startReply(post, c)" class="text-xs text-slate-400 hover:text-brand-600 transition">Balas</button>
+                    <span class="text-xs text-slate-300">{{ timeAgo(c.created_at) }}</span>
                   </div>
                   <div v-if="replyTarget && replyTarget.commentId===c.id" class="mt-2 flex gap-2 items-center">
                     <input v-model="replyTarget.content" placeholder="Tulis balasan..."
-                      class="flex-1 text-sm border border-blue-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
+                      class="flex-1 text-sm border border-brand-200 rounded-2xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-200 bg-white"
                       @keydown.enter.prevent="submitReply(post)" />
-                    <button @click="submitReply(post)" class="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-xl hover:bg-blue-700">Kirim</button>
-                    <button @click="replyTarget=null" class="text-gray-400 text-xs">✕</button>
+                    <button @click="submitReply(post)" class="bg-brand-600 text-white text-xs px-3.5 py-2 rounded-full hover:bg-brand-700">Kirim</button>
+                    <button @click="replyTarget=null" class="text-slate-400 text-xs">✕</button>
                   </div>
-                  <div v-if="c.replies && c.replies.length>0" class="mt-3 pl-3 comment-box space-y-3">
+                  <div v-if="c.replies && c.replies.length>0" class="mt-3 pl-3 comment-thread space-y-3">
                     <div v-for="r in c.replies" :key="r.id" class="flex items-start gap-2">
-                      <div class="w-7 h-7 rounded-full bg-blue-200 flex items-center justify-center text-blue-700 font-bold text-xs flex-shrink-0">
-                        {{ r.fullname ? r.fullname.charAt(0) : '?' }}
+                      <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 bg-gradient-to-br"
+                           :class="avatarGradient(r.username)">
+                        <span class="text-white">{{ r.fullname ? r.fullname.charAt(0).toUpperCase() : '?' }}</span>
                       </div>
                       <div class="flex-1">
-                        <div class="bg-white rounded-2xl px-3 py-2.5 shadow-sm border border-gray-100">
+                        <div class="bg-white rounded-2xl px-3 py-2.5 shadow-sm border border-slate-100">
                           <div class="flex items-baseline gap-1.5">
-                            <span class="text-xs font-semibold text-gray-800">{{ r.fullname || 'Pengguna' }}</span>
-                            <span class="text-xs text-gray-400">@{{ r.username || 'user' }}</span>
+                            <span class="text-xs font-semibold text-slate-800">{{ r.fullname || 'Pengguna' }}</span>
+                            <span class="text-xs text-slate-400">@{{ r.username || 'user' }}</span>
                           </div>
-                          <p class="text-xs text-gray-700 mt-0.5">{{ r.content }}</p>
+                          <p class="text-xs text-slate-700 mt-0.5">{{ r.content }}</p>
                         </div>
                         <div class="flex items-center gap-2 mt-1 pl-1">
                           <button @click="toggleLikeComment(r)"
                             class="flex items-center gap-1 text-xs transition"
-                            :class="r.is_liked?'text-blue-600 font-semibold':'text-gray-400 hover:text-blue-600'">
+                            :class="r.is_liked ? 'text-rose-500 font-semibold' : 'text-slate-400 hover:text-rose-500'">
                             <svg class="w-3 h-3" :fill="r.is_liked?'currentColor':'none'" stroke="currentColor" viewBox="0 0 24 24">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                             </svg>
                             {{ r.like_count > 0 ? r.like_count : '' }} Suka
                           </button>
-                          <span class="text-xs text-gray-300">{{ timeAgo(r.created_at) }}</span>
+                          <span class="text-xs text-slate-300">{{ timeAgo(r.created_at) }}</span>
                         </div>
                       </div>
                     </div>
@@ -455,21 +536,22 @@
                 </div>
               </div>
             </div>
-            <p v-if="!post.commentsLoading && (!post.comments || post.comments.length===0)" class="text-xs text-gray-400 text-center py-2">
+            <p v-if="!post.commentsLoading && (!post.comments || post.comments.length===0)" class="text-xs text-slate-400 text-center py-2">
               Belum ada komentar. Jadilah yang pertama!
             </p>
           </div>
 
           <div class="flex items-start gap-2.5 mt-3">
-            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
-              {{ currentUserInitial }}
+            <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0 bg-gradient-to-br"
+                 :class="avatarGradient(currentUser.username)">
+              {{ currentUser.initial }}
             </div>
             <div class="flex-1 flex gap-2">
               <input v-model="post.newComment" type="text" placeholder="Tulis komentar…"
-                class="flex-1 text-sm border border-blue-200 rounded-2xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
+                class="flex-1 text-sm border border-slate-200 rounded-full px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-300 bg-white"
                 @keydown.enter.prevent="submitComment(post)" />
               <button @click="submitComment(post)" :disabled="!post.newComment?.trim()"
-                class="bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white rounded-2xl px-4 py-2 text-sm font-medium transition">
+                class="bg-brand-600 hover:bg-brand-700 disabled:opacity-40 text-white rounded-full px-4 py-2 text-sm font-medium transition flex-shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
               </button>
             </div>
@@ -479,24 +561,37 @@
     </div>
 
     <!-- KOSONG -->
-    <div v-else-if="!loading" class="flex flex-col items-center justify-center py-20 text-gray-400">
-      <svg class="w-16 h-16 mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-      </svg>
-      <p class="text-base font-medium">Feed masih kosong</p>
-      <p class="text-sm mt-1">Buat post pertamamu di atas!</p>
+    <div v-else-if="!loading" class="flex flex-col items-center justify-center py-20 text-slate-400 text-center">
+      <div class="w-20 h-20 rounded-3xl bg-white border border-slate-100 flex items-center justify-center mb-4 shadow-sm">
+        <svg class="w-9 h-9 text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+        </svg>
+      </div>
+      <p class="text-base font-semibold text-slate-600">
+        {{ currentFilter === 'saved' ? 'Belum ada post tersimpan' : 'Feed masih kosong' }}
+      </p>
+      <p class="text-sm mt-1 max-w-xs">
+        {{ currentFilter === 'saved' ? 'Simpan post yang menarik untuk dibaca lagi nanti.' : 'Buat post pertamamu di atas untuk memulai percakapan!' }}
+      </p>
     </div>
 
     <!-- LOAD MORE -->
-    <div v-if="meta && meta.page < meta.total_pages" class="flex justify-center pb-4">
+    <div v-if="currentFilter==='all' && meta && meta.page < meta.total_pages" class="flex justify-center pb-4">
       <button @click="loadMore" :disabled="loadingMore"
-        class="bg-white border border-blue-200 hover:bg-blue-50 text-blue-600 text-sm font-medium px-8 py-3 rounded-2xl transition shadow-sm disabled:opacity-50">
+        class="bg-white border border-slate-200 hover:border-brand-300 hover:text-brand-600 text-slate-600 text-sm font-medium px-8 py-3 rounded-full transition shadow-sm disabled:opacity-50">
         <span v-if="loadingMore">Memuat…</span>
         <span v-else>Muat lebih banyak</span>
       </button>
     </div>
 
   </main>
+
+  <!-- ========== SCROLL TO TOP ========== -->
+  <button v-if="showScrollTop" @click="scrollToTop"
+    class="fixed bottom-6 right-6 z-30 bg-white border border-slate-200 shadow-lg shadow-slate-900/10 text-brand-600 rounded-full w-11 h-11 flex items-center justify-center hover:bg-brand-50 transition pop-in">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+  </button>
+
 </div>
 
 <!-- ================================================================
@@ -508,6 +603,25 @@ if (typeof PetiteVue === 'undefined') {
   console.error('PetiteVue tidak dimuat. Periksa koneksi internet.');
 }
 
+// Palet gradient avatar — dipilih berdasarkan hash username agar konsisten
+const AVATAR_GRADIENTS = [
+  'from-brand-400 to-brand-700',
+  'from-sky-400 to-blue-600',
+  'from-emerald-400 to-teal-600',
+  'from-rose-400 to-pink-600',
+  'from-amber-400 to-orange-600',
+  'from-fuchsia-400 to-purple-600',
+];
+
+function hashSeed(str) {
+  if (!str) return 0;
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = (h * 31 + str.charCodeAt(i)) >>> 0;
+  }
+  return h;
+}
+
 const state = {
   // State utama
   posts: [],
@@ -517,8 +631,8 @@ const state = {
   currentFilter: 'all',
   currentPage: 1,
 
-  // User
-  currentUserInitial: '?',
+  // User saat ini
+  currentUser: { id: null, username: '', fullname: '', initial: '?' },
 
   // Form post
   newPost: {
@@ -527,6 +641,7 @@ const state = {
     visibility: 'public',
     loading: false,
     showImageInput: false,
+    visOpen: false,
   },
 
   openMenu: null,
@@ -538,6 +653,7 @@ const state = {
     content: '',
     visibility: 'public',
     loading: false,
+    visOpen: false,
   },
 
   // Report modal
@@ -562,11 +678,6 @@ const state = {
   unreadCount: 0,
   notifLoading: false,
 
-  // Saved
-  savedOpen: false,
-  savedPosts: [],
-  savedLoading: false,
-
   // Komentar
   editingComment: null,
   replyTarget: null,
@@ -575,24 +686,36 @@ const state = {
   toasts: [],
   _toastId: 0,
 
+  // Scroll
+  showScrollTop: false,
+
   // =============================================================
   // INIT
   // =============================================================
   async init() {
     try {
-      // Ambil data user (opsional) dan feed secara paralel
       await Promise.all([
         this.fetchCurrentUser(),
-        this.fetchPosts(1)
+        this.fetchPosts(1),
       ]);
     } catch (err) {
       console.warn('Init error:', err);
-      // Tampilkan toast error jika diperlukan
       this.toast('Gagal memuat data awal', 'error');
     } finally {
-      // Pastikan loading dimatikan
       this.loading = false;
     }
+
+    // Tutup dropdown menu saat klik di luar area menu
+    document.addEventListener('click', (e) => {
+      if (this.openMenu !== null && !e.target.closest('[data-menu]')) {
+        this.openMenu = null;
+      }
+    });
+
+    // Tampilkan tombol scroll-to-top setelah scroll turun
+    window.addEventListener('scroll', () => {
+      this.showScrollTop = window.scrollY > 480;
+    });
   },
 
   async fetchCurrentUser() {
@@ -600,11 +723,29 @@ const state = {
       const r = await fetch('/gate/auth/me');
       if (r.ok) {
         const d = await r.json();
-        if (d.data?.user?.fullname) {
-          this.currentUserInitial = d.data.user.fullname.charAt(0).toUpperCase();
+        const u = d.data?.user;
+        if (u) {
+          this.currentUser = {
+            id: u.id ?? null,
+            username: u.username || '',
+            fullname: u.fullname || '',
+            initial: u.fullname ? u.fullname.charAt(0).toUpperCase() : '?',
+          };
         }
       }
     } catch (_) { /* abaikan */ }
+  },
+
+  // =============================================================
+  // HELPERS TAMPILAN
+  // =============================================================
+  avatarGradient(seed) {
+    const idx = hashSeed(seed) % AVATAR_GRADIENTS.length;
+    return AVATAR_GRADIENTS[idx];
+  },
+
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   },
 
   // =============================================================
@@ -628,7 +769,6 @@ const state = {
         this.currentPage = page;
       } else {
         this.toast(d.message || 'Gagal memuat feed', 'error');
-        // Jika gagal, set posts kosong agar tidak loading selamanya
         this.posts = [];
         this.meta = null;
       }
@@ -689,6 +829,7 @@ const state = {
         this.newPost.image_url = '';
         this.newPost.showImageInput = false;
         this.toast('Post berhasil dibuat!');
+        this.currentFilter = 'all';
         await this.fetchPosts(1);
       } else {
         this.toast(d.message || 'Gagal membuat post', 'error');
@@ -790,7 +931,10 @@ const state = {
       const d = await r.json();
       if (d.success) {
         post.is_saved = d.data.saved;
-        this.toast(d.data.saved ? 'Post disimpan' : 'Hapus dari simpanan');
+        this.toast(d.data.saved ? 'Post disimpan' : 'Dihapus dari simpanan');
+        if (this.currentFilter === 'saved' && !d.data.saved) {
+          this.posts = this.posts.filter(p => p.id !== post.id);
+        }
       }
     } catch (err) {
       console.error('toggleSave error:', err);
@@ -798,20 +942,19 @@ const state = {
   },
 
   copyLink(post) {
-    const url = `${window.location.origin}/gate/feed/posts/${post.id}`;
+    const url = `${window.location.origin}/feed/posts/${post.id}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url)
-        .then(() => this.toast('Link disalin!'))
-        .catch(() => this.toast('Gagal menyalin link', 'error'));
+        .then(() => this.toast('Tautan disalin!'))
+        .catch(() => this.toast('Gagal menyalin tautan', 'error'));
     } else {
-      // fallback
       const textarea = document.createElement('textarea');
       textarea.value = url;
       document.body.appendChild(textarea);
       textarea.select();
       document.execCommand('copy');
       document.body.removeChild(textarea);
-      this.toast('Link disalin!');
+      this.toast('Tautan disalin!');
     }
   },
 
@@ -1051,22 +1194,6 @@ const state = {
   // =============================================================
   // SAVED
   // =============================================================
-  async openSaved() {
-    this.savedOpen = true;
-    this.savedLoading = true;
-    try {
-      const r = await fetch('/gate/feed/saved');
-      const d = await r.json();
-      if (d.success) {
-        this.savedPosts = d.data.posts || [];
-      }
-    } catch (err) {
-      console.error('openSaved error:', err);
-    } finally {
-      this.savedLoading = false;
-    }
-  },
-
   async fetchSavedPostsInline() {
     this.loading = true;
     try {
@@ -1082,10 +1209,14 @@ const state = {
           expanded: false,
         }));
         this.meta = null;
+      } else {
+        this.toast(d.message || 'Gagal memuat post tersimpan', 'error');
+        this.posts = [];
       }
     } catch (err) {
       console.error('fetchSavedPostsInline error:', err);
       this.toast('Gagal memuat post tersimpan', 'error');
+      this.posts = [];
     } finally {
       this.loading = false;
     }
@@ -1126,12 +1257,12 @@ const state = {
   },
 };
 
-// Mount aplikasi dengan PetiteVue
+// Mount aplikasi dengan PetiteVue lalu langsung jalankan init
 try {
   PetiteVue.createApp(state).mount('#app');
+  state.init();
 } catch (err) {
   console.error('Gagal mount PetiteVue:', err);
-  // Jika gagal mount, tampilkan pesan error di layar
   document.getElementById('app').innerHTML = `
     <div class="p-8 text-center text-red-500">
       <p>Gagal memuat aplikasi. Periksa koneksi internet dan coba reload.</p>
@@ -1139,11 +1270,6 @@ try {
     </div>
   `;
 }
-
-// Panggil init setelah mount
-setTimeout(() => {
-  state.init();
-}, 100);
 </script>
 
 </body>

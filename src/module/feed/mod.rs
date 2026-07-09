@@ -8,6 +8,7 @@ pub fn open_routes(cfg: &mut ServiceConfig) {
     cfg.service(
         web::scope("/feed")
             .route("", web::get().to(handler::page_feed))
+            .route("/posts/{post_id}", web::get().to(handler::page_post_detail))
     );
 }
 
