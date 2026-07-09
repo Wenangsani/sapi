@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pesan</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-50 h-screen overflow-hidden" v-scope>
+<div id="app" v-scope class="flex h-screen">
+
+    <!-- Sidebar -->
+    <div class="w-full sm:w-80 bg-white border-r border-blue-100 flex flex-col"
+         :class="activeConversation ? 'hidden sm:flex' : 'flex'">
+
+        <div class="px-4 py-4 bg-blue-600 text-white">
+            <h1 class="text-lg font-semibold">Pesan</h1>
+        </div>
+
+        <div class="p-3 border-b border-blue-100 relative">
+            <input type="text" v-model="searchQuery" @input="onSearch"
+                   placeholder="Cari pengguna untuk mulai chat..."
+                   class="w-full px-3 py-2 rounded-lg bg-blue-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
+
+            <div v-if="searchResults.length" class="absolute left-3 right-3 mt-1 bg-white rounded-lg shadow-lg border border-blue-100 z-10 max-h-64 overflow-y-auto">
+                <button v-for="u in searchResults" :key="u.id" @click="startConversation(u)"
+                        class="w-full flex items-center gap-3 px-3 py-2 hover:bg-blue-50 text-left">
+                    <div class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-medium">
+                        {{ u.fullname.charAt(0).toUpperCase() }}
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">{{ u.fullname }}</p>
+                        <p class="text-xs text-gray-400">@{{ u.username }}</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto">
+            <div v-if="!conversations.length" class="text-center text-sm text-gray-400 mt-10">
+                Belum ada percakapan
+            </div>
+
+            <button v-for="c in conversations" :key="c.id" @click="openConversation(c)"
+                    class="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 border-b border-blue-50 text-left"
+                    :class="activeConversation && activeConversation.id === c.id ? 'bg-blue-50' : ''">
+                <div class="w-11 h-11 rounded-full bg-blue-500 text-white flex items-center justify-center font-medium shrink-0">
+                    {{ c.partner_name.charAt(0).toUpperCase() }}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-center">
+                        <p class="text-sm font-medium text-gray-800 truncate">{{ c.partner_name }}</p>
+                        <span class="text-xs text-gray-400 shrink-0">{{ formatTime(c.last_message_at) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <p class="text-xs text-gray-400 truncate">{{ c.last_message || 'Belum ada pesan' }}</p>
+                        <span v-if="c.unread_count > 0"
+                              class="bg-orange-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shrink-0">
+                            {{ c.unread_count }}
+                        </span>
+                    </div>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat Panel -->
+    <div class="flex-1 flex flex-col" :class="activeConversation ? 'flex' : 'hidden sm:flex'">
+        <div v-if="!activeConversation" class="flex-1 flex items-center justify-center text-gray-400 text-sm">
+            Pilih percakapan untuk mulai chat
+        </div>
+
+        <template v-else>
+            <div class="px-4 py-3 bg-blue-600 text-white flex items-center gap-3">
+                <button @click="activeConversation = null" class="sm:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <div class="w-9 h-9 rounded-full bg-blue-400 flex items-center justify-center font-medium">
+                    {{ activeConversation.partner_name.charAt(0).toUpperCase() }}
+                </div>
+                <p class="font-medium">{{ activeConversation.partner_name }}</p>
+            </div>
+
+            <div ref="chatBox" class="flex-1 overflow-y-auto p-4 space-y-2 bg-blue-50">
+                <div v-for="m in messages" :key="m.id" class="flex" :class="m.is_mine ? 'justify-end' : 'justify-start'">
+                    <div class="max-w-[75%] px-3 py-2 rounded-lg text-sm shadow-sm"
+                         :class="m.is_mine ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white text-gray-800 rounded-bl-none'">
+                        <p>{{ m.content }}</p>
+                        <p class="text-[10px] mt-1 opacity-70 text-right">{{ formatTime(m.created_at) }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <form @submit.prevent="sendMessage" class="p-3 bg-white border-t border-blue-100 flex items-center gap-2">
+                <input type="text" v-model="newMessage" placeholder="Tulis pesan..."
+                       class="flex-1 px-3 py-2 rounded-full bg-blue-50 text-sm outline-none focus:ring-2 focus:ring-blue-400">
+                <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-10 h-10 flex items-center justify-center shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M2 21l21-9L2 3v7l15 2-15 2z" />
+                    </svg>
+                </button>
+            </form>
+        </template>
+    </div>
+</div>
+
+<script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
+<script>
+const state = {
+    conversations: [],
+    activeConversation: null,
+    messages: [],
+    newMessage: '',
+    searchQuery: '',
+    searchResults: [],
+    pollConvInterval: null,
+    pollMsgInterval: null,
+
+    async fetchConversations() {
+        const res = await fetch('/gate/messages/conversations');
+        const json = await res.json();
+        if (json.success) this.conversations = json.data.conversations;
+    },
+
+    async onSearch() {
+        if (!this.searchQuery.trim()) {
+            this.searchResults = [];
+            return;
+        }
+        const res = await fetch('/gate/messages/users/search?q=' + encodeURIComponent(this.searchQuery));
+        const json = await res.json();
+        if (json.success) this.searchResults = json.data.users;
+    },
+
+    async startConversation(user) {
+        const res = await fetch('/gate/messages/conversations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ partner_id: user.id })
+        });
+        const json = await res.json();
+        if (json.success) {
+            this.searchQuery = '';
+            this.searchResults = [];
+            await this.fetchConversations();
+            const conv = this.conversations.find(c => c.id === json.data.conversation_id);
+            if (conv) this.openConversation(conv);
+        }
+    },
+
+    async openConversation(conv) {
+        this.activeConversation = conv;
+        await this.fetchMessages();
+        await fetch('/gate/messages/conversations/' + conv.id + '/read', { method: 'POST' });
+        conv.unread_count = 0;
+
+        clearInterval(this.pollMsgInterval);
+        this.pollMsgInterval = setInterval(() => this.fetchMessages(), 3000);
+    },
+
+    async fetchMessages() {
+        if (!this.activeConversation) return;
+        const res = await fetch('/gate/messages/conversations/' + this.activeConversation.id);
+        const json = await res.json();
+        if (json.success) {
+            this.messages = json.data.messages;
+            this.$nextTick(() => {
+                const box = this.$refs.chatBox;
+                if (box) box.scrollTop = box.scrollHeight;
+            });
+        }
+    },
+
+    async sendMessage() {
+        if (!this.newMessage.trim() || !this.activeConversation) return;
+        const content = this.newMessage;
+        this.newMessage = '';
+
+        const res = await fetch('/gate/messages/conversations/' + this.activeConversation.id, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content })
+        });
+        const json = await res.json();
+        if (json.success) {
+            await this.fetchMessages();
+            await this.fetchConversations();
+        }
+    },
+
+    formatTime(iso) {
+        if (!iso) return '';
+        const d = new Date(iso);
+        return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    },
+
+    mounted() {
+        this.fetchConversations();
+        this.pollConvInterval = setInterval(() => this.fetchConversations(), 8000);
+    }
+};
+
+PetiteVue.createApp(state).mount('#app');
+state.mounted();
+</script>
+</body>
+</html>
